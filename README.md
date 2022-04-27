@@ -1,4 +1,4 @@
-# boardwalk-ts High Level Roadmap
+# boardwalk-ts roadmap
 
 ## How to use this document
 Every Episode is a development sprint. Each Episode consists of a set of Epics devs must work through in order to create the functionalities highlighted in the Episode.
