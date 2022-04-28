@@ -37,9 +37,9 @@ In Episode 1 of the pilot-season: Terminal is born!
 
 In episode 1, Frank is really excited to start using Swarm City. Whenever he gets excited by something, Frank throws himself whole hog into it. And so without delay he creates and posts his first request.
 
-Frank would like someone to translate his "Decentralise Now!" manifesto in exchange for 20 SWT. He posts this request in the marketplace known as #Settler, because #Settler is a place where early adopters go to do such things.
+Frank would like someone to translate his "Decentralise Now!" manifesto in exchange for 20 DAI. He posts this request in the marketplace known as #Settler, because #Settler is a place where early adopters go to do such things.
 
-Frank is on /new-request, filling in the description: "Translate my 1 page manifesto from English to Dutch." and the amount: "20 SWT". Frank sets the request's location to "Worldwide". 
+Frank is on /new-request, filling in the description: "Translate my 1 page manifesto from English to Dutch." and the amount: "20 DAI". Frank sets the request's location to "Worldwide". 
 
 After submitting his request, he sees it on page /hashtag (of #Settler). Frank taps on his item to see the detail. In the detail, he finds and then grabs the shareable link and posts it on Facebook.
 
