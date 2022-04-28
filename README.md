@@ -46,7 +46,7 @@ After submitting his request, he sees it on page /hashtag (of #Settler). Frank t
 Who, oh who, will respond to Frank's request?
 
 #### New epics in this episode:
-- [ ] As a seeker, I can post a new request in a hashtag, describing what I am asking for and how much SWT I am offering,  so providers can see what my need is.
+- [ ] As a seeker, I can post a new request in a hashtag, describing what I am asking for and how much SWT I am offering,  so providers can see what my need is. [1](https://github.com/swarmcity/boardwalk-ts/issues/1)
 
 
 - [ ] As a user, I can see all the items in a hashtag, so I know the activity of myself and other people.
