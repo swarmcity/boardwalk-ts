@@ -10,11 +10,11 @@ Once an Episode is completed, devs are free to move on to the ensuing Episode.
 ## Glossary
 Check out these articles to learn more about the general concepts of Swarm City.
 
-[Marketplaces](https://press.swarm.city/hashtags-revisited-694a7c9ff7a4)
-[Storefronts](https://press.swarm.city/storefront-15f4c2a28d6f)
-[Reputation](https://press.swarm.city/blockchain-reputation-promoting-good-actors-in-a-free-society-8f6117069cde)
-[Hives](https://press.swarm.city/hives-f4845639eccf)
-[Overview](https://thisis.swarm.city/)
+- [Marketplaces](https://press.swarm.city/hashtags-revisited-694a7c9ff7a4)
+- [Storefronts](https://press.swarm.city/storefront-15f4c2a28d6f)
+- [Reputation](https://press.swarm.city/blockchain-reputation-promoting-good-actors-in-a-free-society-8f6117069cde)
+- [Hives](https://press.swarm.city/hives-f4845639eccf)
+- [Overview](https://thisis.swarm.city/)
 
 ## Supporting documentation
 
