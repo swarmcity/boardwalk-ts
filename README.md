@@ -55,3 +55,18 @@ Who, oh who, will respond to Frank's request?
 - [ ] As a user, I see the detail-view of a request/deal I’m active in so I can verify all the details of this request/deal. [#3](https://github.com/swarmcity/boardwalk-ts/issues/3)
 
 
+## S01 E02: Request Replies
+
+In episode 2, two people reply to Frank's request.
+
+Alice sees Frank's request and taps it. Here Alice can see the details of the request, and she decides to reply.
+
+Tom is hanging out in Swarm City in the #Settler Marketplace, and he also sees Frank's request. He's intrigued, so he taps it to see the details. Tom decides to reply as well. 
+
+Frank sees the two replies. Who will he choose?
+
+#### New epics in this episode:
+- [ ] As a provider, I can reply to a request so I can express my interest in entering into the deal. #4
+
+- [ ] As a user, I can see replies to a request. #5
+
