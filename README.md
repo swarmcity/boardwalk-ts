@@ -66,7 +66,7 @@ Tom is hanging out in Swarm City in the #Settler Marketplace, and he also sees F
 Frank sees the two replies. Who will he choose?
 
 #### New epics in this episode:
-- [ ] As a provider, I can reply to a request so I can express my interest in entering into the deal. #4
+- [ ] As a provider I can reply to a request, so I can express my interest in entering into the deal. #4
 
-- [ ] As a user, I can see replies to a request. #5
+- [ ] As a user I can see replies to a request. #5
 
