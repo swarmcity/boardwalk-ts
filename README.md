@@ -46,15 +46,15 @@ After submitting his request, he sees it on page /marketplace (of #Settler). Fra
 Who, oh who, will respond to Frank's request?
 
 #### New epics in this episode:
-- [ ] Epic 1: As a user, I can see all marketplaces with the number of completed deals for each one, so I can see the activity in Swarm City. [#6](https://github.com/swarmcity/boardwalk-ts/issues/6)
+- [ ] Epic 1: As a user, I can see all marketplaces with the number of completed deals for each one, so I can see the activity in Swarm City. [Issue #6](https://github.com/swarmcity/boardwalk-ts/issues/6)
 
-- [ ] Epic 2: As a seeker, I can post a new request in a marketplace, describing what I am asking for and how much SWT I am offering, so providers can see what my need is. [#1](https://github.com/swarmcity/boardwalk-ts/issues/1)
-
-
-- [ ] Epic 3: As a user, I can see all the items in a marketplace, so I know my activity, and activity of other people. [#2](https://github.com/swarmcity/boardwalk-ts/issues/2)
+- [ ] Epic 2: As a seeker, I can post a new request in a marketplace, describing what I am asking for and how much SWT I am offering, so providers can see what my need is. [Issue #1](https://github.com/swarmcity/boardwalk-ts/issues/1)
 
 
-- [ ] Epic 4: As a user, I see the detail-view of a request/deal I’m active in so I can verify all the details of this request/deal. [#3](https://github.com/swarmcity/boardwalk-ts/issues/3)
+- [ ] Epic 3: As a user, I can see all the items in a marketplace, so I know my activity, and activity of other people. [Issue #2](https://github.com/swarmcity/boardwalk-ts/issues/2)
+
+
+- [ ] Epic 4: As a user, I see the detail-view of a request/deal I’m active in so I can verify all the details of this request/deal. [Issue #3](https://github.com/swarmcity/boardwalk-ts/issues/3)
 
 
 ## S01 E02: Request Replies
@@ -68,7 +68,7 @@ Tom is hanging out in Swarm City in the #Settler Marketplace, and he also sees F
 Frank sees the two replies. Who will he choose?
 
 #### New epics in this episode:
-- [ ] Epic 1: As a provider I can reply to a request, so I can express my interest in entering into the deal. [#4](https://github.com/swarmcity/boardwalk-ts/issues/4)
+- [ ] Epic 1: As a provider I can reply to a request, so I can express my interest in entering into the deal. [Issue #4](https://github.com/swarmcity/boardwalk-ts/issues/4)
 
-- [ ] Epic 2: As a user I can see replies to a request. [#5](https://github.com/swarmcity/boardwalk-ts/issues/5)
+- [ ] Epic 2: As a user I can see replies to a request. [Issue #5](https://github.com/swarmcity/boardwalk-ts/issues/5)
 
