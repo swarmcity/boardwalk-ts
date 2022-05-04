@@ -54,6 +54,8 @@ Who, oh who, will respond to Frank's request?
 
 - [ ] As a user, I see the detail-view of a request/deal I’m active in so I can verify all the details of this request/deal. [#3](https://github.com/swarmcity/boardwalk-ts/issues/3)
 
+- [ ]  As a user, I can see all marketplaces with the number of completed deals for each one, so I can see the activity in Swarm City. #4
+
 
 ## S01 E02: Request Replies
 
