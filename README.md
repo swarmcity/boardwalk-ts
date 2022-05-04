@@ -41,7 +41,7 @@ Frank would like someone to translate his "Decentralise Now!" manifesto in excha
 
 Frank is on /new-request, filling in the description: "Translate my 1 page manifesto from English to Dutch." and the amount: "20 DAI". Frank sets the request's location to "Worldwide". 
 
-After submitting his request, he sees it on page /hashtag (of #Settler). Frank taps on his item to see the detail. In the detail, he finds and then grabs the shareable link and posts it on Facebook.
+After submitting his request, he sees it on page /marketplace (of #Settler). Frank taps on his item to see the detail. In the detail, he finds and then grabs the shareable link and posts it around the web.
 
 Who, oh who, will respond to Frank's request?
 
