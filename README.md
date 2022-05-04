@@ -46,6 +46,8 @@ After submitting his request, he sees it on page /hashtag (of #Settler). Frank t
 Who, oh who, will respond to Frank's request?
 
 #### New epics in this episode:
+- [ ]  As a user, I can see all marketplaces with the number of completed deals for each one, so I can see the activity in Swarm City. #4
+
 - [ ] As a seeker, I can post a new request in a hashtag, describing what I am asking for and how much SWT I am offering,  so providers can see what my need is. [#1](https://github.com/swarmcity/boardwalk-ts/issues/1)
 
 
@@ -53,8 +55,6 @@ Who, oh who, will respond to Frank's request?
 
 
 - [ ] As a user, I see the detail-view of a request/deal I’m active in so I can verify all the details of this request/deal. [#3](https://github.com/swarmcity/boardwalk-ts/issues/3)
-
-- [ ]  As a user, I can see all marketplaces with the number of completed deals for each one, so I can see the activity in Swarm City. #4
 
 
 ## S01 E02: Request Replies
