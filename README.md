@@ -89,7 +89,7 @@ Will they successfully complete this deal, or is there a conflict waiting around
 - [ ] Epic 2: As a seeker, I choose one of the repliers to become my provider so we can enter into a deal. [Issue #8](https://github.com/swarmcity/boardwalk-ts/issues/8)
 
 
-- [ ] Epic 3: As a Provider, I accept and fund the deal, so the Seeker and I are engaged in a deal.
+- [ ] Epic 3: As a Provider, I accept and fund the deal, so the Seeker and I are engaged in a deal. [Issue #9](https://github.com/swarmcity/boardwalk-ts/issues/9)
 
 
 ## S01 E04: The Successful Deal
