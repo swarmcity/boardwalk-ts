@@ -104,5 +104,5 @@ Tom is ver excited he got pais because he knows it opens up a whole new world of
 - [ ] Epic 1: As a seeker, I payout the deal so the provider gets their funds, and reputation tokens are created for me and the provider. [Issue #10](https://github.com/swarmcity/boardwalk-ts/issues/10)
 
 
-- [ ] Epic 2: As a user, I can see my reputation in each marketplace, so I can get a sense of how other users might perceive me. Issue #11
+- [ ] Epic 2: As a user, I can see my reputation in each marketplace, so I can get a sense of how other users might perceive me. [Issue #11](https://github.com/swarmcity/boardwalk-ts/issues/11)
 
