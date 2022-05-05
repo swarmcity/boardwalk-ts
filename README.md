@@ -72,3 +72,37 @@ Frank sees the two replies. Who will he choose?
 
 - [ ] Epic 2: As a user I can see replies to a request. [Issue #5](https://github.com/swarmcity/boardwalk-ts/issues/5)
 
+## S01 E03: The Burden of Choice
+
+In episode 3, Frank has to decide who he wants to choose as a provider for his request.
+
+Frank gets to know the reputation of the repliers, Alice and Tom. Alice's reputation is sketchy, so he chooses Tom to become the provider.
+
+Tom is very happy, and agrees to the deal. 
+
+Will they successfully complete this deal, or is there a conflict waiting around the corner?
+
+#### New epics in this episode:
+- [ ] As a user, I see another user’s reputation so I can interpret it to decide how trustworthy the other user is.
+
+
+- [ ] As a seeker, I choose one of the repliers to become my provider so we can enter in a deal.
+
+
+- [ ] As a Provider, I accept and fund the deal, so the Seeker and I are engaged in a deal.
+
+
+## S01 E04: The Successful Deal
+
+In episode 4, Frank and Tom successfully complete their deal.
+
+When a deal is successfully completed both users gain reputation. Frank can view his new reputation, while Tom verifies that he received his paymnet. 
+
+Tom is ver excited he got pais because he knows it opens up a whole new world of possibilities. What will he do with his newly gained capital?
+
+#### New epics in this episode:
+- [ ] As a seeker, I payout the deal so the provider gets their funds, and reputation tokens are created for me and the provider.
+
+
+- [ ] As a user, I can see my reputation in each marketplace, so I can get a sense of how other users might perceive me.
+
