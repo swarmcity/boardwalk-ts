@@ -83,13 +83,13 @@ Tom is very happy, and agrees to the deal.
 Will they successfully complete this deal, or is there a conflict waiting around the corner?
 
 #### New epics in this episode:
-- [ ] As a user, I see another user’s reputation so I can interpret it to decide how trustworthy the other user is.
+- [ ] Epic 1: As a user, I see another user’s reputation so I can interpret it to decide how trustworthy the other user is.
 
 
-- [ ] As a seeker, I choose one of the repliers to become my provider so we can enter in a deal.
+- [ ] Epic 2: As a seeker, I choose one of the repliers to become my provider so we can enter in a deal.
 
 
-- [ ] As a Provider, I accept and fund the deal, so the Seeker and I are engaged in a deal.
+- [ ] Epic 3: As a Provider, I accept and fund the deal, so the Seeker and I are engaged in a deal.
 
 
 ## S01 E04: The Successful Deal
@@ -101,8 +101,8 @@ When a deal is successfully completed both users gain reputation. Frank can view
 Tom is ver excited he got pais because he knows it opens up a whole new world of possibilities. What will he do with his newly gained capital?
 
 #### New epics in this episode:
-- [ ] As a seeker, I payout the deal so the provider gets their funds, and reputation tokens are created for me and the provider.
+- [ ] Epic 1: As a seeker, I payout the deal so the provider gets their funds, and reputation tokens are created for me and the provider.
 
 
-- [ ] As a user, I can see my reputation in each marketplace, so I can get a sense of how other users might perceive me.
+- [ ] Epic 2: As a user, I can see my reputation in each marketplace, so I can get a sense of how other users might perceive me.
 
