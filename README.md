@@ -101,8 +101,8 @@ When a deal is successfully completed both users gain reputation. Frank can view
 Tom is ver excited he got pais because he knows it opens up a whole new world of possibilities. What will he do with his newly gained capital?
 
 #### New epics in this episode:
-- [ ] Epic 1: As a seeker, I payout the deal so the provider gets their funds, and reputation tokens are created for me and the provider.
+- [ ] Epic 1: As a seeker, I payout the deal so the provider gets their funds, and reputation tokens are created for me and the provider. [Issue #10](https://github.com/swarmcity/boardwalk-ts/issues/10)
 
 
-- [ ] Epic 2: As a user, I can see my reputation in each marketplace, so I can get a sense of how other users might perceive me.
+- [ ] Epic 2: As a user, I can see my reputation in each marketplace, so I can get a sense of how other users might perceive me. Issue #11
 
