@@ -37,11 +37,11 @@ In Episode 1 of the pilot-season: Terminal is born!
 
 In episode 1, Frank is really excited to start using Swarm City. Whenever he gets excited by something, Frank throws himself whole hog into it. And so without delay he creates and posts his first request.
 
-Frank would like someone to translate his "Decentralise Now!" manifesto in exchange for 20 DAI. He posts this request in the marketplace known as #Settler, because #Settler is a place where early adopters go to do such things.
+Frank would like someone to translate his "Decentralise Now!" manifesto in exchange for 33 DAI. He posts this request in the marketplace known as #Settler, because #Settler is a place where early adopters go to do such things.
 
-Frank is on /new-request, filling in the description: "Translate my 1 page manifesto from English to Dutch." and the amount: "20 DAI". Frank sets the request's location to "Worldwide". 
+Frank is on /new-request, filling in the description: "Translate my 1 page manifesto from English to Dutch." and the amount: "33 DAI". 
 
-After submitting his request, he sees it on page /marketplace (of #Settler). Frank taps on his item to see the detail. In the detail, he finds and then grabs the shareable link and posts it around the web.
+After submitting his request, he sees it on page /marketplace (of Settler). Frank taps on his item to see the detail. 
 
 Who, oh who, will respond to Frank's request?
 
@@ -61,9 +61,9 @@ Who, oh who, will respond to Frank's request?
 
 In episode 2, two people reply to Frank's request.
 
-Alice sees Frank's request and taps it. Here Alice can see the details of the request, and she decides to reply.
+Ellis sees Frank's request and taps it. Here Ellis can see the details of the request, and she decides to reply.
 
-Tom is hanging out in Swarm City in the #Settler Marketplace, and he also sees Frank's request. He's intrigued, so he taps it to see the details. Tom decides to reply as well. 
+Tom is hanging out in Swarm City in the Settler Marketplace, and he also sees Frank's request. He's intrigued, so he taps it to see the details. Tom decides to reply as well. 
 
 Frank sees the two replies. Who will he choose?
 
@@ -76,7 +76,7 @@ Frank sees the two replies. Who will he choose?
 
 In episode 3, Frank has to decide who he wants to choose as a provider for his request.
 
-Frank gets to know the reputation of the repliers, Alice and Tom. Alice's reputation is sketchy, so he chooses Tom to become the provider.
+Frank gets to know the reputation of the repliers, Ellis and Tom. Alice's reputation is sketchy, so he chooses Tom to become the provider.
 
 Tom is very happy, and agrees to the deal. 
 
@@ -98,7 +98,7 @@ In episode 4, Frank and Tom successfully complete their deal.
 
 When a deal is successfully completed both users gain reputation. Frank can view his new reputation, while Tom verifies that he received his paymnet. 
 
-Tom is ver excited he got pais because he knows it opens up a whole new world of possibilities. What will he do with his newly gained capital?
+Tom is very excited he got paid because he knows it opens up a whole new world of possibilities. What will he do with his newly gained capital?
 
 #### New epics in this episode:
 - [ ] Epic 1: As a seeker, I payout the deal so the provider gets their funds, and reputation tokens are created for me and the provider. [Issue #10](https://github.com/swarmcity/boardwalk-ts/issues/10)
