@@ -19,6 +19,7 @@ Check out these articles to learn more about the general concepts of Swarm City.
 ## Supporting documentation
 
 [Mobile Sketch Clickthrough](https://www.sketch.com/s/3f60e3a1-b49d-4486-9ac5-6474386697ac)
+[Desktop Sketch Clichthrough](https://www.sketch.com/s/9fcd9b69-467b-48b8-8b2c-7975fd5b4224)
 ___
 
 # Season 0 (Pilot)
