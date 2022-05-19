@@ -87,7 +87,7 @@ Will they successfully complete this deal, or is there a conflict waiting around
 - [ ] Epic 1: As a user, I see another user’s reputation so I can interpret it to decide how trustworthy the other user is. [Issue #7](https://github.com/swarmcity/boardwalk-ts/issues/7)
 
 
-- [ ] Epic 2: As a Seeker, I choose one of the repliers to become my provider so we can enter into a deal. [Issue #8](https://github.com/swarmcity/boardwalk-ts/issues/8)
+- [ ] Epic 2: As a Seeker, I choose one of the Repliers to become my Provider so we can enter into a deal. [Issue #8](https://github.com/swarmcity/boardwalk-ts/issues/8)
 
 
 - [ ] Epic 3: As a Provider, I accept and fund the deal, so the Seeker and I are engaged in a deal. [Issue #9](https://github.com/swarmcity/boardwalk-ts/issues/9)
