@@ -36,7 +36,7 @@ In Episode 1 of the pilot-season: Terminal is born!
 
 ## S01 E01: First Request
 
-In episode 1, Frank is really excited to start using Swarm City. Whenever he gets excited by something, Frank throws himself whole hog into it. And so without delay he creates and posts his first request.
+In Episode 1, Frank is really excited to start using Swarm City. Whenever he gets excited by something, Frank throws himself whole hog into it. And so without delay he creates and posts his first request.
 
 Frank would like someone to translate his "Decentralise Now!" manifesto in exchange for 33 DAI. He posts this request in the marketplace known as #Settler, because #Settler is a place where early adopters go to do such things.
 
@@ -60,7 +60,7 @@ Who, oh who, will respond to Frank's request?
 
 ## S01 E02: Request Replies
 
-In episode 2, two people reply to Frank's request.
+In Episode 2, two people reply to Frank's request.
 
 Ellis sees Frank's request and taps it. Here Ellis can see the details of the request, and she decides to reply.
 
@@ -75,7 +75,7 @@ Frank sees the two replies. Who will he choose?
 
 ## S01 E03: The Burden of Choice
 
-In episode 3, Frank has to decide who he wants to choose as a provider for his request.
+In Episode 3, Frank has to decide who he wants to choose as a provider for his request.
 
 Frank gets to know the reputation of the repliers, Ellis and Tom. Alice's reputation is sketchy, so he chooses Tom to become the provider.
 
@@ -95,7 +95,7 @@ Will they successfully complete this deal, or is there a conflict waiting around
 
 ## S01 E04: The Successful Deal
 
-In episode 4, Frank and Tom successfully complete their deal.
+In Episode 4, Frank and Tom successfully complete their deal.
 
 When a deal is successfully completed both users gain reputation. Frank can view his new reputation, while Tom verifies that he received his paymnet. 
 
