@@ -49,7 +49,7 @@ Who, oh who, will respond to Frank's request?
 #### New epics in this episode:
 - [ ] Epic 1: As a user, I can see all marketplaces with the number of completed deals for each one, so I can see the activity in Swarm City. [Issue #6](https://github.com/swarmcity/boardwalk-ts/issues/6)
 
-- [ ] Epic 2: As a Seeker, I can post a new request in a marketplace, describing what I am asking for and how much SWT I am offering, so providers can see what my need is. [Issue #1](https://github.com/swarmcity/boardwalk-ts/issues/1)
+- [ ] Epic 2: As a Seeker, I can post a new request in a marketplace, describing what I am asking for and how much DAI I am offering, so providers can see what my need is. [Issue #1](https://github.com/swarmcity/boardwalk-ts/issues/1)
 
 
 - [ ] Epic 3: As a user, I can see all the items in a marketplace, so I know my activity, and activity of other people. [Issue #2](https://github.com/swarmcity/boardwalk-ts/issues/2)
