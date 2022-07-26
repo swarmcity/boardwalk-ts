@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;700;800;900&display=swap');
+.baseShadow {
+	box-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.5);
+	-o-box-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.5);
+}

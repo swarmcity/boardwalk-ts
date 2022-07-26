@@ -1,0 +1,73 @@
+.fullscreen-loading {
+	outline: none;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	color: #fafafa;
+	padding: 75px 0;
+}
+
+.fullscreen-loading header {
+	padding: 50px 0;
+}
+
+.loading {
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.loading > div {
+	width: 5px;
+	height: 5px;
+	background: white;
+	margin: 2px;
+	-webkit-animation: dot 1.2s linear infinite;
+	animation: dot 1.2s linear infinite;
+	border-radius: 20px;
+}
+
+@media screen and (min-width: 768px) {
+	.loading > div {
+		width: 10px;
+		height: 10px;
+	}
+}
+
+.loading > div:nth-child(2) {
+	-webkit-animation-delay: 0.4s;
+	animation-delay: 0.4s;
+}
+
+.loading > div:nth-child(3) {
+	-webkit-animation-delay: 0.8s;
+	animation-delay: 0.8s;
+}
+
+@-webkit-keyframes dot {
+	0% {
+		transform: scale(0);
+	}
+	50% {
+		transform: scale(1);
+	}
+	100% {
+		transform: scale(0);
+	}
+}
+
+@keyframes dot {
+	0% {
+		transform: scale(0);
+	}
+	50% {
+		transform: scale(1);
+	}
+	100% {
+		transform: scale(0);
+	}
+}
