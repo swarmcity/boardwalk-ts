@@ -1,5 +1,5 @@
 {
-	"name": "@swarmcity/terminal-ts",
+	"name": "@swarmcity/boardwalk-ts",
 	"version": "0.0.0",
 	"scripts": {
 		"prepare": "husky install",
