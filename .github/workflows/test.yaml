@@ -32,13 +32,10 @@ jobs:
 
       - name: Install npm deps
         if: steps.cache-npm.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm ci --force
 
       - name: Run linting test
         run: npm run lint
 
       - name: Prettier check
         run: npm run prettier:check
-
-      - name: Run Unit and End-to-End Tests
-        run: npm run test

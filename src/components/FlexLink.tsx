@@ -24,8 +24,8 @@ export function FlexLink<TState>({
 	}
 
 	if (to) {
-		return <Link to={to} {...(other as unknown)} />
+		return <Link to={to} {...(other as object)} />
 	}
 
-	return <a href={href} {...(other as unknown)} />
+	return <a href={href} {...(other as object)} />
 }
