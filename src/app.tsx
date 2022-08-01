@@ -14,6 +14,7 @@ import { Account } from './pages/account'
 import { AccountRestore } from './pages/account-restore'
 import { AccountWallet } from './pages/user-wallet/wallet'
 import { AccountPublicWallet } from './pages/user-wallet/public'
+import { UiLibTest } from './pages/ui-lib-test'
 
 // Components
 import { PasswordSigner } from './components/modals/password-signer'
@@ -94,6 +95,7 @@ export const App = () => {
 				<Home path={ROUTES.HOME} />
 				<AccountWallet path={`${ROUTES.ACCOUNT_WALLET}/*`} />
 				<AccountPublicWallet path={ROUTES.ACCOUNT_PUBLIC_WALLET} />
+				<UiLibTest path="/ui-lib-test" />
 			</Router>
 		</WagmiConfig>
 	)
