@@ -20,12 +20,12 @@ type Props = RouteComponentProps
 export const Account = (_: Props) => {
 	const [profile, setProfile] = useStore.profile()
 
-	const { activeChain } = useNetwork()
-	const symbol = activeChain?.nativeCurrency?.symbol
+	const { chain } = useNetwork()
+	const symbol = chain?.nativeCurrency?.symbol
 
-	const { data: account } = useAccount()
+	const { address } = useAccount()
 	const { data: balance } = useBalance({
-		addressOrName: account?.address,
+		addressOrName: address,
 		watch: true,
 	})
 

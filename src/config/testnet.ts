@@ -11,7 +11,7 @@ export const WAGMI_CHAIN: Chain = {
 	...chain.goerli,
 	rpcUrls: {
 		default: `https://${ALCHEMY_URL}/v2/${ALCHEMY_TOKEN}`,
-		websocket: `wss://${ALCHEMY_URL}/v2/${ALCHEMY_TOKEN}`,
+		webSocket: `wss://${ALCHEMY_URL}/v2/${ALCHEMY_TOKEN}`,
 	},
 }
 

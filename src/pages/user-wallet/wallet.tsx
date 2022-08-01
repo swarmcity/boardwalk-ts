@@ -1,6 +1,12 @@
 import { useState } from 'preact/hooks'
 import { Link, navigate, Redirect, Router } from '@reach/router'
-import { useAccount, useBalance, useNetwork, useSendTransaction } from 'wagmi'
+import {
+	useAccount,
+	useBalance,
+	useNetwork,
+	usePrepareSendTransaction,
+	useSendTransaction,
+} from 'wagmi'
 import { getAddress } from '@ethersproject/address'
 import { parseEther } from '@ethersproject/units'
 
@@ -28,8 +34,8 @@ import {
 import type { RouteComponentProps } from '@reach/router'
 
 const Menu = (_: RouteComponentProps) => {
-	const { activeChain } = useNetwork()
-	const symbol = activeChain?.nativeCurrency?.symbol
+	const { chain } = useNetwork()
+	const symbol = chain?.nativeCurrency?.symbol
 
 	return (
 		<div class="flex-space">
@@ -69,11 +75,12 @@ const Send = (_: RouteComponentProps) => {
 	const [address, setAddress] = useState('')
 	const { to, value, isValid } = formatRequest({ amount, address })
 
-	const { activeChain } = useNetwork()
-	const symbol = activeChain?.nativeCurrency?.symbol
+	const { chain } = useNetwork()
+	const symbol = chain?.nativeCurrency?.symbol
 
+	const { config } = usePrepareSendTransaction({ request: { to, value } })
 	const { isLoading, isError, isSuccess, error, sendTransaction, reset } =
-		useSendTransaction({ request: { to, value } })
+		useSendTransaction(config)
 
 	const submit = () => setShowConfirm(isValid)
 
@@ -111,7 +118,11 @@ const Send = (_: RouteComponentProps) => {
 		return (
 			<ConfirmModal
 				cancel={{ onClick: () => setShowConfirm(false) }}
-				confirm={{ onClick: () => sendTransaction(), variant: 'check' }}
+				confirm={{
+					onClick: () => sendTransaction?.(),
+					variant: 'check',
+					disabled: !sendTransaction,
+				}}
 			>
 				<h1 style={{ color: '#fafafa' }}>
 					Send{' '}
@@ -165,12 +176,12 @@ const Send = (_: RouteComponentProps) => {
 export const AccountWallet = (_: RouteComponentProps) => {
 	const [profile] = useStore.profile()
 
-	const { activeChain } = useNetwork()
-	const symbol = activeChain?.nativeCurrency?.symbol
+	const { chain } = useNetwork()
+	const symbol = chain?.nativeCurrency?.symbol
 
-	const { data: account } = useAccount()
+	const { address } = useAccount()
 	const { data: balance } = useBalance({
-		addressOrName: account?.address,
+		addressOrName: address,
 		watch: true,
 	})
 
