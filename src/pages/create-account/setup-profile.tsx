@@ -14,16 +14,14 @@ import { UserCreateStop } from '../../components/modals/user-create-stop'
 import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Types
-import type { JSXInternal } from 'preact/src/jsx'
 import type { RouteComponentProps } from '@reach/router'
+import type { EventHandler } from '../../types/dom'
 
 type Props = RouteComponentProps
 
 export const SetupProfile = (_: Props) => {
 	const [profile, setProfile] = useStore.profile()
-	const onSubmit = (
-		event: JSXInternal.TargetedEvent<HTMLFormElement, Event>
-	) => {
+	const onSubmit = (event: EventHandler<HTMLFormElement>) => {
 		event.preventDefault()
 		navigate(ACCOUNT_PASSWORD)
 	}

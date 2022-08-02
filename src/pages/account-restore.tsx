@@ -14,9 +14,9 @@ import { ACCOUNT } from '../routes'
 import { UserCreateStop } from '../components/modals/user-create-stop'
 
 // Types
-import type { JSXInternal } from 'preact/src/jsx'
 import type { Profile } from '../types/profile'
 import type { RouteComponentProps } from '@reach/router'
+import type { EventHandler } from '../types/dom'
 
 type Props = RouteComponentProps
 
@@ -25,9 +25,7 @@ export const AccountRestore = (_: Props) => {
 	const [restoredProfile, setRestoredProfile] = useState<Profile | null>(null)
 	const [confirmed, setConfirmed] = useState(false)
 
-	const onFileChange = async (
-		event: JSXInternal.TargetedEvent<HTMLInputElement, Event>
-	) => {
+	const onFileChange = async (event: EventHandler<HTMLInputElement>) => {
 		if (!(event.target instanceof HTMLInputElement)) {
 			return
 		}

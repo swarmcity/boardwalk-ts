@@ -2,14 +2,11 @@ import { Link } from '@reach/router'
 
 // Types
 import type { LinkProps } from '@reach/router'
-import type { JSXInternal } from 'preact/src/jsx'
+import type { HTMLAttributes } from '../types/dom'
 
 export interface FlexLinkProps<TState>
 	extends Omit<LinkProps<TState>, 'ref' | 'to' | 'onClick'>,
-		Pick<
-			JSXInternal.HTMLAttributes<HTMLAnchorElement>,
-			'href' | 'ref' | 'onClick'
-		> {
+		Pick<HTMLAttributes<HTMLAnchorElement>, 'href' | 'ref' | 'onClick'> {
 	to?: LinkProps<TState>['to']
 }
 

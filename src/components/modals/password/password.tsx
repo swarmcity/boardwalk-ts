@@ -16,7 +16,7 @@ import classes from './password.module.css'
 import { useStore } from '../../../store'
 
 // Types
-import type { JSXInternal } from 'preact/src/jsx'
+import type { EventHandler } from '../../../types/dom'
 
 type PasswordModalProps = {
 	show?: boolean
@@ -49,9 +49,7 @@ export const PasswordModal = ({
 		return null
 	}
 
-	const decrypt = async (
-		event: JSXInternal.TargetedEvent<HTMLElement, Event>
-	) => {
+	const decrypt = async (event: EventHandler<HTMLElement>) => {
 		event.preventDefault()
 
 		setLoading(true)

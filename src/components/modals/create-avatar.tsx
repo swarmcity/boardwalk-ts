@@ -6,7 +6,9 @@ import checkMarkBlue from '../../assets/imgs/checkMarkBlue.svg?url'
 import iconRotate from '../../assets/imgs/iconRotate.svg?url'
 import { blobToDataURL } from '../../lib/canvas'
 import { Cropper, CropperRef } from '../cropper'
-import { JSXInternal } from 'preact/src/jsx'
+
+// Types
+import type { EventHandler } from '../../types/dom'
 
 interface Props {
 	children: JSX.Element | JSX.Element[]
@@ -20,9 +22,7 @@ export const CreateAvatar = ({ children }: Props) => {
 
 	const [profile, setProfile] = useStore.profile()
 
-	const onFileChange = async (
-		event: JSXInternal.TargetedEvent<HTMLInputElement, Event>
-	) => {
+	const onFileChange = async (event: EventHandler<HTMLInputElement>) => {
 		if (!(event.target instanceof HTMLInputElement)) {
 			return
 		}

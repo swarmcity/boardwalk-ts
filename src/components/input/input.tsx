@@ -1,9 +1,10 @@
-import { JSXInternal } from 'preact/src/jsx'
+// Types
+import type { HTMLAttributes } from '../../types/dom'
 
 // Style
 import classes from './input.module.css'
 
-export type InputProps = JSXInternal.HTMLAttributes<HTMLInputElement> & {
+export type InputProps = HTMLAttributes<HTMLInputElement> & {
 	id: string
 }
 

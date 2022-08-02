@@ -4,9 +4,9 @@ import { useState } from 'preact/hooks'
 import classes from './copy-link.module.css'
 
 // Types
-import type { JSXInternal } from 'preact/src/jsx'
+import type { HTMLAttributes } from '../../types/dom'
 
-interface CopyLinkProps extends JSXInternal.HTMLAttributes<HTMLAnchorElement> {
+interface CopyLinkProps extends HTMLAttributes<HTMLAnchorElement> {
 	text: string
 }
 
