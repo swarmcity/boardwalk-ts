@@ -1,6 +1,5 @@
 // Types
 import type { Chain } from 'wagmi'
-import type { Networkish } from '@ethersproject/networks'
 
 const BLOCK_EXPLORER = {
 	name: 'BlockScout',
@@ -23,9 +22,4 @@ export const WAGMI_CHAIN: Chain = {
 	blockExplorers: {
 		default: BLOCK_EXPLORER,
 	},
-}
-
-export const WAGMI_NETWORK: Networkish = {
-	chainId: WAGMI_CHAIN.id,
-	name: WAGMI_CHAIN.name,
 }

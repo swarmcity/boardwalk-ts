@@ -1,1 +1,1 @@
-export { WAGMI_CHAIN, WAGMI_NETWORK } from './testnet'
+export { WAGMI_CHAIN } from './testnet'
