@@ -9,7 +9,7 @@ import { ButtonRoundArrow } from '../../components/button-round-arrow'
 import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 
 // Store and routes
-import { ACCOUNT } from '../../routes'
+import { MARKETPLACES } from '../../routes'
 import { useStore } from '../../store'
 
 export const Backup = () => {
@@ -91,7 +91,7 @@ export const Backup = () => {
 						</a>
 					</div>
 					<div className="btns">
-						<Link className="btn btn-light" to={ACCOUNT}>
+						<Link className="btn btn-light" to={MARKETPLACES}>
 							enter swarm.city
 						</Link>
 					</div>

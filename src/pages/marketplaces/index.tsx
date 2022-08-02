@@ -1,21 +1,25 @@
 import { useAccount, useBalance, useNetwork } from 'wagmi'
-import { Link } from 'react-router-dom'
+import { Link, Routes, Route } from 'react-router-dom'
 
 // Routes and store
-import { ACCOUNT_WALLET, LOGIN } from '../routes'
-import { useStore } from '../store'
+import { ACCOUNT_WALLET, LOGIN } from '../../routes'
+import { useStore } from '../../store'
+
+// Components
+import { MarketplaceList } from './list'
+import { Marketplace } from './marketplace'
 
 // Components
 import { Redirect } from '../components/redirect'
 
 // Lib
-import { formatBalance } from '../lib/tools'
+import { formatBalance } from '../../lib/tools'
 
 // Assets
-import avatarDefault from '../assets/imgs/avatar.svg?url'
-import exit from '../assets/imgs/exit.svg?url'
+import avatarDefault from '../../assets/imgs/avatar.svg?url'
+import exit from '../../assets/imgs/exit.svg?url'
 
-export const Account = () => {
+export const Marketplaces = () => {
 	const [profile, setProfile] = useStore.profile()
 
 	const { chain } = useNetwork()
@@ -54,6 +58,11 @@ export const Account = () => {
 						</figcaption>
 					</figure>
 				</main>
+
+				<Routes>
+					<Route element={<MarketplaceList />} path="/" />
+					<Route element={<Marketplace />} path="/:id" />
+				</Routes>
 			</div>
 		</div>
 	)

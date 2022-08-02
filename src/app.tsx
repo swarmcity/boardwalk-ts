@@ -10,7 +10,7 @@ import { SetupProfile } from './pages/create-account/setup-profile'
 import { AccountCreated } from './pages/create-account/created'
 import { ChoosePassword } from './pages/create-account/choose-password'
 import { Backup } from './pages/create-account/backup'
-import { Account } from './pages/account'
+import { Marketplaces } from './pages/marketplaces'
 import { AccountRestore } from './pages/account-restore'
 import { AccountWallet } from './pages/user-wallet/wallet'
 import { AccountPublicWallet } from './pages/user-wallet/public'
@@ -98,7 +98,7 @@ export const App = () => {
 				<Route element={<AccountCreated />} path={ROUTES.ACCOUNT_CREATED} />
 				<Route element={<ChoosePassword />} path={ROUTES.ACCOUNT_PASSWORD} />
 				<Route element={<Backup />} path={ROUTES.ACCOUNT_BACKUP} />
-				<Route element={<Account />} path={ROUTES.ACCOUNT} />
+				<Route element={<Marketplaces />} path={`${ROUTES.MARKETPLACES}/*`} />
 				<Route element={<AccountRestore />} path={ROUTES.ACCOUNT_RESTORE} />
 				<Route element={<Home />} path={ROUTES.HOME} />
 				<Route
