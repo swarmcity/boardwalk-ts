@@ -1,3 +1,5 @@
+import { navigate } from '@reach/router'
+
 // Store and routes
 import { useStore } from '../../store'
 import { ACCOUNT_PASSWORD } from '../../routes'
@@ -12,12 +14,19 @@ import { UserCreateStop } from '../../components/modals/user-create-stop'
 import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Types
+import type { JSXInternal } from 'preact/src/jsx'
 import type { RouteComponentProps } from '@reach/router'
 
 type Props = RouteComponentProps
 
 export const SetupProfile = (_: Props) => {
 	const [profile, setProfile] = useStore.profile()
+	const onSubmit = (
+		event: JSXInternal.TargetedEvent<HTMLFormElement, Event>
+	) => {
+		event.preventDefault()
+		navigate(ACCOUNT_PASSWORD)
+	}
 
 	return (
 		<div class="bg-gray-lt choose-username">
@@ -38,7 +47,7 @@ export const SetupProfile = (_: Props) => {
 								</a>
 							</figure>
 						</CreateAvatar>
-						<form>
+						<form onSubmit={onSubmit}>
 							<label for="username" class="form-label">
 								Username
 							</label>
