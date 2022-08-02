@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { Router } from '@reach/router'
-import { JsonRpcProvider, WebSocketProvider } from '@ethersproject/providers'
-import { WagmiConfig, createClient } from 'wagmi'
+import { WagmiConfig, createClient, configureChains, Chain } from 'wagmi'
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 
 // Pages
 import { Login } from './pages/login'
@@ -21,7 +21,7 @@ import { PasswordSigner } from './components/modals/password-signer'
 // Routes, store and config
 import * as ROUTES from './routes'
 import { useStore } from './store'
-import { WAGMI_CHAIN, WAGMI_NETWORK } from './config'
+import { WAGMI_CHAIN } from './config'
 
 // Lib
 import { EthersConnector } from './lib/ethers-injector'
@@ -30,6 +30,18 @@ import { AccountManager } from './lib/account-manager'
 // Types
 import type { PasswordSignerRef } from './components/modals/password-signer'
 import type { Ref } from 'preact/hooks'
+
+const { provider, webSocketProvider } = configureChains(
+	[WAGMI_CHAIN],
+	[
+		jsonRpcProvider({
+			rpc: (chain: Chain) => ({
+				http: chain.rpcUrls.default,
+				webSocket: chain.rpcUrls.webSocket,
+			}),
+		}),
+	]
+)
 
 const accountManager = new AccountManager()
 const getClient = (ref: Ref<PasswordSignerRef>) => {
@@ -48,11 +60,8 @@ const getClient = (ref: Ref<PasswordSignerRef>) => {
 				},
 			}),
 		],
-		provider: new JsonRpcProvider(WAGMI_CHAIN.rpcUrls.default, WAGMI_NETWORK),
-		webSocketProvider: new WebSocketProvider(
-			WAGMI_CHAIN.rpcUrls.websocket,
-			WAGMI_NETWORK
-		),
+		provider,
+		webSocketProvider,
 	})
 }
 

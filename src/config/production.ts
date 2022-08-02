@@ -17,7 +17,7 @@ export const WAGMI_CHAIN: Chain = {
 		decimals: 18,
 	},
 	rpcUrls: {
-		websocket: 'wss://rpc.gnosischain.com/wss',
+		webSocket: 'wss://rpc.gnosischain.com/wss',
 		default: 'https://rpc.ankr.com/gnosis',
 	},
 	blockExplorers: {
