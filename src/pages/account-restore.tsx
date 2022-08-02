@@ -8,7 +8,7 @@ import cancel from '../assets/imgs/cancel.svg?url'
 
 // Store and routes
 import { useStore } from '../store'
-import { ACCOUNT } from '../routes'
+import { MARKETPLACES } from '../routes'
 
 // Components
 import { UserCreateStop } from '../components/modals/user-create-stop'
@@ -122,7 +122,7 @@ export const AccountRestore = () => {
 						<p className="username">{profile?.username}</p>
 					</div>
 					<div className="btns">
-						<Link className="btn btn-light" to={ACCOUNT}>
+						<Link className="btn btn-light" to={MARKETPLACES}>
 							enter swarm.city
 						</Link>
 					</div>

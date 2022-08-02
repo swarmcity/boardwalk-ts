@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 // Store and routes
-import { ACCOUNT, LOGIN } from '../routes'
+import { LOGIN, MARKETPLACES } from '../routes'
 import { useStore } from '../store'
 
 // Assets
@@ -28,7 +28,7 @@ export const Home = () => {
 							</div>
 							<Link
 								className="btn btn-warning"
-								to={hasProfile ? ACCOUNT : LOGIN}
+								to={hasProfile ? MARKETPLACES : LOGIN}
 							>
 								enter here
 							</Link>

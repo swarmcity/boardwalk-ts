@@ -25,10 +25,10 @@ import { formatAddressShort, formatBalance } from '../../lib/tools'
 import { useStore } from '../../store'
 import {
 	LOGIN,
-	ACCOUNT,
 	ACCOUNT_PUBLIC_WALLET,
 	ACCOUNT_WALLET_SEND,
 	ACCOUNT_WALLET,
+	MARKETPLACES,
 } from '../../routes'
 
 const Menu = () => {
@@ -191,7 +191,7 @@ export const AccountWallet = () => {
 	return (
 		<div className="bg-gray-lt user-wallet">
 			<div className="close">
-				<ButtonClose to={ACCOUNT} variant="dark" />
+				<ButtonClose to={MARKETPLACES} variant="dark" />
 			</div>
 			<div className="container">
 				<div className="flex-space">
