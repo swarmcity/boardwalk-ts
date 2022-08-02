@@ -1,3 +1,8 @@
+import { Link } from '@reach/router'
+
+// Routes
+import { MARKETPLACE_ADD } from '../../routes'
+
 // Types
 import type { RouteComponentProps } from '@reach/router'
 
@@ -47,11 +52,15 @@ type MarketplaceProps = RouteComponentProps & {
 	id?: string
 }
 
-export const Marketplace = (_: MarketplaceProps) => {
+export const Marketplace = ({ id }: MarketplaceProps) => {
+	if (!id) {
+		throw new Error('no id')
+	}
+
 	return (
 		<div>
 			<h2>{hashtag.name}</h2>
-			<a href="#">Add</a>
+			<Link to={MARKETPLACE_ADD(id)}>Add</Link>
 			<div>
 				{hashtag.items.map((item, index) => (
 					<div key={index}>
