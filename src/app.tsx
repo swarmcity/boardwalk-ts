@@ -31,7 +31,7 @@ import { AccountManager } from './lib/account-manager'
 import type { PasswordSignerRef } from './components/modals/password-signer'
 import type { Ref } from 'preact/hooks'
 
-const { provider, webSocketProvider } = configureChains(
+const { chains, provider, webSocketProvider } = configureChains(
 	[WAGMI_CHAIN],
 	[
 		jsonRpcProvider({
@@ -48,7 +48,7 @@ const getClient = (ref: Ref<PasswordSignerRef>) => {
 	return createClient({
 		connectors: [
 			new EthersConnector({
-				chains: [WAGMI_CHAIN],
+				chains,
 				options: {
 					accountManager,
 					getSigner: async () => {
