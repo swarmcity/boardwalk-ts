@@ -23,3 +23,5 @@ export const WAGMI_CHAIN: Chain = {
 		default: BLOCK_EXPLORER,
 	},
 }
+
+export const HASHTAG_FACTORY = ''

@@ -1,1 +1,1 @@
-export { WAGMI_CHAIN } from './testnet'
+export { WAGMI_CHAIN, HASHTAG_FACTORY } from './testnet'

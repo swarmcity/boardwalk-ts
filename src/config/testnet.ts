@@ -13,3 +13,5 @@ export const WAGMI_CHAIN: Chain = {
 		webSocket: `wss://${ALCHEMY_URL}/v2/${ALCHEMY_TOKEN}`,
 	},
 }
+
+export const HASHTAG_FACTORY = '0x5b6d261880b695c2cfcec6b92bc7abd09210b38a'
