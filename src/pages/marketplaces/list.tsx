@@ -1,10 +1,12 @@
 import { navigate } from '@reach/router'
+import { useContractEvent } from 'wagmi'
 
 // Types
 import type { RouteComponentProps } from '@reach/router'
 
-// Routes
+// Routes and config
 import { MARKETPLACE } from '../../routes'
+import { HASHTAG_FACTORY } from '../../config'
 
 const hashtags = [
 	{ id: '1', name: 'Settler', deals: 40 },
@@ -15,6 +17,39 @@ const hashtags = [
 type MarketplaceListProps = RouteComponentProps
 
 export const MarketplaceList = (_: MarketplaceListProps) => {
+	useContractEvent({
+		addressOrName: HASHTAG_FACTORY,
+		contractInterface: [
+			{
+				anonymous: false,
+				inputs: [
+					{
+						indexed: true,
+						internalType: 'address',
+						name: 'addr',
+						type: 'address',
+					},
+					{
+						indexed: true,
+						internalType: 'string',
+						name: 'name',
+						type: 'string',
+					},
+					{
+						indexed: true,
+						internalType: 'string',
+						name: 'metadata',
+						type: 'string',
+					},
+				],
+				name: 'HashtagCreated',
+				type: 'event',
+			},
+		],
+		eventName: 'HashtagCreated',
+		listener: (event) => console.log(event),
+	})
+
 	return (
 		<div>
 			{hashtags.map(({ id, name, deals }) => (
