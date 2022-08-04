@@ -1,8 +1,8 @@
-import { useState } from 'preact/hooks'
+import { useState } from 'react'
 
 // Types
 import type { RouteComponentProps } from '@reach/router'
-import type { EventHandler } from '../../types/dom'
+import type { FormEvent } from 'react'
 
 type MarketplaceListItemProps = RouteComponentProps
 
@@ -10,7 +10,7 @@ export const MarketplaceListItem = (_: MarketplaceListItemProps) => {
 	const [description, setDescription] = useState<string>()
 	const [price, setPrice] = useState<number>()
 
-	const onSubmit = (event: EventHandler<HTMLFormElement>) => {
+	const onSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		console.log({ description, price })
 	}
