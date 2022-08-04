@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
@@ -45,11 +45,8 @@ const hashtag = {
 	],
 }
 
-type MarketplaceProps = {
-	id?: string
-}
-
-export const Marketplace = ({ id }: MarketplaceProps) => {
+export const Marketplace = () => {
+	const { id } = useParams<string>()
 	if (!id) {
 		throw new Error('no id')
 	}
