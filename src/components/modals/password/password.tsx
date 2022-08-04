@@ -6,8 +6,8 @@ import { Wallet } from 'ethers'
 import avatarImage from '../../../assets/imgs/avatar.svg?url'
 
 // Components
-import { ButtonRoundArrow } from '../../ButtonRoundArrow'
-import { ButtonClose } from '../../ButtonClose'
+import { ButtonRoundArrow } from '../../button-round-arrow'
+import { ButtonClose } from '../../button-close'
 
 // Style
 import classes from './password.module.css'

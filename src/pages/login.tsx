@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ButtonClose } from '../components/ButtonClose'
+import { ButtonClose } from '../components/button-close'
 import { ACCOUNT_RESTORE, CREATE_ACCOUNT, HOME } from '../routes'
 
 export const Login = () => (

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 // Components
 import { UserCreateStop } from '../../components/modals/user-create-stop'
-import { ButtonRoundArrow } from '../../components/ButtonRoundArrow'
+import { ButtonRoundArrow } from '../../components/button-round-arrow'
 
 // Assets
 import warningBlue from '../../assets/imgs/warningBlue.svg?url'
