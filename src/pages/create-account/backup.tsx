@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from '@reach/router'
 
 // Components
@@ -45,16 +45,16 @@ export const Backup = (_: Props) => {
 
 	if (showPrompt) {
 		return (
-			<div class="bg-gray-lt download-file">
-				<div class="close">
+			<div className="bg-gray-lt download-file">
+				<div className="close">
 					<UserCreateStop />
 				</div>
-				<div class="container">
-					<main class="flex-space">
+				<div className="container">
+					<main className="flex-space">
 						<header>
 							<h1>Back up your account</h1>
 						</header>
-						<div class="warning-box">
+						<div className="warning-box">
 							<img src={warningBlue} />
 							<div>
 								<p>
@@ -73,12 +73,12 @@ export const Backup = (_: Props) => {
 	}
 
 	return (
-		<div class="bg-gray-lt download-success">
-			<div class="close">
+		<div className="bg-gray-lt download-success">
+			<div className="close">
 				<UserCreateStop />
 			</div>
-			<div class="container">
-				<main class="flex-space">
+			<div className="container">
+				<main className="flex-space">
 					<header>
 						<h1>Save the file in a safe location</h1>
 						<p>
@@ -91,11 +91,11 @@ export const Backup = (_: Props) => {
 						</p>
 					</header>
 					<div>
-						<a onClick={() => downloadFile()} class="link">
+						<a onClick={() => downloadFile()} className="link">
 							force download
 						</a>
 					</div>
-					<div class="btns">
+					<div className="btns">
 						<Link className="btn btn-light" to={ACCOUNT}>
 							enter swarm.city
 						</Link>

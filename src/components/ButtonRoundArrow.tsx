@@ -48,7 +48,7 @@ export function ButtonRoundArrow<TState>({
 
 	if (disabled)
 		return (
-			<span class={classes} style={{ cursor: 'not-allowed', opacity: 0.5 }}>
+			<span className={classes} style={{ cursor: 'not-allowed', opacity: 0.5 }}>
 				{img}
 			</span>
 		)

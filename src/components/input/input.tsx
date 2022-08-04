@@ -1,16 +1,16 @@
 // Types
-import type { HTMLAttributes } from '../../types/dom'
+import type { InputHTMLAttributes } from 'react'
 
 // Style
 import classes from './input.module.css'
 
-export type InputProps = HTMLAttributes<HTMLInputElement> & {
+export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 	id: string
 }
 
 export const Input = ({ id, children, ...props }: InputProps) => (
-	<div class={classes.inputGroup}>
+	<div className={classes.inputGroup}>
 		<input id={id} required {...props} />
-		<label for={id}>{children}</label>
+		<label htmlFor={id}>{children}</label>
 	</div>
 )

@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks'
+import { useState } from 'react'
 import { Link } from '@reach/router'
 
 // Components
@@ -21,7 +21,7 @@ export const UserCreateStop = () => {
 
 	return (
 		<div
-			class="bg-danger py-60 stop-creating"
+			className="bg-danger py-60 stop-creating"
 			style={{
 				width: '100vw',
 				height: '100vh',
@@ -32,12 +32,12 @@ export const UserCreateStop = () => {
 				top: 0,
 			}}
 		>
-			<div class="container">
-				<main class="flex-space">
+			<div className="container">
+				<main className="flex-space">
 					<header>
 						<h1 style={{ color: 'white' }}>Stop creating user account?</h1>
 					</header>
-					<div class="btns">
+					<div className="btns">
 						<ButtonClose onClick={() => setShown(false)} />
 						<Link className="btn-icon" to={LOGIN} onClick={() => setProfile()}>
 							<img src={checkMarkRed} />

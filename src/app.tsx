@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Router } from '@reach/router'
 import { WagmiConfig, createClient, configureChains, Chain } from 'wagmi'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
@@ -29,7 +29,7 @@ import { AccountManager } from './lib/account-manager'
 
 // Types
 import type { PasswordSignerRef } from './components/modals/password-signer'
-import type { Ref } from 'preact/hooks'
+import type { RefObject } from 'react'
 
 const { chains, provider, webSocketProvider } = configureChains(
 	[WAGMI_CHAIN],
@@ -44,7 +44,7 @@ const { chains, provider, webSocketProvider } = configureChains(
 )
 
 const accountManager = new AccountManager()
-const getClient = (ref: Ref<PasswordSignerRef>) => {
+const getClient = (ref: RefObject<PasswordSignerRef>) => {
 	return createClient({
 		connectors: [
 			new EthersConnector({

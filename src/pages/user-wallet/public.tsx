@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks'
+import { useState } from 'react'
 import { Redirect } from '@reach/router'
 import { QRCodeSVG } from 'qrcode.react'
 
@@ -27,7 +27,7 @@ export const AccountPublicWallet = (_: AccountPublicWalletProps) => {
 	}
 
 	return (
-		<div class="bg-gray-lt keys">
+		<div className="bg-gray-lt keys">
 			<PasswordModal
 				show={showPassword}
 				onClose={() => setShowPassword(false)}
@@ -37,20 +37,20 @@ export const AccountPublicWallet = (_: AccountPublicWalletProps) => {
 				}}
 			/>
 
-			<div class="close">
+			<div className="close">
 				<ButtonClose to={ACCOUNT_WALLET} variant="dark" />
 			</div>
 
-			<main class="flex-space">
-				<div class="container">
+			<main className="flex-space">
+				<div className="container">
 					<p>Your address:</p>
-					<p class="key key-public">{profile.address}</p>
-					<div class="links">
-						<CopyLink text={profile?.address ?? ''} class="link">
+					<p className="key key-public">{profile.address}</p>
+					<div className="links">
+						<CopyLink text={profile?.address ?? ''} className="link">
 							copy address
 						</CopyLink>
 						<a
-							class="link"
+							className="link"
 							style={{ cursor: 'pointer' }}
 							onClick={() => setShowQR(!showQR)}
 						>
@@ -58,29 +58,29 @@ export const AccountPublicWallet = (_: AccountPublicWalletProps) => {
 						</a>
 					</div>
 					{showQR && (
-						<figure class="qrcode">
+						<figure className="qrcode">
 							<QRCodeSVG value={profile.address} />
 						</figure>
 					)}
 				</div>
-				<div class="divider" />
-				<div class="container">
+				<div className="divider" />
+				<div className="container">
 					<p>Your private key:</p>
-					<p class="key key-private key-hidden">
+					<p className="key key-private key-hidden">
 						Be careful in displaying your private key. It's the only thing
 						needed to steal your funds.
 					</p>
 				</div>
-				<div class="container">
+				<div className="container">
 					{privateKey ? (
 						<>
-							<p class="key key-private key-shown">{privateKey}</p>
-							<div class="links">
-								<CopyLink text={privateKey} class="link">
+							<p className="key key-private key-shown">{privateKey}</p>
+							<div className="links">
+								<CopyLink text={privateKey} className="link">
 									copy private key
 								</CopyLink>
 								<a
-									class="link"
+									className="link"
 									style={{ cursor: 'pointer' }}
 									onClick={() => setPrivateKey('')}
 								>
@@ -89,9 +89,9 @@ export const AccountPublicWallet = (_: AccountPublicWalletProps) => {
 							</div>
 						</>
 					) : (
-						<div class="btns">
+						<div className="btns">
 							<button
-								class="btn btn-light"
+								className="btn btn-light"
 								onClick={() => setShowPassword(true)}
 							>
 								show private key

@@ -1,5 +1,5 @@
 import { Link } from '@reach/router'
-import { useState } from 'preact/hooks'
+import { useState } from 'react'
 
 // Assets
 import avatarDefault from '../assets/imgs/avatar.svg?url'
@@ -16,7 +16,7 @@ import { UserCreateStop } from '../components/modals/user-create-stop'
 // Types
 import type { Profile } from '../types/profile'
 import type { RouteComponentProps } from '@reach/router'
-import type { EventHandler } from '../types/dom'
+import type { ChangeEvent } from 'react'
 
 type Props = RouteComponentProps
 
@@ -25,7 +25,7 @@ export const AccountRestore = (_: Props) => {
 	const [restoredProfile, setRestoredProfile] = useState<Profile | null>(null)
 	const [confirmed, setConfirmed] = useState(false)
 
-	const onFileChange = async (event: EventHandler<HTMLInputElement>) => {
+	const onFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
 		if (!(event.target instanceof HTMLInputElement)) {
 			return
 		}
@@ -38,17 +38,17 @@ export const AccountRestore = (_: Props) => {
 
 	if (!confirmed && !restoredProfile)
 		return (
-			<div class="bg-gray-lt py-60 restore">
-				<div class="close">
+			<div className="bg-gray-lt py-60 restore">
+				<div className="close">
 					<UserCreateStop />
 				</div>
-				<div class="container">
-					<main class="flex-space">
+				<div className="container">
+					<main className="flex-space">
 						<header>
 							<h1>Upload and unlock your account file.</h1>
 						</header>
-						<div class="btns">
-							<label class="btn btn-light">
+						<div className="btns">
+							<label className="btn btn-light">
 								<input
 									type="file"
 									onChange={onFileChange}
@@ -64,27 +64,27 @@ export const AccountRestore = (_: Props) => {
 		)
 	else if (!confirmed && restoredProfile) {
 		return (
-			<div class="bg-gray-lt py-60 restore-confirm">
-				<div class="close">
+			<div className="bg-gray-lt py-60 restore-confirm">
+				<div className="close">
 					<UserCreateStop />
 				</div>
-				<div class="container">
-					<main class="flex-space">
+				<div className="container">
+					<main className="flex-space">
 						<header>
 							<h1>Is this the correct account?</h1>
 						</header>
-						<div class="content">
-							<figure class="avatar">
+						<div className="content">
+							<figure className="avatar">
 								<img
 									src={restoredProfile?.avatar || avatarDefault}
 									alt="user avatar"
 								/>
 							</figure>
-							<p class="username">{restoredProfile.username}</p>
+							<p className="username">{restoredProfile.username}</p>
 						</div>
-						<div class="btns">
+						<div className="btns">
 							<a
-								class="close"
+								className="close"
 								onClick={() => {
 									setRestoredProfile(null)
 								}}
@@ -92,7 +92,7 @@ export const AccountRestore = (_: Props) => {
 								<img src={cancel} />
 							</a>
 							<a
-								class="btn-icon"
+								className="btn-icon"
 								onClick={() => {
 									setConfirmed(true)
 									setProfile(restoredProfile)
@@ -108,23 +108,23 @@ export const AccountRestore = (_: Props) => {
 	}
 
 	return (
-		<div class="bg-gray-lt restore-confirmed">
-			<div class="close">
+		<div className="bg-gray-lt restore-confirmed">
+			<div className="close">
 				<UserCreateStop />
 			</div>
-			<div class="container">
-				<main class="flex-space">
+			<div className="container">
+				<main className="flex-space">
 					<header>
 						<h1>Great!</h1>
 						<p>You've restored your Swarm City account.</p>
 					</header>
-					<div class="content">
-						<figure class="avatar">
+					<div className="content">
+						<figure className="avatar">
 							<img src={profile?.avatar || avatarDefault} alt="user avatar" />
 						</figure>
-						<p class="username">{profile?.username}</p>
+						<p className="username">{profile?.username}</p>
 					</div>
-					<div class="btns">
+					<div className="btns">
 						<Link className="btn btn-light" to={ACCOUNT}>
 							enter swarm.city
 						</Link>

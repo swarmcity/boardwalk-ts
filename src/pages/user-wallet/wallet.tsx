@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks'
+import { useState } from 'react'
 import { Link, navigate, Redirect, Router } from '@reach/router'
 import {
 	useAccount,
@@ -38,7 +38,7 @@ const Menu = (_: RouteComponentProps) => {
 	const symbol = chain?.nativeCurrency?.symbol
 
 	return (
-		<div class="flex-space">
+		<div className="flex-space">
 			<Link to={ACCOUNT_WALLET_SEND} className="btn btn-info">
 				send {symbol}
 			</Link>
@@ -97,7 +97,7 @@ const Send = (_: RouteComponentProps) => {
 				<h1 style={{ color: '#fafafa', marginBottom: '25px' }}>
 					Something went wrong, please try again later.
 				</h1>
-				<p>{error}</p>
+				<p>{error?.message}</p>
 			</ConfirmModal>
 		)
 	}
@@ -109,7 +109,7 @@ const Send = (_: RouteComponentProps) => {
 				color="success"
 			>
 				<h1 style={{ color: '#fafafa' }}>{symbol} has been sent.</h1>
-				<p>{error}</p>
+				<p>{error?.message}</p>
 			</ConfirmModal>
 		)
 	}
@@ -126,7 +126,7 @@ const Send = (_: RouteComponentProps) => {
 			>
 				<h1 style={{ color: '#fafafa' }}>
 					Send{' '}
-					<span class="text-warning">
+					<span className="text-warning">
 						{amount} {symbol}
 					</span>{' '}
 					to {formatAddressShort(address)}?
@@ -137,8 +137,8 @@ const Send = (_: RouteComponentProps) => {
 	}
 
 	return (
-		<div class="flex-space user-wallet-send">
-			<form class="send" onSubmit={submit}>
+		<div className="flex-space user-wallet-send">
+			<form className="send" onSubmit={submit}>
 				<Input
 					id="amt-send"
 					type="number"
@@ -160,7 +160,7 @@ const Send = (_: RouteComponentProps) => {
 
 				{!isValid && amount && address && 'Form invalid'}
 
-				<div class="btns btn-icons">
+				<div className="btns btn-icons">
 					<ButtonClose to={ACCOUNT_WALLET} className="close" />
 					<ButtonRoundArrow
 						type="submit"
@@ -190,21 +190,21 @@ export const AccountWallet = (_: RouteComponentProps) => {
 	}
 
 	return (
-		<div class="bg-gray-lt user-wallet">
-			<div class="close">
+		<div className="bg-gray-lt user-wallet">
+			<div className="close">
 				<ButtonClose to={ACCOUNT} variant="dark" />
 			</div>
-			<div class="container">
-				<div class="flex-space">
-					<div class="wallet-balance">
+			<div className="container">
+				<div className="flex-space">
+					<div className="wallet-balance">
 						{balance ? (
 							<>
 								{formatBalance(balance)}{' '}
-								<span class="usd"> ≈ {balance.formatted} USD</span>
+								<span className="usd"> ≈ {balance.formatted} USD</span>
 							</>
 						) : (
 							<>
-								0.00 {symbol} <span class="usd"> ≈ 0.0 USD</span>
+								0.00 {symbol} <span className="usd"> ≈ 0.0 USD</span>
 							</>
 						)}
 					</div>
@@ -215,8 +215,8 @@ export const AccountWallet = (_: RouteComponentProps) => {
 					</div>
 				</div>
 			</div>
-			<div class="divider short" />
-			<div class="container">
+			<div className="divider short" />
+			<div className="container">
 				<Router>
 					<Send path="/send" />
 					<Menu default />
