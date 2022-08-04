@@ -7562,7 +7562,7 @@ body {
 body #app {
 	height: 100% !important;
 }
-body #app > div > div {
+body #app > div {
 	padding-top: 137px;
 	padding-bottom: 60px;
 	min-height: 100vh;

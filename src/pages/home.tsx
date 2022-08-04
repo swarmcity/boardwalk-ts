@@ -1,4 +1,4 @@
-import { Link } from '@reach/router'
+import { Link } from 'react-router-dom'
 
 // Store and routes
 import { ACCOUNT, LOGIN } from '../routes'
@@ -7,12 +7,7 @@ import { useStore } from '../store'
 // Assets
 import logo from '../assets/imgs/logo.svg?url'
 
-// Types
-import type { RouteComponentProps } from '@reach/router'
-
-type HomeProps = RouteComponentProps
-
-export const Home = (_: HomeProps) => {
+export const Home = () => {
 	const [profile] = useStore.profile()
 	const hasProfile = profile?.encryptedWallet
 

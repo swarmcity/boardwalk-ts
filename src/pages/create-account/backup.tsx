@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from '@reach/router'
+import { Link } from 'react-router-dom'
 
 // Components
 import { UserCreateStop } from '../../components/modals/user-create-stop'
@@ -12,12 +12,7 @@ import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 import { ACCOUNT } from '../../routes'
 import { useStore } from '../../store'
 
-// Types
-import type { RouteComponentProps } from '@reach/router'
-
-type Props = RouteComponentProps
-
-export const Backup = (_: Props) => {
+export const Backup = () => {
 	const [showPrompt, setShowPrompt] = useState(true)
 	const [profile] = useStore.profile()
 	const blob = useMemo(

@@ -12,9 +12,9 @@ import type { ReactNode } from 'react'
 // Style
 import classes from './confirm-modal.module.css'
 
-export type ConfirmModalProps<CancelState, ConfirmState> = {
-	cancel?: ButtonCloseProps<CancelState>
-	confirm?: ButtonRoundArrowProps<ConfirmState>
+export type ConfirmModalProps = {
+	cancel?: ButtonCloseProps
+	confirm?: ButtonRoundArrowProps
 	color?:
 		| 'primary'
 		| 'secondary'
@@ -29,12 +29,12 @@ export type ConfirmModalProps<CancelState, ConfirmState> = {
 	children: ReactNode
 }
 
-export const ConfirmModal = <CancelState, ConfirmState>({
+export const ConfirmModal = ({
 	cancel,
 	confirm,
 	color,
 	children,
-}: ConfirmModalProps<CancelState, ConfirmState>) => {
+}: ConfirmModalProps) => {
 	return (
 		<div
 			className={cn(classes.confirmModal, color ? `bg-${color}` : 'bg-info')}

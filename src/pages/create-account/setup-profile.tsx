@@ -1,4 +1,4 @@
-import { navigate } from '@reach/router'
+import { useNavigate } from 'react-router-dom'
 
 // Store and routes
 import { useStore } from '../../store'
@@ -14,13 +14,11 @@ import { UserCreateStop } from '../../components/modals/user-create-stop'
 import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Types
-import type { RouteComponentProps } from '@reach/router'
 import type { FormEvent } from 'react'
 
-type Props = RouteComponentProps
-
-export const SetupProfile = (_: Props) => {
+export const SetupProfile = () => {
 	const [profile, setProfile] = useStore.profile()
+	const navigate = useNavigate()
 	const onSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		navigate(ACCOUNT_PASSWORD)

@@ -1,21 +1,20 @@
 import { useState } from 'react'
 import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 import { ACCOUNT_CREATED } from '../../routes'
-import { navigate, RouteComponentProps } from '@reach/router'
+import { useNavigate } from 'react-router-dom'
 import { Wallet } from 'ethers'
 import { UserCreateStop } from '../../components/modals/user-create-stop'
 import { ButtonRoundArrow } from '../../components/ButtonRoundArrow'
 import { useStore } from '../../store'
 import { Input } from '../../components/input/input'
 
-type Props = RouteComponentProps
-
-export const ChoosePassword = (_: Props) => {
+export const ChoosePassword = () => {
 	const [showPrompt, setShowPrompt] = useState(true)
 	const [profile, setProfile] = useStore.profile()
 	const [loading, setLoading] = useState(false)
 	const [password, setPassword] = useState<string>('')
 	const [password2, setPassword2] = useState<string>('')
+	const navigate = useNavigate()
 
 	const onClick = () => {
 		setLoading(true)

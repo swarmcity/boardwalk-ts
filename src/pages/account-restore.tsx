@@ -1,4 +1,4 @@
-import { Link } from '@reach/router'
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
 // Assets
@@ -15,12 +15,9 @@ import { UserCreateStop } from '../components/modals/user-create-stop'
 
 // Types
 import type { Profile } from '../types/profile'
-import type { RouteComponentProps } from '@reach/router'
 import type { ChangeEvent } from 'react'
 
-type Props = RouteComponentProps
-
-export const AccountRestore = (_: Props) => {
+export const AccountRestore = () => {
 	const [profile, setProfile] = useStore.profile()
 	const [restoredProfile, setRestoredProfile] = useState<Profile | null>(null)
 	const [confirmed, setConfirmed] = useState(false)

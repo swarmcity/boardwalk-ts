@@ -25,18 +25,18 @@ const VARIANTS = {
 	green: caretNextGreen,
 }
 
-export interface ButtonRoundArrowProps<TState> extends FlexLinkProps<TState> {
+export interface ButtonRoundArrowProps extends FlexLinkProps {
 	disabled?: boolean
 	direction?: keyof typeof DIRECTIONS
 	variant?: keyof typeof VARIANTS
 }
 
-export function ButtonRoundArrow<TState>({
+export function ButtonRoundArrow({
 	disabled,
 	direction,
 	variant,
 	...other
-}: ButtonRoundArrowProps<TState>) {
+}: ButtonRoundArrowProps) {
 	const classes = cn('btn-icon', variant === 'negative' && 'btn-neg')
 	const rotation = DIRECTIONS[direction || 'right']
 	const img = (

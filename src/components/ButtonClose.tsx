@@ -12,14 +12,11 @@ const VARIANTS = {
 	dark: close,
 }
 
-export interface ButtonCloseProps<TState> extends FlexLinkProps<TState> {
+export interface ButtonCloseProps extends FlexLinkProps {
 	variant?: keyof typeof VARIANTS
 }
 
-export function ButtonClose<TState>({
-	variant,
-	...other
-}: ButtonCloseProps<TState>) {
+export function ButtonClose({ variant, ...other }: ButtonCloseProps) {
 	return (
 		<FlexLink role="button" {...other}>
 			<img src={VARIANTS[variant || 'default']} />
