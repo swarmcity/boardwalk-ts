@@ -34,18 +34,18 @@ export const Account = (_: Props) => {
 	}
 
 	return (
-		<div class="bg-gray-lt account-wallet">
-			<div class="icon-exit">
+		<div className="bg-gray-lt account-wallet">
+			<div className="icon-exit">
 				<a style={{ cursor: 'pointer' }} onClick={() => setProfile()}>
 					<img src={exit} />
 				</a>
 			</div>
-			<div class="container">
-				<main class="flex-space">
-					<figure class="avatar avatar-sm">
+			<div className="container">
+				<main className="flex-space">
+					<figure className="avatar avatar-sm">
 						<img src={profile?.avatar || avatarDefault} alt="user avatar" />
 						<figcaption>
-							<a href="#" class="username">
+							<a href="#" className="username">
 								{profile?.username}
 							</a>
 							<div>

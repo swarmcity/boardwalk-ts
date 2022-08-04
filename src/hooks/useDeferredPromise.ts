@@ -1,4 +1,4 @@
-import { useRef } from 'preact/hooks'
+import { useRef } from 'react'
 
 type DeferredPromise<DeferType> = {
 	resolve: (value: DeferType) => void

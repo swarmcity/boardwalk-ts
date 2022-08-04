@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks'
+import { useState } from 'react'
 import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 import { ACCOUNT_CREATED } from '../../routes'
 import { navigate, RouteComponentProps } from '@reach/router'
@@ -33,23 +33,23 @@ export const ChoosePassword = (_: Props) => {
 
 	if (showPrompt)
 		return (
-			<div class="bg-gray-lt password-warning">
-				<div class="close">
+			<div className="bg-gray-lt password-warning">
+				<div className="close">
 					<UserCreateStop />
 				</div>
-				<div class="container">
-					<main class="flex-space">
+				<div className="container">
+					<main className="flex-space">
 						<header>
 							<h1>Choose a password.</h1>
 						</header>
-						<div class="warning-box">
+						<div className="warning-box">
 							<img src={warningBlue} />
 							<div>
 								<p>There is no password recovery available in Swarm City.</p>
 								<p>Choose your password with care.</p>
 							</div>
 						</div>
-						<div class="btns">
+						<div className="btns">
 							<ButtonRoundArrow onClick={() => setShowPrompt(false)} />
 						</div>
 					</main>
@@ -57,12 +57,12 @@ export const ChoosePassword = (_: Props) => {
 			</div>
 		)
 	return (
-		<div class="bg-gray-lt choose-password">
-			<div class="close">
+		<div className="bg-gray-lt choose-password">
+			<div className="close">
 				<UserCreateStop />
 			</div>
-			<div class="container">
-				<main class="flex-space">
+			<div className="container">
+				<main className="flex-space">
 					<header>
 						<h1>Choose a password.</h1>
 					</header>
@@ -85,10 +85,10 @@ export const ChoosePassword = (_: Props) => {
 					<div style={{ height: '100px', width: '100%' }}>
 						{loading && <p>Encrypting...</p>}
 						{password2 && password !== password2 && (
-							<p class="error">Password mismatch</p>
+							<p className="error">Password mismatch</p>
 						)}
 					</div>
-					<div class="btns">
+					<div className="btns">
 						<ButtonRoundArrow
 							disabled={!password || password !== password2 || loading}
 							onClick={onClick}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useState } from 'react'
 import cn from 'classnames'
 import { Wallet } from 'ethers'
 
@@ -16,7 +16,7 @@ import classes from './password.module.css'
 import { useStore } from '../../../store'
 
 // Types
-import type { EventHandler } from '../../../types/dom'
+import type { FormEvent } from 'react'
 
 type PasswordModalProps = {
 	show?: boolean
@@ -49,7 +49,7 @@ export const PasswordModal = ({
 		return null
 	}
 
-	const decrypt = async (event: EventHandler<HTMLElement>) => {
+	const decrypt = async (event: FormEvent<HTMLElement>) => {
 		event.preventDefault()
 
 		setLoading(true)
@@ -70,19 +70,19 @@ export const PasswordModal = ({
 
 	return (
 		<div
-			class={cn(classes.passwordModal, 'modal')}
+			className={cn(classes.passwordModal, 'modal')}
 			tabIndex={-1}
 			aria-labelledby="pwModalLabel"
 			aria-hidden="false"
 			style={{ display: 'block' }}
 		>
-			<div class="modal-dialog modal-fullscreen">
-				<div class="modal-content">
-					<div class="modal-body">
-						<div class="bg-info-50 send-password">
-							<main class="flex-space">
-								<div class="content">
-									<figure class="avatar">
+			<div className="modal-dialog modal-fullscreen">
+				<div className="modal-content">
+					<div className="modal-body">
+						<div className="bg-info-50 send-password">
+							<main className="flex-space">
+								<div className="content">
+									<figure className="avatar">
 										<img src={avatarImage} alt="user avatar" />
 									</figure>
 									<form onSubmit={decrypt}>
@@ -97,7 +97,7 @@ export const PasswordModal = ({
 										/>
 									</form>
 								</div>
-								<div class="btns btn-icons">
+								<div className="btns btn-icons">
 									<ButtonClose
 										variant="dark"
 										className="btn-img close"

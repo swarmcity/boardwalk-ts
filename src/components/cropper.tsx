@@ -1,5 +1,4 @@
-import { useCallback, useImperativeHandle, useState } from 'preact/hooks'
-import { forwardRef } from 'preact/compat'
+import { useCallback, useImperativeHandle, useState, forwardRef } from 'react'
 import Crop from 'react-easy-crop'
 import cn from 'classnames'
 
@@ -9,7 +8,7 @@ import { getCroppedImage } from '../lib/canvas'
 // Types
 import type { Point, Area } from 'react-easy-crop/types'
 import type { CropperProps as CropProps } from 'react-easy-crop'
-import type { Ref } from 'preact'
+import type { Ref } from 'react'
 
 type CropperProps = Pick<CropProps, 'image'> & {
 	wrapperClass: string | undefined
@@ -45,7 +44,7 @@ const CropperInner = (
 	}))
 
 	return (
-		<div class={cn('relative', wrapperClass)} style={{ height: '200px' }}>
+		<div className={cn('relative', wrapperClass)} style={{ height: '200px' }}>
 			<Crop
 				{...props}
 				image={image}

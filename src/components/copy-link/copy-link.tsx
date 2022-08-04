@@ -1,12 +1,13 @@
-import { useState } from 'preact/hooks'
+import { useState } from 'react'
 
 // Style
 import classes from './copy-link.module.css'
 
 // Types
-import type { HTMLAttributes } from '../../types/dom'
+import type { AnchorHTMLAttributes } from 'react'
 
-interface CopyLinkProps extends HTMLAttributes<HTMLAnchorElement> {
+interface CopyLinkProps
+	extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'style'> {
 	text: string
 }
 
@@ -20,8 +21,8 @@ export const CopyLink = ({ text, ...other }: CopyLinkProps) => {
 
 	return (
 		<>
-			<div class={classes.copiedWrapper}>
-				{showCopied && <div class={classes.copied}>Copied!</div>}
+			<div className={classes.copiedWrapper}>
+				{showCopied && <div className={classes.copied}>Copied!</div>}
 			</div>
 
 			<a style={{ cursor: 'pointer' }} {...other} onClick={copy} />

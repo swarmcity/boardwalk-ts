@@ -1,13 +1,14 @@
 import { Wallet } from 'ethers'
-import { Ref } from 'preact'
-import { forwardRef } from 'preact/compat'
-import { useImperativeHandle, useState } from 'preact/hooks'
+import { forwardRef, useImperativeHandle, useState } from 'react'
 
 // Hooks
 import { useDeferredPromise } from '../../hooks/useDeferredPromise'
 
 // Components
 import { PasswordModal } from './password/password'
+
+// Types
+import type { Ref } from 'react'
 
 export type PasswordSignerProps = Record<string, unknown>
 export type PasswordSignerRef = {
@@ -44,7 +45,4 @@ const PasswordSignerInner = (
 	)
 }
 
-export const PasswordSigner = forwardRef<
-	PasswordSignerRef,
-	PasswordSignerProps
->(PasswordSignerInner)
+export const PasswordSigner = forwardRef(PasswordSignerInner)

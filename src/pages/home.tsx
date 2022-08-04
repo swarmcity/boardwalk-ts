@@ -18,12 +18,12 @@ export const Home = (_: HomeProps) => {
 
 	return (
 		<>
-			<div class="welcome">
-				<div class="bg-warning">
-					<main class="container">
-						<div class="d-flex w-100">
+			<div className="welcome">
+				<div className="bg-warning">
+					<main className="container">
+						<div className="d-flex w-100">
 							<div>
-								<img src={logo} id="logo" class="mx-auto" />
+								<img src={logo} id="logo" className="mx-auto" />
 								<h1>
 									Welcome to
 									<br />
@@ -40,12 +40,12 @@ export const Home = (_: HomeProps) => {
 						</div>
 					</main>
 				</div>
-				<nav class="bg-white links">
-					<div class="container">
+				<nav className="bg-white links">
+					<div className="container">
 						<span>
 							<a
 								href="https://swarm.city/"
-								class="link"
+								className="link"
 								target="_blank"
 								rel="noreferrer"
 							>
@@ -55,7 +55,7 @@ export const Home = (_: HomeProps) => {
 						<span>
 							<a
 								href="https://discord.com/invite/NvnmBmCavn"
-								class="link"
+								className="link"
 								target="_blank"
 								rel="noreferrer"
 							>
@@ -64,14 +64,14 @@ export const Home = (_: HomeProps) => {
 						</span>
 					</div>
 				</nav>
-				<address class="bg-gray-lt">
-					<div class="container">
-						<div class="p-1">
+				<address className="bg-gray-lt">
+					<div className="container">
+						<div className="p-1">
 							<b>Find Swarm City on</b>
 						</div>
 						<div>
 							<a
-								class="p-1"
+								className="p-1"
 								href="https://discord.com/invite/NvnmBmCavn"
 								target="_blank"
 								rel="noreferrer"
@@ -81,7 +81,7 @@ export const Home = (_: HomeProps) => {
 						</div>
 						<div>
 							<a
-								class="p-1"
+								className="p-1"
 								href="https://twitter.com/SwarmCityDApp"
 								target="_blank"
 								rel="noreferrer"
@@ -91,7 +91,7 @@ export const Home = (_: HomeProps) => {
 						</div>
 						<div>
 							<a
-								class="p-1"
+								className="p-1"
 								href="https://medium.com/swarm-city-times"
 								target="_blank"
 								rel="noreferrer"
@@ -101,7 +101,7 @@ export const Home = (_: HomeProps) => {
 						</div>
 						<div>
 							<a
-								class="p-1"
+								className="p-1"
 								href="https://github.com/swarmcity"
 								target="_blank"
 								rel="noreferrer"
@@ -111,7 +111,7 @@ export const Home = (_: HomeProps) => {
 						</div>
 						<div>
 							<a
-								class="p-1"
+								className="p-1"
 								href="https://www.youtube.com/channel/UCsHBWn_ytZ3xdMbTyYe5Ifg"
 								target="_blank"
 								rel="noreferrer"

@@ -1,5 +1,5 @@
 // Store
-import { useRef, useState } from 'preact/hooks'
+import { useRef, useState } from 'react'
 import { useStore } from '../../store'
 import cancel from '../../assets/imgs/cancel.svg?url'
 import checkMarkBlue from '../../assets/imgs/checkMarkBlue.svg?url'
@@ -8,7 +8,7 @@ import { blobToDataURL } from '../../lib/canvas'
 import { Cropper, CropperRef } from '../cropper'
 
 // Types
-import type { EventHandler } from '../../types/dom'
+import type { ChangeEvent } from 'react'
 
 interface Props {
 	children: JSX.Element | JSX.Element[]
@@ -22,7 +22,7 @@ export const CreateAvatar = ({ children }: Props) => {
 
 	const [profile, setProfile] = useStore.profile()
 
-	const onFileChange = async (event: EventHandler<HTMLInputElement>) => {
+	const onFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
 		if (!(event.target instanceof HTMLInputElement)) {
 			return
 		}
@@ -44,7 +44,7 @@ export const CreateAvatar = ({ children }: Props) => {
 
 	return (
 		<div
-			class="bg-gray-lt set-avatar"
+			className="bg-gray-lt set-avatar"
 			style={{
 				width: '100vw',
 				height: '100vh',
@@ -55,24 +55,24 @@ export const CreateAvatar = ({ children }: Props) => {
 				top: 0,
 			}}
 		>
-			<div class="container">
-				<main class="flex-space">
+			<div className="container">
+				<main className="flex-space">
 					<header>
-						<div class="canvas">
+						<div className="canvas">
 							<Cropper ref={cropperRef} wrapperClass="mb-8" image={avatar} />
 							<a
 								role="button"
 								onClick={() => cropperRef.current?.rotateCW()}
-								class="rotate"
+								className="rotate"
 							>
 								<img src={iconRotate} />
 							</a>
 						</div>
 						<p>Scroll to zoom - drag to move</p>
 					</header>
-					<div class="btns">
+					<div className="btns">
 						<a
-							class="close"
+							className="close"
 							onClick={(e) => {
 								e.stopPropagation()
 								setAvatar('')
@@ -82,7 +82,7 @@ export const CreateAvatar = ({ children }: Props) => {
 							<img src={cancel} />
 						</a>
 						<a
-							class="btn-icon"
+							className="btn-icon"
 							onClick={(e) => {
 								e.stopPropagation()
 								updateAvatar().then((newAvatar) =>
@@ -95,9 +95,9 @@ export const CreateAvatar = ({ children }: Props) => {
 						</a>
 					</div>
 				</main>
-				<div class="bottomlink">
+				<div className="bottomlink">
 					<label
-						class="link"
+						className="link"
 						style={{
 							color: '#229FFF',
 							textDecoration: '2px underline dotted #979797',

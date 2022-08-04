@@ -15,38 +15,38 @@ import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Types
 import type { RouteComponentProps } from '@reach/router'
-import type { EventHandler } from '../../types/dom'
+import type { FormEvent } from 'react'
 
 type Props = RouteComponentProps
 
 export const SetupProfile = (_: Props) => {
 	const [profile, setProfile] = useStore.profile()
-	const onSubmit = (event: EventHandler<HTMLFormElement>) => {
+	const onSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		navigate(ACCOUNT_PASSWORD)
 	}
 
 	return (
-		<div class="bg-gray-lt choose-username">
-			<div class="close">
+		<div className="bg-gray-lt choose-username">
+			<div className="close">
 				<UserCreateStop />
 			</div>
-			<div class="container">
-				<main class="flex-space">
+			<div className="container">
+				<main className="flex-space">
 					<header>
 						<h1>Choose a username and an avatar.</h1>
 					</header>
-					<div class="content">
+					<div className="content">
 						<CreateAvatar>
-							<figure class="avatar">
+							<figure className="avatar">
 								<img src={profile?.avatar || avatarDefault} alt="user avatar" />
-								<a class="btn-icon btn-info btn-upload">
+								<a className="btn-icon btn-info btn-upload">
 									<img src={arrowUp} />
 								</a>
 							</figure>
 						</CreateAvatar>
 						<form onSubmit={onSubmit}>
-							<label for="username" class="form-label">
+							<label htmlFor="username" className="form-label">
 								Username
 							</label>
 							<input
@@ -58,7 +58,7 @@ export const SetupProfile = (_: Props) => {
 							/>
 						</form>
 					</div>
-					<div class="btns">
+					<div className="btns">
 						<ButtonRoundArrow
 							disabled={!profile?.username}
 							to={ACCOUNT_PASSWORD}

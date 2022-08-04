@@ -24,12 +24,12 @@ export const AccountCreated = (_: RouteComponentProps) => {
 	const { username, avatar } = profile
 
 	return (
-		<div class="bg-gray-lt account-complete">
-			<div class="close">
+		<div className="bg-gray-lt account-complete">
+			<div className="close">
 				<UserCreateStop />
 			</div>
-			<div class="container">
-				<main class="flex-space">
+			<div className="container">
+				<main className="flex-space">
 					<header>
 						<h1>Great!</h1>
 						<p>
@@ -38,13 +38,13 @@ export const AccountCreated = (_: RouteComponentProps) => {
 							Let's create a backup!
 						</p>
 					</header>
-					<div class="content">
-						<figure class="avatar">
+					<div className="content">
+						<figure className="avatar">
 							<img src={avatar || avatarDefault} alt="user avatar" />
 						</figure>
-						<p class="username">{username}</p>
+						<p className="username">{username}</p>
 					</div>
-					<div class="btns">
+					<div className="btns">
 						<Link className="btn btn-light" to={ACCOUNT_BACKUP}>
 							backup my account
 						</Link>

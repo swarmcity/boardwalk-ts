@@ -2,11 +2,11 @@ import { Link } from '@reach/router'
 
 // Types
 import type { LinkProps } from '@reach/router'
-import type { HTMLAttributes } from '../types/dom'
+import type { AnchorHTMLAttributes } from 'react'
 
 export interface FlexLinkProps<TState>
 	extends Omit<LinkProps<TState>, 'ref' | 'to' | 'onClick'>,
-		Pick<HTMLAttributes<HTMLAnchorElement>, 'href' | 'ref' | 'onClick'> {
+		Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'> {
 	to?: LinkProps<TState>['to']
 }
 

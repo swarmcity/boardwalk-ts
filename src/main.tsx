@@ -1,7 +1,7 @@
-import { render } from 'preact'
+import { createRoot } from 'react-dom/client'
 import { App } from './app'
 import './css/style.css'
 import './css/custom.css'
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-render(<App />, document.getElementById('app')!)
+// NOTE: Strict mode breaks reach router, so it was removed for now
+createRoot(document.getElementById('app') as HTMLElement).render(<App />)

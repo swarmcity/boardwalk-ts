@@ -7,7 +7,7 @@ import { ButtonRoundArrow } from '../../ButtonRoundArrow'
 // Types
 import type { ButtonCloseProps } from '../../ButtonClose'
 import type { ButtonRoundArrowProps } from '../../ButtonRoundArrow'
-import type { ComponentChildren } from 'preact'
+import type { ReactNode } from 'react'
 
 // Style
 import classes from './confirm-modal.module.css'
@@ -26,7 +26,7 @@ export type ConfirmModalProps<CancelState, ConfirmState> = {
 		| 'dark'
 		| 'black'
 		| 'white'
-	children: ComponentChildren
+	children: ReactNode
 }
 
 export const ConfirmModal = <CancelState, ConfirmState>({
@@ -36,11 +36,13 @@ export const ConfirmModal = <CancelState, ConfirmState>({
 	children,
 }: ConfirmModalProps<CancelState, ConfirmState>) => {
 	return (
-		<div class={cn(classes.confirmModal, color ? `bg-${color}` : 'bg-info')}>
-			<div class="container">
-				<main class="flex-space">
+		<div
+			className={cn(classes.confirmModal, color ? `bg-${color}` : 'bg-info')}
+		>
+			<div className="container">
+				<main className="flex-space">
 					<header>{children}</header>
-					<div class="btns btn-icons">
+					<div className="btns btn-icons">
 						{cancel && <ButtonClose className="close" {...cancel} />}
 						{confirm && (
 							<ButtonRoundArrow type="submit" variant="negative" {...confirm} />
