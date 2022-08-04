@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Router } from '@reach/router'
+import { Routes, Route } from 'react-router-dom'
 import { WagmiConfig, createClient, configureChains, Chain } from 'wagmi'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 
@@ -92,18 +92,24 @@ export const App = () => {
 	return (
 		<WagmiConfig client={client}>
 			<PasswordSigner ref={ref} />
-			<Router>
-				<Login path={ROUTES.LOGIN} />
-				<SetupProfile path={ROUTES.CREATE_ACCOUNT} />
-				<AccountCreated path={ROUTES.ACCOUNT_CREATED} />
-				<ChoosePassword path={ROUTES.ACCOUNT_PASSWORD} />
-				<Backup path={ROUTES.ACCOUNT_BACKUP} />
-				<Account path={ROUTES.ACCOUNT} />
-				<AccountRestore path={ROUTES.ACCOUNT_RESTORE} />
-				<Home path={ROUTES.HOME} />
-				<AccountWallet path={`${ROUTES.ACCOUNT_WALLET}/*`} />
-				<AccountPublicWallet path={ROUTES.ACCOUNT_PUBLIC_WALLET} />
-			</Router>
+			<Routes>
+				<Route element={<Login />} path={ROUTES.LOGIN} />
+				<Route element={<SetupProfile />} path={ROUTES.CREATE_ACCOUNT} />
+				<Route element={<AccountCreated />} path={ROUTES.ACCOUNT_CREATED} />
+				<Route element={<ChoosePassword />} path={ROUTES.ACCOUNT_PASSWORD} />
+				<Route element={<Backup />} path={ROUTES.ACCOUNT_BACKUP} />
+				<Route element={<Account />} path={ROUTES.ACCOUNT} />
+				<Route element={<AccountRestore />} path={ROUTES.ACCOUNT_RESTORE} />
+				<Route element={<Home />} path={ROUTES.HOME} />
+				<Route
+					element={<AccountWallet />}
+					path={`${ROUTES.ACCOUNT_WALLET}/*`}
+				/>
+				<Route
+					element={<AccountPublicWallet />}
+					path={ROUTES.ACCOUNT_PUBLIC_WALLET}
+				/>
+			</Routes>
 		</WagmiConfig>
 	)
 }

@@ -1,20 +1,16 @@
-import { Link } from '@reach/router'
+import { Link } from 'react-router-dom'
 
 // Types
-import type { LinkProps } from '@reach/router'
+import type { LinkProps } from 'react-router-dom'
 import type { AnchorHTMLAttributes } from 'react'
 
-export interface FlexLinkProps<TState>
-	extends Omit<LinkProps<TState>, 'ref' | 'to' | 'onClick'>,
+export interface FlexLinkProps
+	extends Omit<LinkProps, 'ref' | 'to' | 'onClick'>,
 		Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'> {
-	to?: LinkProps<TState>['to']
+	to?: LinkProps['to']
 }
 
-export function FlexLink<TState>({
-	href,
-	to,
-	...other
-}: FlexLinkProps<TState>) {
+export function FlexLink({ href, to, ...other }: FlexLinkProps) {
 	if (to && href) {
 		console.warn('do not specify both `to` and `href`')
 		return null

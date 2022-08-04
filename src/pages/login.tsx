@@ -1,16 +1,14 @@
-import { Link, RouteComponentProps } from '@reach/router'
+import { Link } from 'react-router-dom'
 import { ButtonClose } from '../components/ButtonClose'
 import { ACCOUNT_RESTORE, CREATE_ACCOUNT, HOME } from '../routes'
 
-type LoginProps = RouteComponentProps
-
-export const Login = (_: LoginProps) => (
+export const Login = () => (
 	<div className="bg-info create-account">
 		<div className="close">
 			<ButtonClose to={HOME} variant="light" />
 		</div>
 		<div className="container">
-			<main className=" flex-space">
+			<main className="flex-space">
 				<header>
 					<h1>Let's create an account.</h1>
 					<p>

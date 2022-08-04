@@ -1,29 +1,24 @@
 import { useState } from 'react'
-import { Redirect } from '@reach/router'
 import { QRCodeSVG } from 'qrcode.react'
 
 // Components
 import { ButtonClose } from '../../components/ButtonClose'
 import { PasswordModal } from '../../components/modals/password/password'
 import { CopyLink } from '../../components/copy-link/copy-link'
+import { Redirect } from '../../components/redirect'
 
 // Store and routes
 import { useStore } from '../../store'
 import { LOGIN, ACCOUNT_WALLET } from '../../routes'
 
-// Types
-import type { RouteComponentProps } from '@reach/router'
-
-type AccountPublicWalletProps = RouteComponentProps
-
-export const AccountPublicWallet = (_: AccountPublicWalletProps) => {
+export const AccountPublicWallet = () => {
 	const [showQR, setShowQR] = useState(false)
 	const [showPassword, setShowPassword] = useState(false)
 	const [privateKey, setPrivateKey] = useState<string>()
 	const [profile] = useStore.profile()
 
 	if (!profile?.address) {
-		return <Redirect to={LOGIN} noThrow />
+		return <Redirect to={LOGIN} />
 	}
 
 	return (

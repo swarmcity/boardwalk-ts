@@ -1,5 +1,5 @@
 // Store
-import { Link } from '@reach/router'
+import { Link } from 'react-router-dom'
 
 // Store and routes
 import { useStore } from '../../store'
@@ -11,10 +11,7 @@ import { UserCreateStop } from '../../components/modals/user-create-stop'
 // Assets
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
 
-// Types
-import type { RouteComponentProps } from '@reach/router'
-
-export const AccountCreated = (_: RouteComponentProps) => {
+export const AccountCreated = () => {
 	const [profile] = useStore.profile()
 
 	if (!profile) {

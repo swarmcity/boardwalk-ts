@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, navigate, Redirect, Router } from '@reach/router'
+import { Link, useNavigate, Routes, Route } from 'react-router-dom'
 import {
 	useAccount,
 	useBalance,
@@ -16,6 +16,7 @@ import { Input } from '../../components/input/input'
 import { ButtonRoundArrow } from '../../components/ButtonRoundArrow'
 import { ConfirmModal } from '../../components/modals/confirm-modal/confirm-modal'
 import { FullscreenLoading } from '../../components/modals/fullscreen-loading/fullscreen-loading'
+import { Redirect } from '../../components/redirect'
 
 // Lib
 import { formatAddressShort, formatBalance } from '../../lib/tools'
@@ -30,10 +31,7 @@ import {
 	ACCOUNT_WALLET,
 } from '../../routes'
 
-// Types
-import type { RouteComponentProps } from '@reach/router'
-
-const Menu = (_: RouteComponentProps) => {
+const Menu = () => {
 	const { chain } = useNetwork()
 	const symbol = chain?.nativeCurrency?.symbol
 
@@ -69,7 +67,7 @@ const formatRequest = ({
 	return { to, value, isValid }
 }
 
-const Send = (_: RouteComponentProps) => {
+const Send = () => {
 	const [showConfirm, setShowConfirm] = useState(false)
 	const [amount, setAmount] = useState('0')
 	const [address, setAddress] = useState('')
@@ -82,6 +80,7 @@ const Send = (_: RouteComponentProps) => {
 	const { isLoading, isError, isSuccess, error, sendTransaction, reset } =
 		useSendTransaction(config)
 
+	const navigate = useNavigate()
 	const submit = () => setShowConfirm(isValid)
 
 	if (isLoading) {
@@ -173,7 +172,7 @@ const Send = (_: RouteComponentProps) => {
 	)
 }
 
-export const AccountWallet = (_: RouteComponentProps) => {
+export const AccountWallet = () => {
 	const [profile] = useStore.profile()
 
 	const { chain } = useNetwork()
@@ -186,7 +185,7 @@ export const AccountWallet = (_: RouteComponentProps) => {
 	})
 
 	if (!profile?.address) {
-		return <Redirect to={LOGIN} noThrow />
+		return <Redirect to={LOGIN} />
 	}
 
 	return (
@@ -217,10 +216,10 @@ export const AccountWallet = (_: RouteComponentProps) => {
 			</div>
 			<div className="divider short" />
 			<div className="container">
-				<Router>
-					<Send path="/send" />
-					<Menu default />
-				</Router>
+				<Routes>
+					<Route element={<Send />} path="/send" />
+					<Route element={<Menu />} path="*" />
+				</Routes>
 			</div>
 		</div>
 	)
