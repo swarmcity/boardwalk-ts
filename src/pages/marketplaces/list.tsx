@@ -1,8 +1,5 @@
-import { navigate } from '@reach/router'
+import { useNavigate } from 'react-router-dom'
 import { useContractEvent } from 'wagmi'
-
-// Types
-import type { RouteComponentProps } from '@reach/router'
 
 // Routes and config
 import { MARKETPLACE } from '../../routes'
@@ -14,9 +11,8 @@ const hashtags = [
 	{ id: '3', name: 'ScSwag', deals: 20 },
 ]
 
-type MarketplaceListProps = RouteComponentProps
-
-export const MarketplaceList = (_: MarketplaceListProps) => {
+export const MarketplaceList = () => {
+	const navigate = useNavigate()
 	useContractEvent({
 		addressOrName: HASHTAG_FACTORY,
 		contractInterface: [

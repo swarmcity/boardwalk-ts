@@ -1,12 +1,9 @@
 import { useState } from 'react'
 
 // Types
-import type { RouteComponentProps } from '@reach/router'
 import type { FormEvent } from 'react'
 
-type MarketplaceListItemProps = RouteComponentProps
-
-export const MarketplaceListItem = (_: MarketplaceListItemProps) => {
+export const MarketplaceListItem = () => {
 	const [description, setDescription] = useState<string>()
 	const [price, setPrice] = useState<number>()
 
