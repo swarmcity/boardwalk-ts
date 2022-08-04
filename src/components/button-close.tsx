@@ -4,7 +4,7 @@ import close from '../assets/imgs/close.svg?url'
 import closeWhite from '../assets/imgs/closeWhite.svg?url'
 
 // Components
-import { FlexLink, FlexLinkProps } from './FlexLink'
+import { FlexLink, FlexLinkProps } from './flex-link'
 
 const VARIANTS = {
 	light: closeWhite,

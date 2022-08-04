@@ -1,12 +1,12 @@
 import cn from 'classnames'
 
 // Components
-import { ButtonClose } from '../../ButtonClose'
-import { ButtonRoundArrow } from '../../ButtonRoundArrow'
+import { ButtonClose } from '../../button-close'
+import { ButtonRoundArrow } from '../../button-round-arrow'
 
 // Types
-import type { ButtonCloseProps } from '../../ButtonClose'
-import type { ButtonRoundArrowProps } from '../../ButtonRoundArrow'
+import type { ButtonCloseProps } from '../../button-close'
+import type { ButtonRoundArrowProps } from '../../button-round-arrow'
 import type { ReactNode } from 'react'
 
 // Style

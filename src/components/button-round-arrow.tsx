@@ -8,7 +8,7 @@ import checkMarkBlue from '../assets/imgs/checkMarkBlue.svg?url'
 import checkMarkRed from '../assets/imgs/checkMarkRed.svg?url'
 
 // Components
-import { FlexLink, FlexLinkProps } from './FlexLink'
+import { FlexLink, FlexLinkProps } from './flex-link'
 
 const DIRECTIONS = {
 	right: 0,

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 // Components
-import { ButtonClose } from '../ButtonClose'
+import { ButtonClose } from '../button-close'
 
 // Assets
 import checkMarkRed from '../../assets/imgs/checkMarkRed.svg?url'

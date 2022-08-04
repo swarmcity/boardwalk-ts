@@ -9,7 +9,7 @@ import avatarDefault from '../../assets/imgs/avatar.svg?url'
 import arrowUp from '../../assets/imgs/arrowUp.svg?url'
 
 // Components
-import { ButtonRoundArrow } from '../../components/ButtonRoundArrow'
+import { ButtonRoundArrow } from '../../components/button-round-arrow'
 import { UserCreateStop } from '../../components/modals/user-create-stop'
 import { CreateAvatar } from '../../components/modals/create-avatar'
 

@@ -11,9 +11,9 @@ import { getAddress } from '@ethersproject/address'
 import { parseEther } from '@ethersproject/units'
 
 // Components
-import { ButtonClose } from '../../components/ButtonClose'
+import { ButtonClose } from '../../components/button-close'
 import { Input } from '../../components/input/input'
-import { ButtonRoundArrow } from '../../components/ButtonRoundArrow'
+import { ButtonRoundArrow } from '../../components/button-round-arrow'
 import { ConfirmModal } from '../../components/modals/confirm-modal/confirm-modal'
 import { FullscreenLoading } from '../../components/modals/fullscreen-loading/fullscreen-loading'
 import { Redirect } from '../../components/redirect'

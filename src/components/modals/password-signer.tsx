@@ -2,7 +2,7 @@ import { Wallet } from 'ethers'
 import { forwardRef, useImperativeHandle, useState } from 'react'
 
 // Hooks
-import { useDeferredPromise } from '../../hooks/useDeferredPromise'
+import { useDeferredPromise } from '../../hooks/use-deferred-promise'
 
 // Components
 import { PasswordModal } from './password/password'
