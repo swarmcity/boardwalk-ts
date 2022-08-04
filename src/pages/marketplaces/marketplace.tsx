@@ -1,10 +1,7 @@
-import { Link } from '@reach/router'
+import { Link } from 'react-router-dom'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
-
-// Types
-import type { RouteComponentProps } from '@reach/router'
 
 const hashtag = {
 	name: 'Settler',
@@ -48,7 +45,7 @@ const hashtag = {
 	],
 }
 
-type MarketplaceProps = RouteComponentProps & {
+type MarketplaceProps = {
 	id?: string
 }
 

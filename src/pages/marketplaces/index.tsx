@@ -11,7 +11,7 @@ import { Marketplace } from './marketplace'
 import { MarketplaceListItem } from './list-item'
 
 // Components
-import { Redirect } from '../components/redirect'
+import { Redirect } from '../../components/redirect'
 
 // Lib
 import { formatBalance } from '../../lib/tools'
