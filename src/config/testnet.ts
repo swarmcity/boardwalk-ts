@@ -14,4 +14,5 @@ export const WAGMI_CHAIN: Chain = {
 	},
 }
 
-export const HASHTAG_FACTORY = '0x5b6d261880b695c2cfcec6b92bc7abd09210b38a'
+export const HASHTAG_LIST = '0xfc6AdCE1133E1814Bedc5e067d4d238553C42766'
+export const HASHTAG_FACTORY = '0x45986eA7f6897f20F46aabB8E0835d2e55Abd793'
