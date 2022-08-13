@@ -27,6 +27,9 @@ import { WAGMI_CHAIN } from './config'
 import { EthersConnector } from './lib/ethers-injector'
 import { AccountManager } from './lib/account-manager'
 
+// Hooks
+import { WakuProvider } from './hooks/use-waku'
+
 // Types
 import type { PasswordSignerRef } from './components/modals/password-signer'
 import type { RefObject } from 'react'
@@ -91,25 +94,27 @@ export const App = () => {
 
 	return (
 		<WagmiConfig client={client}>
-			<PasswordSigner ref={ref} />
-			<Routes>
-				<Route element={<Login />} path={ROUTES.LOGIN} />
-				<Route element={<SetupProfile />} path={ROUTES.CREATE_ACCOUNT} />
-				<Route element={<AccountCreated />} path={ROUTES.ACCOUNT_CREATED} />
-				<Route element={<ChoosePassword />} path={ROUTES.ACCOUNT_PASSWORD} />
-				<Route element={<Backup />} path={ROUTES.ACCOUNT_BACKUP} />
-				<Route element={<Marketplaces />} path={`${ROUTES.MARKETPLACES}/*`} />
-				<Route element={<AccountRestore />} path={ROUTES.ACCOUNT_RESTORE} />
-				<Route element={<Home />} path={ROUTES.HOME} />
-				<Route
-					element={<AccountWallet />}
-					path={`${ROUTES.ACCOUNT_WALLET}/*`}
-				/>
-				<Route
-					element={<AccountPublicWallet />}
-					path={ROUTES.ACCOUNT_PUBLIC_WALLET}
-				/>
-			</Routes>
+			<WakuProvider>
+				<PasswordSigner ref={ref} />
+				<Routes>
+					<Route element={<Login />} path={ROUTES.LOGIN} />
+					<Route element={<SetupProfile />} path={ROUTES.CREATE_ACCOUNT} />
+					<Route element={<AccountCreated />} path={ROUTES.ACCOUNT_CREATED} />
+					<Route element={<ChoosePassword />} path={ROUTES.ACCOUNT_PASSWORD} />
+					<Route element={<Backup />} path={ROUTES.ACCOUNT_BACKUP} />
+					<Route element={<Marketplaces />} path={`${ROUTES.MARKETPLACES}/*`} />
+					<Route element={<AccountRestore />} path={ROUTES.ACCOUNT_RESTORE} />
+					<Route element={<Home />} path={ROUTES.HOME} />
+					<Route
+						element={<AccountWallet />}
+						path={`${ROUTES.ACCOUNT_WALLET}/*`}
+					/>
+					<Route
+						element={<AccountPublicWallet />}
+						path={ROUTES.ACCOUNT_PUBLIC_WALLET}
+					/>
+				</Routes>
+			</WakuProvider>
 		</WagmiConfig>
 	)
 }
