@@ -1,11 +1,17 @@
 import { useState } from 'react'
 
+// Hooks
+import { useWaku } from '../../hooks/use-waku'
+
 // Types
 import type { FormEvent } from 'react'
 
 export const MarketplaceListItem = () => {
 	const [description, setDescription] = useState<string>()
 	const [price, setPrice] = useState<number>()
+
+	const { waku } = useWaku()
+	console.log(waku)
 
 	const onSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
