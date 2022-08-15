@@ -1,7 +1,10 @@
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useWaku } from '../../hooks/use-waku'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
+import { listItems } from './services/marketplace-items'
 
 const hashtag = {
 	name: 'Settler',
@@ -50,6 +53,16 @@ export const Marketplace = () => {
 	if (!id) {
 		throw new Error('no id')
 	}
+
+	const { waku } = useWaku()
+
+	useEffect(() => {
+		if (!waku) {
+			return
+		}
+
+		listItems(waku, id)
+	}, [waku, id])
 
 	return (
 		<div>

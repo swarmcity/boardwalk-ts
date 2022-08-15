@@ -72,3 +72,17 @@ export const createItem = async (
 
 	return key
 }
+
+export const listItems = async (waku: Waku, address: string) => {
+	await waku.waitForRemotePeer()
+
+	const callback = (messages: WakuMessage[]) => {
+		const items = messages
+			.map((message) => message.payload && ItemMetadata.decode(message.payload))
+			.filter(Boolean)
+
+		console.log(items)
+	}
+
+	waku.store.queryHistory([getItemTopic(address)], { callback })
+}
