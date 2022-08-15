@@ -1,0 +1,537 @@
+[
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "contract Authority",
+				"name": "newAuthority",
+				"type": "address"
+			}
+		],
+		"name": "AuthorityUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "provider",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "id",
+				"type": "bytes32"
+			}
+		],
+		"name": "FundItem",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "id",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "enum Status",
+				"name": "newstatus",
+				"type": "uint8"
+			}
+		],
+		"name": "ItemStatusChange",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "id",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "metadata",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "fee",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "seekerRep",
+				"type": "uint256"
+			}
+		],
+		"name": "NewItem",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnerUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "fee",
+				"type": "uint256"
+			}
+		],
+		"name": "SetFee",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "metadataHash",
+				"type": "string"
+			}
+		],
+		"name": "SetMetadataHash",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "payoutAddress",
+				"type": "address"
+			}
+		],
+		"name": "SetPayoutAddress",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "authority",
+		"outputs": [
+			{
+				"internalType": "contract Authority",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_id",
+				"type": "bytes32"
+			}
+		],
+		"name": "cancelItem",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_id",
+				"type": "bytes32"
+			}
+		],
+		"name": "disputeItem",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "fee",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "preImage",
+				"type": "bytes"
+			}
+		],
+		"name": "fundItem",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_token",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_fee",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_metadataHash",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"internalType": "contract MintableERC20",
+				"name": "_seekerRep",
+				"type": "address"
+			},
+			{
+				"internalType": "contract MintableERC20",
+				"name": "_providerRep",
+				"type": "address"
+			}
+		],
+		"name": "init",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "items",
+		"outputs": [
+			{
+				"internalType": "enum Status",
+				"name": "status",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint256",
+				"name": "fee",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "providerRep",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "seekerRep",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "providerAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "seekerAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "metadata",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "metadataHash",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_id",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_metadata",
+				"type": "string"
+			}
+		],
+		"name": "newItem",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "payoutAddress",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_id",
+				"type": "bytes32"
+			}
+		],
+		"name": "payoutItem",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "providerRep",
+		"outputs": [
+			{
+				"internalType": "contract MintableERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_id",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_seekerFraction",
+				"type": "uint256"
+			}
+		],
+		"name": "resolveItem",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "seekerRep",
+		"outputs": [
+			{
+				"internalType": "contract MintableERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract Authority",
+				"name": "newAuthority",
+				"type": "address"
+			}
+		],
+		"name": "setAuthority",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_fee",
+				"type": "uint256"
+			}
+		],
+		"name": "setFee",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_metadataHash",
+				"type": "string"
+			}
+		],
+		"name": "setMetadataHash",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "setOwner",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_payoutaddress",
+				"type": "address"
+			}
+		],
+		"name": "setPayoutAddress",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "token",
+		"outputs": [
+			{
+				"internalType": "contract ERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
