@@ -19,3 +19,13 @@ export const formatBalance = (balance: FetchBalanceResult) => {
 export const formatAddressShort = (address: string) => {
 	return `${address.substring(0, 5)}..${address.substring(39, 42)}`
 }
+
+export const numberToBigInt = (number: number | string, decimals: number) => {
+	const [whole, fraction] = number.toString().split('.')
+	const fractionTrimmed = fraction.substring(0, decimals)
+	const zeroes = Array.from(
+		{ length: decimals - fractionTrimmed.length },
+		(_) => '0'
+	)
+	return BigInt(whole + fractionTrimmed + zeroes.join(''))
+}

@@ -4,3 +4,4 @@ dist
 dist-ssr
 *.local
 test/data
+/src/protos/*.ts

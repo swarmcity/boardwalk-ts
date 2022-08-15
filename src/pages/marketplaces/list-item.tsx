@@ -1,21 +1,39 @@
 import { useState } from 'react'
+import { useParams } from 'react-router'
 
 // Hooks
 import { useWaku } from '../../hooks/use-waku'
 
 // Types
 import type { FormEvent } from 'react'
+import { createItem } from './services/marketplace-items'
+import { useAccount } from 'wagmi'
 
 export const MarketplaceListItem = () => {
+	const { id } = useParams<string>()
+	if (!id) {
+		throw new Error('no id')
+	}
+
 	const [description, setDescription] = useState<string>()
 	const [price, setPrice] = useState<number>()
-
 	const { waku } = useWaku()
-	console.log(waku)
+	const { connector } = useAccount()
 
-	const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+	const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
-		console.log({ description, price })
+
+		if (!waku || !connector) {
+			// TODO: Error message
+			return
+		}
+
+		if (!description || !price) {
+			// TODO: Error message
+			return
+		}
+
+		await createItem(waku, id, { price, description }, connector)
 	}
 
 	return (
@@ -27,6 +45,7 @@ export const MarketplaceListItem = () => {
 			/>
 			<input
 				type="number"
+				step=".01"
 				placeholder="What would you like to offer?"
 				onChange={(event) => setPrice(Number(event.currentTarget.value))}
 			/>{' '}
