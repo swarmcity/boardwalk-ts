@@ -17,13 +17,15 @@ export const MarketplaceList = () => {
 
 	return (
 		<div>
-			{Object.values(marketplaces).map(({ address, name }) => (
-				<div key={address} onClick={() => navigate(MARKETPLACE(address))}>
-					<h2>{name}</h2>
-					{/* TODO: List of completed deals */}
-					<p>? deals completed</p>
-				</div>
-			))}
+			{Object.values(marketplaces)
+				.filter(({ deleted }) => !deleted)
+				.map(({ address, name }) => (
+					<div key={address} onClick={() => navigate(MARKETPLACE(address))}>
+						<h2>{name}</h2>
+						{/* TODO: List of completed deals */}
+						<p>? deals completed</p>
+					</div>
+				))}
 		</div>
 	)
 }
