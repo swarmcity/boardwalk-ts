@@ -1,7 +1,5 @@
 syntax = "proto3";
 
 message ItemMetadata {
-  bytes id = 1;
-  string description = 2;
-  optional bytes encryptedKey = 3;
+  string description = 1;
 }

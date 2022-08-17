@@ -34,9 +34,9 @@
 			},
 			{
 				"indexed": true,
-				"internalType": "bytes32",
+				"internalType": "uint256",
 				"name": "id",
-				"type": "bytes32"
+				"type": "uint256"
 			}
 		],
 		"name": "FundItem",
@@ -47,9 +47,9 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "bytes32",
+				"internalType": "uint256",
 				"name": "id",
-				"type": "bytes32"
+				"type": "uint256"
 			},
 			{
 				"indexed": false,
@@ -72,15 +72,15 @@
 			},
 			{
 				"indexed": true,
-				"internalType": "bytes32",
+				"internalType": "uint256",
 				"name": "id",
-				"type": "bytes32"
+				"type": "uint256"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "metadata",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"indexed": false,
@@ -164,6 +164,19 @@
 	},
 	{
 		"inputs": [],
+		"name": "DOMAIN_SEPARATOR",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "authority",
 		"outputs": [
 			{
@@ -178,9 +191,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "uint256",
 				"name": "_id",
-				"type": "bytes32"
+				"type": "uint256"
 			}
 		],
 		"name": "cancelItem",
@@ -191,9 +204,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "uint256",
 				"name": "_id",
-				"type": "bytes32"
+				"type": "uint256"
 			}
 		],
 		"name": "disputeItem",
@@ -217,9 +230,24 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes",
-				"name": "preImage",
-				"type": "bytes"
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "v",
+				"type": "uint8"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "r",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "s",
+				"type": "bytes32"
 			}
 		],
 		"name": "fundItem",
@@ -273,9 +301,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "uint256",
 				"name": "",
-				"type": "bytes32"
+				"type": "uint256"
 			}
 		],
 		"name": "items",
@@ -316,9 +344,9 @@
 				"type": "address"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "metadata",
-				"type": "string"
+				"type": "bytes32"
 			}
 		],
 		"stateMutability": "view",
@@ -353,23 +381,24 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
-				"name": "_id",
-				"type": "bytes32"
-			},
-			{
 				"internalType": "uint256",
 				"name": "_price",
 				"type": "uint256"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "_metadata",
-				"type": "string"
+				"type": "bytes32"
 			}
 		],
 		"name": "newItem",
-		"outputs": [],
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -402,9 +431,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "uint256",
 				"name": "_id",
-				"type": "bytes32"
+				"type": "uint256"
 			}
 		],
 		"name": "payoutItem",
@@ -428,9 +457,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "uint256",
 				"name": "_id",
-				"type": "bytes32"
+				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
