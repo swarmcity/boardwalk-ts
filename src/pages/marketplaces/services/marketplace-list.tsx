@@ -8,11 +8,11 @@ import { defaultAbiCoder, getAddress } from 'ethers/lib/utils'
 import { readLocalStore, updateLocalStore } from '../../../lib/store'
 
 // Config
-import { HASHTAG_LIST } from '../../../config'
+import { MARKETPLACE_LIST } from '../../../config'
 
 const PREFIX = 'marketplace-list'
-const EVENT_ADDED = utils.id('HashtagAdded(address,string)')
-const EVENT_REMOVED = utils.id('HashtagRemoved(address)')
+const EVENT_ADDED = utils.id('MarketplaceAdded(address,string)')
+const EVENT_REMOVED = utils.id('MarketplaceRemoved(address)')
 
 type MarketplaceListItem = {
 	address: string
@@ -70,7 +70,7 @@ export const useMarketplaceListSync = () => {
 	// Wagmi
 	const provider = useProvider()
 	const contract = useMemo(
-		() => new Contract(HASHTAG_LIST, [], provider),
+		() => new Contract(MARKETPLACE_LIST, [], provider),
 		[provider]
 	)
 
@@ -81,7 +81,7 @@ export const useMarketplaceListSync = () => {
 			let currentBlock = lastBlock
 			const events = await contract.queryFilter(
 				{
-					address: HASHTAG_LIST,
+					address: MARKETPLACE_LIST,
 					topics: [[EVENT_ADDED, EVENT_REMOVED]],
 				},
 				(lastBlock ?? -1) + 1

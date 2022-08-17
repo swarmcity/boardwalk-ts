@@ -1,4 +1,6 @@
+import { multiaddr } from '@multiformats/multiaddr'
 import { Waku } from 'js-waku'
+import { createWaku, CreateOptions } from 'js-waku/lib/create_waku'
 import {
 	createContext,
 	ReactNode,
@@ -7,17 +9,8 @@ import {
 	useState,
 } from 'react'
 
-// Types
-import type { CreateOptions } from 'js-waku/build/main/lib/waku'
-
 // Config
-const DEFAULT_SETTINGS = {
-	bootstrap: {
-		peers: [
-			'/dns4/ws.waku.apyos.dev/tcp/443/wss/p2p/16Uiu2HAkwAzaMhKTikSVD1djSieWNoJ9jq63kmJG21mmizT8jQDq',
-		],
-	},
-}
+const DEFAULT_SETTINGS = {}
 
 export const WakuContext = createContext<{ waku?: Waku } | null>(null)
 
@@ -31,7 +24,17 @@ export const WakuProvider = ({
 	const [waku, setWaku] = useState<Waku>()
 
 	useEffect(() => {
-		Waku.create(settings || DEFAULT_SETTINGS).then(setWaku)
+		// eslint-disable-next-line @typescript-eslint/no-extra-semi
+		;(async () => {
+			const waku = await createWaku(settings || DEFAULT_SETTINGS)
+			await waku.start()
+			await waku.dial(
+				multiaddr(
+					'/dns4/ws.waku.apyos.dev/tcp/443/wss/p2p/16Uiu2HAm5wH4dPAV6zDfrBHkWt9Wu9iiXT4ehHdUArDUbEevzmBY'
+				)
+			)
+			setWaku(waku)
+		})()
 	}, [settings])
 
 	return (
