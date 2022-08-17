@@ -21,7 +21,7 @@ export const formatAddressShort = (address: string) => {
 }
 
 export const numberToBigInt = (number: number | string, decimals: number) => {
-	const [whole, fraction] = number.toString().split('.')
+	const [whole, fraction = ''] = number.toString().split('.')
 	const fractionTrimmed = fraction.substring(0, decimals)
 	const zeroes = Array.from(
 		{ length: decimals - fractionTrimmed.length },
