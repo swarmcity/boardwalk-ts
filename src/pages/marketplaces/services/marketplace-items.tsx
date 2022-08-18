@@ -84,7 +84,6 @@ export const createItem = async (
 const decodeWakuMessage = async (
 	message: WakuMessageWithPayload
 ): Promise<WakuItem> => {
-	console.log(message)
 	const hash = await crypto.subtle.digest('SHA-256', message.payload)
 	return {
 		hash: '0x' + bufferToHex(hash),
