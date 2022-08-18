@@ -1,8 +1,10 @@
+import { formatUnits } from '@ethersproject/units'
 import { Link, useParams } from 'react-router-dom'
 import { useWaku } from '../../hooks/use-waku'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
+import { useMarketplaceTokenDecimals } from './services/marketplace'
 import { useMarketplaceItems } from './services/marketplace-items'
 
 const hashtag = {
@@ -55,6 +57,7 @@ export const Marketplace = () => {
 
 	const { waku } = useWaku()
 	const { loading, waiting, items } = useMarketplaceItems(waku, id)
+	const { decimals, loading: decimalsLoading } = useMarketplaceTokenDecimals(id)
 
 	if (waiting) {
 		return <p>Waiting for Waku</p>
@@ -73,7 +76,11 @@ export const Marketplace = () => {
 						<p>
 							{item.owner} - {item.seekerRep.toString()} SWMR
 						</p>
-						<span>{item.price.toString()} DAI</span>
+						<span>
+							{decimalsLoading
+								? 'Loading...'
+								: `${formatUnits(item.price, decimals)} DAI`}
+						</span>
 					</div>
 				))}
 			</div>
