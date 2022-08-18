@@ -1,10 +1,9 @@
-import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useWaku } from '../../hooks/use-waku'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
-import { listItems } from './services/marketplace-items'
+import { useMarketplaceItems } from './services/marketplace-items'
 
 const hashtag = {
 	name: 'Settler',
@@ -55,28 +54,26 @@ export const Marketplace = () => {
 	}
 
 	const { waku } = useWaku()
+	const { loading, waiting, items } = useMarketplaceItems(waku, id)
 
-	useEffect(() => {
-		if (!waku) {
-			return
-		}
-
-		listItems(waku, id)
-	}, [waku, id])
+	if (waiting) {
+		return <p>Waiting for Waku</p>
+	}
 
 	return (
 		<div>
+			{loading && <p>Loading</p>}
 			<h2>{hashtag.name}</h2>
 			<Link to={MARKETPLACE_ADD(id)}>Add</Link>
 			<div>
-				{hashtag.items.map((item, index) => (
+				{items.map((item, index) => (
 					<div key={index}>
-						<h3>{item.name}</h3>
-						<span>{item.date.toISOString()}</span>
+						<h3>{item.metadata.description}</h3>
+						<span>{new Date(item.timestamp * 1000).toISOString()}</span>
 						<p>
-							{item.seeker.name} - {item.seeker.reputation} SWMR
+							{item.owner} - {item.seekerRep.toString()} SWMR
 						</p>
-						<span>{item.price} DAI</span>
+						<span>{item.price.toString()} DAI</span>
 					</div>
 				))}
 			</div>
