@@ -10,7 +10,7 @@ import {
 } from 'react'
 
 // Config
-const DEFAULT_SETTINGS = {}
+const DEFAULT_SETTINGS: CreateOptions = {}
 
 export const WakuContext = createContext<{ waku?: Waku } | null>(null)
 
@@ -27,13 +27,14 @@ export const WakuProvider = ({
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
 			const waku = await createWaku(settings || DEFAULT_SETTINGS)
+			setWaku(waku)
+
 			await waku.start()
 			await waku.dial(
 				multiaddr(
 					'/dns4/ws.waku.apyos.dev/tcp/443/wss/p2p/16Uiu2HAm5wH4dPAV6zDfrBHkWt9Wu9iiXT4ehHdUArDUbEevzmBY'
 				)
 			)
-			setWaku(waku)
 		})()
 	}, [settings])
 
