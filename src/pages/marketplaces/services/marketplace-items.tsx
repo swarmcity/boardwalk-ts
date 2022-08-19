@@ -71,6 +71,12 @@ export const createItem = async (
 	// TODO: Should probably be moved somewhere else so the UI can access the state
 	await promise
 
+	// Post the metadata on Waku
+	const message = await WakuMessage.fromBytes(metadata, getItemTopic(address))
+
+	await waitForRemotePeer(waku)
+	await waku.relay.send(message)
+
 	// Convert the price to bigint
 	const amount = numberToBigInt(price, decimals)
 	const amountToApprove = amount + (await contract.fee()).toBigInt() / 2n
@@ -82,12 +88,6 @@ export const createItem = async (
 	// Post the item on chain
 	tx = await contract.newItem(amount, new Uint8Array(hash))
 	await tx.wait()
-
-	// Post the metadata on Waku
-	const message = await WakuMessage.fromBytes(metadata, getItemTopic(address))
-
-	await waitForRemotePeer(waku)
-	await waku.relay.send(message)
 }
 
 const decodeWakuMessage = async (
