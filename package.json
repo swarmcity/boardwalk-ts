@@ -22,7 +22,7 @@
 		"classnames": "^2.3.1",
 		"ethers": "^5.6.9",
 		"eventemitter3": "^4.0.7",
-		"js-waku": "^0.25.0-rc.0",
+		"js-waku": "^0.25.0-rc.1",
 		"protons-runtime": "^3.1.0",
 		"qrcode.react": "^3.1.0",
 		"react": "^18.2.0",
