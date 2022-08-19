@@ -71,8 +71,17 @@ export const createItem = async (
 	// TODO: Should probably be moved somewhere else so the UI can access the state
 	await promise
 
+	// Convert the price to bigint
+	const amount = numberToBigInt(price, decimals)
+	const amountToApprove = amount + (await contract.fee()).toBigInt() / 2n
+
+	// Approve the tokens to be spent by the marketplace
+	let tx = await token.approve(address, amountToApprove)
+	await tx.wait()
+
 	// Post the item on chain
-	await contract.newItem(numberToBigInt(price, decimals), new Uint8Array(hash))
+	tx = await contract.newItem(amount, new Uint8Array(hash))
+	await tx.wait()
 
 	// Post the metadata on Waku
 	const message = await WakuMessage.fromBytes(metadata, getItemTopic(address))
