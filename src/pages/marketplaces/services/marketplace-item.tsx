@@ -170,7 +170,7 @@ export const useItemReplies = (
 			;(async () => {
 				const decoded = await Promise.all(decodeWakuReplies(messages))
 				const filtered = decoded.filter(Boolean) as ItemReplyClean[]
-				setReplies([...replies, ...filtered])
+				setReplies((replies) => [...replies, ...filtered])
 				setLastUpdate(Date.now())
 			})()
 		}

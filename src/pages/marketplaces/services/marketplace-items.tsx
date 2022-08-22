@@ -158,7 +158,7 @@ export const useGetWakuItems = (
 			// eslint-disable-next-line @typescript-eslint/no-extra-semi
 			;(async () => {
 				const decoded = await Promise.all(decodeWakuMessages(messages))
-				setItems([...items, ...decoded])
+				setItems((items) => [...items, ...decoded])
 				setLastUpdate(Date.now())
 			})()
 		}
