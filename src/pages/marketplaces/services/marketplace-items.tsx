@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { waitForRemotePeer, Waku, WakuMessage } from 'js-waku'
 import { BigNumber, Contract, Event } from 'ethers'
+import { useProvider } from 'wagmi'
+import { Interface } from 'ethers/lib/utils'
 
 // Types
 import type { Signer } from 'ethers'
+import type { UpdateTime } from '../../../lib/blockchain'
 
 // Protos
 import { ItemMetadata } from '../../../protos/ItemMetadata'
@@ -12,9 +15,20 @@ import { ItemMetadata } from '../../../protos/ItemMetadata'
 import marketplaceAbi from '../../../abis/marketplace.json'
 import erc20Abi from '../../../abis/erc20.json'
 
-// Tools
+// Lib
 import { bufferToHex, numberToBigInt } from '../../../lib/tools'
-import { useProvider } from 'wagmi'
+import { shouldUpdate } from '../../../lib/blockchain'
+
+// Status
+export enum Status {
+	None,
+	Open,
+	Funded,
+	Done,
+	Disputed,
+	Resolved,
+	Cancelled,
+}
 
 type CreateItem = {
 	price: number
@@ -34,6 +48,12 @@ type ChainItem = {
 	fee: BigNumber
 	seekerRep: BigNumber
 	timestamp: number
+	status: Status
+}
+
+type StatusChangeEvent = {
+	id: BigNumber
+	status: Status
 }
 
 export type Item = Omit<ChainItem, 'metadata'> & { metadata: ItemMetadata }
@@ -152,23 +172,42 @@ export const useGetWakuItems = (
 	return { waiting, loading, items, lastUpdate }
 }
 
-const decodeEvent = async (event: Event): Promise<ChainItem> => {
-	if (!event.args) {
-		throw new Error('no event args')
-	}
-
+const decodeNewItemEvent = async (
+	event: Event,
+	iface: Interface
+): Promise<ChainItem> => {
+	const { args } = iface.parseLog(event)
 	const { timestamp } = await event.getBlock()
 
 	return {
-		owner: event.args.owner,
-		id: event.args.id,
-		metadata: event.args.metadata,
-		price: event.args.price,
-		fee: event.args.fee,
-		seekerRep: event.args.seekerRep,
+		owner: args.owner,
+		id: args.id,
+		metadata: args.metadata,
+		price: args.price,
+		fee: args.fee,
+		seekerRep: args.seekerRep,
 		timestamp,
+		status: Status.Open,
 	}
 }
+
+const decodeStatusChangeEvent = async (
+	event: Event,
+	iface: Interface
+): Promise<StatusChangeEvent> => {
+	const { args } = iface.parseLog(event)
+
+	return {
+		id: args.id,
+		status: args.newstatus,
+	}
+}
+
+type Metadata = UpdateTime & {
+	metadata: string
+}
+
+type MetadataIndex = Record<string, Metadata>
 
 export const useGetMarketplaceItems = (address: string) => {
 	const [loading, setLoading] = useState(true)
@@ -183,18 +222,59 @@ export const useGetMarketplaceItems = (address: string) => {
 	)
 
 	useEffect(() => {
+		const metadata: MetadataIndex = {}
+		const indexed: Record<string, ChainItem> = {}
+
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
-			const filter = contract.filters.NewItem()
-			const events = await contract.queryFilter(filter, 0)
-			const decoded = await Promise.all(events.map(decodeEvent))
-			const indexed = decoded.reduce<Record<string, ChainItem>>(
-				(object, item) => {
-					object[item.metadata] = item
-					return object
+			const newItem = contract.interface.getEventTopic('NewItem')
+			const statusChange = contract.interface.getEventTopic('ItemStatusChange')
+
+			const events = await contract.queryFilter(
+				{
+					address: contract.address,
+					topics: [[newItem, statusChange]],
 				},
-				{}
+				0
 			)
+
+			for (const event of events) {
+				const { blockNumber, transactionIndex, topics } = event
+
+				switch (topics[0]) {
+					case newItem:
+						const item = await decodeNewItemEvent(event, contract.interface)
+						metadata[item.id.toString()] = {
+							blockNumber,
+							transactionIndex,
+							metadata: item.metadata,
+						}
+						indexed[item.metadata] = item
+						break
+
+					case statusChange:
+						const { id, status } = await decodeStatusChangeEvent(
+							event,
+							contract.interface
+						)
+						const data = metadata[id.toString()]
+
+						console.log(
+							event,
+							data,
+							indexed[data.metadata],
+							shouldUpdate(event, data),
+							status
+						)
+
+						if (shouldUpdate(event, data)) {
+							indexed[data.metadata].status = status
+						}
+
+						break
+				}
+			}
+
 			setItems(indexed)
 			setLoading(false)
 			setLastUpdate(Date.now())
