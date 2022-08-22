@@ -97,7 +97,6 @@ export const createItem = async (
 		getItemTopic(marketplace)
 	)
 
-	await waitForRemotePeer(waku)
 	await waku.relay.send(message)
 
 	// Convert the price to bigint
