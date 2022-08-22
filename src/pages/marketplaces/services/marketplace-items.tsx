@@ -259,14 +259,6 @@ export const useGetMarketplaceItems = (address: string) => {
 						)
 						const data = metadata[id.toString()]
 
-						console.log(
-							event,
-							data,
-							indexed[data.metadata],
-							shouldUpdate(event, data),
-							status
-						)
-
 						if (shouldUpdate(event, data)) {
 							indexed[data.metadata].status = status
 						}
