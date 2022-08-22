@@ -36,7 +36,7 @@ type ChainItem = {
 	timestamp: number
 }
 
-type Item = Omit<ChainItem, 'metadata'> & { metadata: ItemMetadata }
+export type Item = Omit<ChainItem, 'metadata'> & { metadata: ItemMetadata }
 
 type WakuMessageWithPayload = WakuMessage & { get payload(): Uint8Array }
 
@@ -211,6 +211,7 @@ export const useMarketplaceItems = (
 	const wakuItems = useGetWakuItems(waku, marketplace)
 	const chainItems = useGetMarketplaceItems(marketplace)
 	const [items, setItems] = useState<Item[]>([])
+	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
 	useEffect(() => {
 		const items = wakuItems.items.flatMap((item) => {
@@ -218,11 +219,13 @@ export const useMarketplaceItems = (
 			return event ? [{ ...event, metadata: item.metadata }] : []
 		})
 		setItems(items)
+		setLastUpdate(Date.now())
 	}, [wakuItems.lastUpdate, chainItems.lastUpdate])
 
 	return {
 		waiting: wakuItems.waiting,
 		loading: wakuItems.loading || chainItems.loading,
+		lastUpdate,
 		items,
 	}
 }

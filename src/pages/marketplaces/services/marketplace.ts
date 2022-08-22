@@ -68,7 +68,7 @@ export const useMarketplaceTokenContract = (address: string) => {
 
 export const useMarketplaceTokenDecimals = (address: string) => {
 	const [loading, setLoading] = useState(true)
-	const [decimals, setDecimals] = useState(0)
+	const [decimals, setDecimals] = useState<number | undefined>(undefined)
 
 	// Get the marketplace contract
 	const token = useMarketplaceTokenContract(address)
