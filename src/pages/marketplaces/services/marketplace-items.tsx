@@ -46,7 +46,7 @@ export const getItemTopic = (address: string) => {
 
 export const createItem = async (
 	waku: Waku,
-	address: string,
+	marketplace: string,
 	{ price, description }: CreateItem,
 	connector: { getSigner: () => Promise<Signer> }
 ) => {
@@ -60,7 +60,7 @@ export const createItem = async (
 	const hash = await crypto.subtle.digest('SHA-256', metadata)
 
 	// Get the marketplace contract
-	const contract = new Contract(address, marketplaceAbi, signer)
+	const contract = new Contract(marketplace, marketplaceAbi, signer)
 
 	// Get token decimals
 	const tokenAddress = await contract.token()
@@ -72,7 +72,10 @@ export const createItem = async (
 	await promise
 
 	// Post the metadata on Waku
-	const message = await WakuMessage.fromBytes(metadata, getItemTopic(address))
+	const message = await WakuMessage.fromBytes(
+		metadata,
+		getItemTopic(marketplace)
+	)
 
 	await waitForRemotePeer(waku)
 	await waku.relay.send(message)
@@ -82,7 +85,7 @@ export const createItem = async (
 	const amountToApprove = amount + (await contract.fee()).toBigInt() / 2n
 
 	// Approve the tokens to be spent by the marketplace
-	let tx = await token.approve(address, amountToApprove)
+	let tx = await token.approve(marketplace, amountToApprove)
 	await tx.wait()
 
 	// Post the item on chain
@@ -108,7 +111,10 @@ const decodeWakuMessages = (messages: WakuMessage[]): Promise<WakuItem>[] => {
 	)
 }
 
-export const useGetWakuItems = (waku: Waku | undefined, address: string) => {
+export const useGetWakuItems = (
+	waku: Waku | undefined,
+	marketplace: string
+) => {
 	const [waiting, setWaiting] = useState(true)
 	const [loading, setLoading] = useState(false)
 	const [items, setItems] = useState<WakuItem[]>([])
@@ -139,9 +145,9 @@ export const useGetWakuItems = (waku: Waku | undefined, address: string) => {
 		}
 
 		waku.store
-			.queryHistory([getItemTopic(address)], { callback })
+			.queryHistory([getItemTopic(marketplace)], { callback })
 			.then(() => setLoading(false))
-	}, [waiting, address])
+	}, [waiting, marketplace])
 
 	return { waiting, loading, items, lastUpdate }
 }
@@ -200,10 +206,10 @@ export const useGetMarketplaceItems = (address: string) => {
 
 export const useMarketplaceItems = (
 	waku: Waku | undefined,
-	address: string
+	marketplace: string
 ) => {
-	const wakuItems = useGetWakuItems(waku, address)
-	const chainItems = useGetMarketplaceItems(address)
+	const wakuItems = useGetWakuItems(waku, marketplace)
+	const chainItems = useGetMarketplaceItems(marketplace)
 	const [items, setItems] = useState<Item[]>([])
 
 	useEffect(() => {
