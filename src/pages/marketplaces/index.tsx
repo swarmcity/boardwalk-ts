@@ -9,6 +9,7 @@ import { useStore } from '../../store'
 import { MarketplaceList } from './list'
 import { Marketplace } from './marketplace'
 import { MarketplaceListItem } from './list-item'
+import { MarketplaceItem } from './item'
 
 // Components
 import { Redirect } from '../../components/redirect'
@@ -64,6 +65,7 @@ export const Marketplaces = () => {
 					<Route element={<MarketplaceList />} path="/" />
 					<Route element={<Marketplace />} path="/:id" />
 					<Route element={<MarketplaceListItem />} path="/:id/add" />
+					<Route element={<MarketplaceItem />} path="/:id/item/:item" />
 				</Routes>
 			</div>
 		</div>
