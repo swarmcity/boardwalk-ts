@@ -12,7 +12,7 @@ import {
 	useMarketplaceContract,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
-import { createReply } from './services/marketplace-item'
+import { createReply, useItemReplies } from './services/marketplace-item'
 import { Item, useMarketplaceItems } from './services/marketplace-items'
 
 type ReplyFormProps = {
@@ -42,6 +42,7 @@ const ReplyForm = ({ item, marketplace, decimals }: ReplyFormProps) => {
 		<form onSubmit={postReply}>
 			<input
 				type="text"
+				value={text}
 				onChange={(event) => setText(event.currentTarget.value)}
 			/>
 			<p>
@@ -68,6 +69,7 @@ export const MarketplaceItem = () => {
 	const contract = useMarketplaceContract(id)
 	const { connector } = useAccount()
 	const navigate = useNavigate()
+	const { replies } = useItemReplies(waku, id, itemId.toBigInt())
 
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
@@ -106,6 +108,23 @@ export const MarketplaceItem = () => {
 					? 'Loading...'
 					: `${formatUnits(item.price, decimals)} DAI`}
 			</span>
+
+			<div>
+				Replies:
+				{replies.length ? (
+					<ul>
+						{replies.map((reply) => (
+							<li key={reply.signature}>
+								<p>From: {reply.from}</p>
+								<p>{reply.text}</p>
+							</li>
+						))}
+					</ul>
+				) : (
+					'No replies...'
+				)}
+			</div>
+
 			{item.owner === address ? (
 				<button onClick={cancelItem} disabled={!contract || !connector}>
 					Cancel item
