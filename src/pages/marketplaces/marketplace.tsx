@@ -6,50 +6,11 @@ import { useWaku } from '../../hooks/use-waku'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
-import { useMarketplaceTokenDecimals } from './services/marketplace'
+import {
+	useMarketplaceName,
+	useMarketplaceTokenDecimals,
+} from './services/marketplace'
 import { Item, useMarketplaceItems } from './services/marketplace-items'
-
-const hashtag = {
-	name: 'Settler',
-	items: [
-		{
-			name: "A meatball sub from Fred's, NY",
-			price: 5,
-			date: new Date(),
-			seeker: {
-				name: 'Harry Humble',
-				reputation: 4,
-			},
-		},
-		{
-			name: 'Dogwalker @ Paris today - 15:00',
-			price: 12,
-			date: new Date(),
-			seeker: {
-				name: 'Sally Singer',
-				reputation: 1,
-			},
-		},
-		{
-			name: 'Looking for a ride from downtown LA (Grand - 9th av) to LAX',
-			price: 5,
-			date: new Date(),
-			seeker: {
-				name: 'Frank',
-				reputation: 4,
-			},
-		},
-		{
-			name: '1/2 pound roasted Coffee beans',
-			price: 3,
-			date: new Date(),
-			seeker: {
-				name: 'Michelle',
-				reputation: 420,
-			},
-		},
-	],
-}
 
 type DisplayItemsProps = {
 	items: Item[]
@@ -87,6 +48,7 @@ export const Marketplace = () => {
 	const { waku } = useWaku()
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
 	const { decimals } = useMarketplaceTokenDecimals(id)
+	const name = useMarketplaceName(id)
 
 	// Filter out the user's items from the other ones
 	const [own, other] = useMemo(
@@ -109,7 +71,7 @@ export const Marketplace = () => {
 	return (
 		<div>
 			{loading && <p>Loading</p>}
-			<h2>{hashtag.name}</h2>
+			<h2>{name}</h2>
 			<Link to={MARKETPLACE_ADD(id)}>Add</Link>
 			<div>
 				<h2 style={{ textDecoration: 'underline' }}>My items</h2>
