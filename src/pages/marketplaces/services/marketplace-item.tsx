@@ -30,6 +30,7 @@ const TYPES: Record<string, Array<TypedDataField>> = {
 	Reply: [
 		{ name: 'marketplace', type: 'string' },
 		{ name: 'item', type: 'uint256' },
+		{ name: 'from', type: 'address' },
 		{ name: 'text', type: 'string' },
 	],
 }
@@ -49,20 +50,25 @@ export const createReply = async (
 
 	// Get signer
 	const signer = await connector.getSigner()
+	const from = await signer.getAddress()
 
 	if (!(signer instanceof Wallet)) {
 		throw new Error('not implemented yet')
 	}
 
 	// Data to sign and in the Waku message
-	const data = { marketplace, item: item.toBigInt(), text }
+	const data = { from, marketplace, item: item.toBigInt(), text }
 
 	// Sign the message
 	const signatureHex = await signer._signTypedData(DOMAIN, TYPES, data)
 	const signature = utils.hexToBytes(signatureHex)
 
 	// Create the metadata
-	const reply = ItemReply.encode({ ...data, signature })
+	const reply = ItemReply.encode({
+		...data,
+		from: utils.hexToBytes(from.substring(2).toLowerCase()),
+		signature,
+	})
 
 	// Wait for peers
 	// TODO: Should probably be moved somewhere else so the UI can access the state

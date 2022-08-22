@@ -4,5 +4,6 @@ message ItemReply {
   string marketplace = 1;
 	uint64 item = 2;
 	string text = 3;
+	bytes from = 4;
 	bytes signature = 99;
 }
