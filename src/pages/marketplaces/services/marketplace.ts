@@ -2,31 +2,26 @@ import { Contract } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { useProvider } from 'wagmi'
 
+// ABIs
+import marketplaceAbi from '../../../abis/marketplace.json'
+
 export const useMarketplaceContract = (address: string) => {
 	const provider = useProvider()
 	return useMemo(
-		() =>
-			new Contract(
-				address,
-				[
-					{
-						inputs: [],
-						name: 'token',
-						outputs: [
-							{
-								internalType: 'contract ERC20',
-								name: '',
-								type: 'address',
-							},
-						],
-						stateMutability: 'view',
-						type: 'function',
-					},
-				],
-				provider
-			),
+		() => new Contract(address, marketplaceAbi, provider),
 		[address, provider]
 	)
+}
+
+export const useMarketplaceName = (address: string) => {
+	const [name, setName] = useState()
+	const contract = useMarketplaceContract(address)
+
+	useEffect(() => {
+		contract.name().then(setName)
+	}, [contract])
+
+	return name
 }
 
 export const useMarketplaceTokenContract = (address: string) => {
