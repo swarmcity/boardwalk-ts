@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Wallet } from 'ethers'
 import { waitForRemotePeer, WakuMessage, utils } from 'js-waku'
+import { verifyTypedData } from '@ethersproject/wallet'
+import { getAddress } from '@ethersproject/address'
 
 // Types
 import type {
@@ -14,6 +17,14 @@ import { ItemReply } from '../../../protos/ItemReply'
 
 type CreateReply = {
 	text: string
+}
+
+type ItemReplyClean = {
+	marketplace: string
+	item: bigint
+	text: string
+	from: string
+	signature: string
 }
 
 // EIP-712
@@ -81,4 +92,93 @@ export const createReply = async (
 	)
 
 	await waku.relay.send(message)
+}
+
+type WakuMessageWithPayload = WakuMessage & { get payload(): Uint8Array }
+
+const verifyReplySignature = (reply: ItemReply) => {
+	const from = getAddress('0x' + utils.bytesToHex(reply.from))
+	const recovered = verifyTypedData(
+		DOMAIN,
+		TYPES,
+		{
+			from,
+			marketplace: reply.marketplace,
+			item: reply.item,
+			text: reply.text,
+		},
+		reply.signature
+	)
+	return recovered === from
+}
+
+const decodeWakuReply = async (
+	message: WakuMessageWithPayload
+): Promise<ItemReplyClean | false> => {
+	try {
+		const reply = ItemReply.decode(message.payload)
+		return (
+			verifyReplySignature(reply) && {
+				marketplace: reply.marketplace,
+				item: reply.item,
+				text: reply.text,
+				from: getAddress('0x' + utils.bytesToHex(reply.from)),
+				signature: '0x' + utils.bytesToHex(reply.signature),
+			}
+		)
+	} catch (err) {
+		console.error(err)
+		return false
+	}
+}
+
+const decodeWakuReplies = (
+	messages: WakuMessage[]
+): Promise<ItemReplyClean | false>[] => {
+	return messages.flatMap((message) =>
+		message.payload ? decodeWakuReply(message as WakuMessageWithPayload) : []
+	)
+}
+
+export const useItemReplies = (
+	waku: Waku | undefined,
+	marketplace: string,
+	item: bigint
+) => {
+	const [waiting, setWaiting] = useState(true)
+	const [loading, setLoading] = useState(false)
+	const [replies, setReplies] = useState<ItemReplyClean[]>([])
+	const [lastUpdate, setLastUpdate] = useState(Date.now())
+
+	useEffect(() => {
+		if (!waku) {
+			return
+		}
+
+		waitForRemotePeer(waku).then(() => setWaiting(false))
+	}, [waku])
+
+	useEffect(() => {
+		if (!waku || waiting) {
+			return
+		}
+
+		setReplies([])
+		setLoading(true)
+		const callback = (messages: WakuMessage[]) => {
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			;(async () => {
+				const decoded = await Promise.all(decodeWakuReplies(messages))
+				const filtered = decoded.filter(Boolean) as ItemReplyClean[]
+				setReplies([...replies, ...filtered])
+				setLastUpdate(Date.now())
+			})()
+		}
+
+		waku.store
+			.queryHistory([getItemTopic(marketplace, item.toString())], { callback })
+			.then(() => setLoading(false))
+	}, [waiting, marketplace, item])
+
+	return { waiting, loading, replies, lastUpdate }
 }
