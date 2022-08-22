@@ -6,6 +6,7 @@ import { defaultAbiCoder, getAddress } from 'ethers/lib/utils'
 
 // Lib
 import { readLocalStore, updateLocalStore } from '../../../lib/store'
+import { shouldUpdate } from '../../../lib/blockchain'
 
 // Config
 import { MARKETPLACE_LIST } from '../../../config'
@@ -44,22 +45,6 @@ const { useStore } = createStore<MarketplaceStore>(
 export const useMarketplaceList = () => {
 	const [list] = useStore.list()
 	return list
-}
-
-type UpdateTime = {
-	blockNumber: number
-	transactionIndex: number
-}
-
-const shouldUpdate = (current: UpdateTime, last?: UpdateTime) => {
-	if (!last) {
-		return true
-	}
-
-	return (
-		current.blockNumber > last.blockNumber &&
-		current.transactionIndex > last.transactionIndex
-	)
 }
 
 export const useMarketplaceListSync = () => {

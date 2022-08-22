@@ -2,15 +2,19 @@ import { formatUnits } from '@ethersproject/units'
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAccount } from 'wagmi'
+
+// Hooks
 import { useWaku } from '../../hooks/use-waku'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
+
+// Services
 import {
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
-import { Item, useMarketplaceItems } from './services/marketplace-items'
+import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 
 type DisplayItemsProps = {
 	marketplace: string
@@ -21,23 +25,25 @@ type DisplayItemsProps = {
 const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
 	return (
 		<>
-			{items.map((item, index) => (
-				<Link
-					to={`/marketplace/${marketplace}/item/${item.id.toString()}`}
-					key={index}
-				>
-					<h3>{item.metadata.description}</h3>
-					<span>{new Date(item.timestamp * 1000).toISOString()}</span>
-					<p>
-						{item.owner} - {item.seekerRep.toString()} SWMR
-					</p>
-					<span>
-						{decimals === undefined
-							? 'Loading...'
-							: `${formatUnits(item.price, decimals)} DAI`}
-					</span>
-				</Link>
-			))}
+			{items
+				.filter(({ status }) => status === Status.Open)
+				.map((item, index) => (
+					<Link
+						to={`/marketplace/${marketplace}/item/${item.id.toString()}`}
+						key={index}
+					>
+						<h3>{item.metadata.description}</h3>
+						<span>{new Date(item.timestamp * 1000).toISOString()}</span>
+						<p>
+							{item.owner} - {item.seekerRep.toString()} SWMR
+						</p>
+						<span>
+							{decimals === undefined
+								? 'Loading...'
+								: `${formatUnits(item.price, decimals)} DAI`}
+						</span>
+					</Link>
+				))}
 		</>
 	)
 }
