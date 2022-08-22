@@ -13,26 +13,30 @@ import {
 import { Item, useMarketplaceItems } from './services/marketplace-items'
 
 type DisplayItemsProps = {
+	marketplace: string
 	items: Item[]
 	decimals: number | undefined
 }
 
-const DisplayItems = ({ items, decimals }: DisplayItemsProps) => {
+const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
 	return (
 		<>
 			{items.map((item, index) => (
-				<div key={index}>
+				<Link
+					to={`/marketplace/${marketplace}/item/${item.id.toString()}`}
+					key={index}
+				>
 					<h3>{item.metadata.description}</h3>
 					<span>{new Date(item.timestamp * 1000).toISOString()}</span>
 					<p>
 						{item.owner} - {item.seekerRep.toString()} SWMR
 					</p>
 					<span>
-						{decimals !== undefined
+						{decimals === undefined
 							? 'Loading...'
 							: `${formatUnits(item.price, decimals)} DAI`}
 					</span>
-				</div>
+				</Link>
 			))}
 		</>
 	)
@@ -75,12 +79,12 @@ export const Marketplace = () => {
 			<Link to={MARKETPLACE_ADD(id)}>Add</Link>
 			<div>
 				<h2 style={{ textDecoration: 'underline' }}>My items</h2>
-				<DisplayItems items={own} decimals={decimals} />
+				<DisplayItems marketplace={id} items={own} decimals={decimals} />
 			</div>
 
 			<div>
 				<h2 style={{ textDecoration: 'underline' }}>Other items</h2>
-				<DisplayItems items={other} decimals={decimals} />
+				<DisplayItems marketplace={id} items={other} decimals={decimals} />
 			</div>
 		</div>
 	)
