@@ -1,6 +1,6 @@
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { useMemo } from 'react'
+import { FormEvent, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useAccount } from 'wagmi'
 
@@ -12,7 +12,47 @@ import {
 	useMarketplaceContract,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
-import { useMarketplaceItems } from './services/marketplace-items'
+import { createReply } from './services/marketplace-item'
+import { Item, useMarketplaceItems } from './services/marketplace-items'
+
+type ReplyFormProps = {
+	item: Item
+	marketplace: string
+	decimals: number | undefined
+}
+
+const ReplyForm = ({ item, marketplace, decimals }: ReplyFormProps) => {
+	const [text, setText] = useState('')
+
+	const { waku } = useWaku()
+	const { connector } = useAccount()
+
+	const postReply = async (event: FormEvent<HTMLElement>) => {
+		event.preventDefault()
+
+		if (!waku || !connector) {
+			throw new Error('no waku or connector')
+		}
+
+		await createReply(waku, marketplace, item.id, { text }, connector)
+		setText('')
+	}
+
+	return (
+		<form onSubmit={postReply}>
+			<input
+				type="text"
+				onChange={(event) => setText(event.currentTarget.value)}
+			/>
+			<p>
+				{decimals === undefined
+					? 'Loading...'
+					: `For ${formatUnits(item.price, decimals)} DAI`}
+			</p>
+			<button type="submit">Submit</button>
+		</form>
+	)
+}
 
 export const MarketplaceItem = () => {
 	const { id, item: itemIdString } = useParams<{ id: string; item: string }>()
@@ -66,10 +106,12 @@ export const MarketplaceItem = () => {
 					? 'Loading...'
 					: `${formatUnits(item.price, decimals)} DAI`}
 			</span>
-			{item.owner === address && (
+			{item.owner === address ? (
 				<button onClick={cancelItem} disabled={!contract || !connector}>
 					Cancel item
 				</button>
+			) : (
+				<ReplyForm item={item} marketplace={id} decimals={decimals} />
 			)}
 		</div>
 	)
