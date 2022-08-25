@@ -127,7 +127,6 @@ const decodeWakuReply = async (
 			}
 		)
 	} catch (err) {
-		console.error(err)
 		return false
 	}
 }
