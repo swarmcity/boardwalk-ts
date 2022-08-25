@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message Profile {
+  bytes address = 1;
+  string username = 2;
+  bytes pictureHash = 3;
+  bytes signature = 99;
+}
