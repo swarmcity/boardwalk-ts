@@ -210,7 +210,7 @@ type MetadataIndex = Record<string, Metadata>
 
 export const useGetMarketplaceItems = (address: string) => {
 	const [loading, setLoading] = useState(true)
-	const [items, setItems] = useState<Record<string, ChainItem>>({})
+	const [items, setItems] = useState<Record<string, ChainItem[]>>({})
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
 	// Wagmi
@@ -222,7 +222,19 @@ export const useGetMarketplaceItems = (address: string) => {
 
 	useEffect(() => {
 		const metadata: MetadataIndex = {}
-		const indexed: Record<string, ChainItem> = {}
+		const indexed: Record<string, ChainItem[]> = {}
+
+		const updateMetadata = (
+			id: BigNumber,
+			metadata: string,
+			status: Status
+		) => {
+			for (const item of indexed[metadata]) {
+				if (item.id.eq(id)) {
+					item.status = status
+				}
+			}
+		}
 
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
@@ -248,7 +260,10 @@ export const useGetMarketplaceItems = (address: string) => {
 							transactionIndex,
 							metadata: item.metadata,
 						}
-						indexed[item.metadata] = item
+						if (!indexed[item.metadata]) {
+							indexed[item.metadata] = []
+						}
+						indexed[item.metadata].push(item)
 						break
 
 					case statusChange:
@@ -259,7 +274,7 @@ export const useGetMarketplaceItems = (address: string) => {
 						const data = metadata[id.toString()]
 
 						if (shouldUpdate(event, data)) {
-							indexed[data.metadata].status = status
+							updateMetadata(id, data.metadata, status)
 						}
 
 						break
@@ -286,8 +301,9 @@ export const useMarketplaceItems = (
 
 	useEffect(() => {
 		const items = wakuItems.items.flatMap((item) => {
-			const event = chainItems.items[item.hash]
-			return event ? [{ ...event, metadata: item.metadata }] : []
+			const events = chainItems.items[item.hash] || []
+			delete chainItems.items[item.hash]
+			return events.map((event) => ({ ...event, metadata: item.metadata }))
 		})
 		setItems(items)
 		setLastUpdate(Date.now())
