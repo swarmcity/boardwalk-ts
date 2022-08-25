@@ -120,5 +120,5 @@ export const createSignedProto = async <Values extends Record<string, unknown>>(
 	signer: Signer
 ): Promise<Uint8Array> => {
 	const payload = await createSignedPayload(config, formatData, signer)
-	return proto.encode(payload as SignedPayload<Values>)
+	return proto.encode(payload)
 }
