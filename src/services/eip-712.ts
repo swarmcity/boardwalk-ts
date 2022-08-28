@@ -1,4 +1,4 @@
-import { arrayify } from '@ethersproject/bytes'
+import { arrayify, hexlify } from '@ethersproject/bytes'
 import { getAddress } from '@ethersproject/address'
 import { verifyTypedData, Wallet } from '@ethersproject/wallet'
 
@@ -38,7 +38,7 @@ const getSignerString = (signer: string | Uint8Array) => {
 	if (typeof signer === 'string') {
 		return signer
 	}
-	return getAddress('0x' + arrayify(signer))
+	return getAddress(hexlify(signer))
 }
 
 const getVerifyPayloadConfig = <ProtoType>(
