@@ -62,3 +62,7 @@ export const postWakuMessage = async (
 	// Send the message
 	await waku.relay.send(message)
 }
+
+export const wrapSigner = (signer: Signer) => ({
+	getSigner: async () => signer,
+})

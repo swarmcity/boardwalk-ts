@@ -1,4 +1,4 @@
-import { utils } from 'js-waku'
+import { arrayify } from '@ethersproject/bytes'
 import { getAddress } from '@ethersproject/address'
 import { verifyTypedData, Wallet } from '@ethersproject/wallet'
 
@@ -38,7 +38,7 @@ const getSignerString = (signer: string | Uint8Array) => {
 	if (typeof signer === 'string') {
 		return signer
 	}
-	return getAddress('0x' + utils.bytesToHex(signer))
+	return getAddress('0x' + arrayify(signer))
 }
 
 const getVerifyPayloadConfig = <ProtoType>(
@@ -85,16 +85,19 @@ export const decodeSignedPayload = <
 }
 
 export const createSignedPayload = async <
-	Values extends Record<string, unknown>
+	Data extends Record<string, unknown>,
+	DataToSigner extends Record<string, unknown>
 >(
 	config: EIP712Config,
-	formatData: (signer: Uint8Array) => Values,
+	formatData: (signer: Uint8Array) => Data,
+	formatDataToSign: (signer: string) => DataToSigner,
 	signer: Signer
-): Promise<Values & { signature: Uint8Array }> => {
-	const address = utils.hexToBytes(await signer.getAddress())
+): Promise<Data & { signature: Uint8Array }> => {
+	const address = await signer.getAddress()
 
 	// Data to sign and in the Waku message
-	const data = formatData(address)
+	const data = formatData(arrayify(address))
+	const values = formatDataToSign(address)
 
 	// Check if the signer is a Wallet
 	if (!(signer instanceof Wallet)) {
@@ -105,20 +108,29 @@ export const createSignedPayload = async <
 	const signatureHex = await signer._signTypedData(
 		config.domain,
 		config.types,
-		data
+		values
 	)
-	const signature = utils.hexToBytes(signatureHex)
+	const signature = arrayify(signatureHex)
 
 	// Return the data with signature
 	return { ...data, signature }
 }
 
-export const createSignedProto = async <Values extends Record<string, unknown>>(
+export const createSignedProto = async <
+	Data extends Record<string, unknown>,
+	DataToSigner extends Record<string, unknown>
+>(
 	config: EIP712Config,
-	formatData: (signer: Uint8Array) => Values,
-	proto: Proto<SignedPayload<Values>>,
+	formatData: (signer: Uint8Array) => Data,
+	formatDataToSign: (signer: string) => DataToSigner,
+	proto: Proto<SignedPayload<Data>>,
 	signer: Signer
 ): Promise<Uint8Array> => {
-	const payload = await createSignedPayload(config, formatData, signer)
+	const payload = await createSignedPayload(
+		config,
+		formatData,
+		formatDataToSign,
+		signer
+	)
 	return proto.encode(payload)
 }

@@ -21,6 +21,9 @@ import { formatBalance } from '../../lib/tools'
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
 import exit from '../../assets/imgs/exit.svg?url'
 
+// Services
+import { useSyncProfile } from '../../services/profile'
+
 export const Marketplaces = () => {
 	const [profile, setProfile] = useStore.profile()
 
@@ -32,6 +35,9 @@ export const Marketplaces = () => {
 		addressOrName: address,
 		watch: true,
 	})
+
+	// Keep the profile in sync
+	useSyncProfile()
 
 	if (!profile?.address) {
 		return <Redirect to={LOGIN} />

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageDirection, WakuMessage } from 'js-waku'
 
 // Types
@@ -13,8 +13,12 @@ import {
 	postWakuMessage,
 	useWakuStoreQuery,
 	WakuMessageWithPayload,
+	wrapSigner,
 } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
+import { useWaku } from '../hooks/use-waku'
+import { useAccount } from 'wagmi'
+import { useStore } from '../store'
 
 type CreateProfile = {
 	username: string
@@ -50,11 +54,12 @@ export const createProfile = async (
 	const payload = await createSignedProto(
 		eip712Config,
 		(signer: Uint8Array) => ({ address: signer, ...input }),
+		(signer: string) => ({ address: signer, ...input }),
 		Profile,
 		signer
 	)
 
-	return postWakuMessage(waku, connector, getProfileTopic, payload)
+	return postWakuMessage(waku, wrapSigner(signer), getProfileTopic, payload)
 }
 
 const decodeMessage = (message: WakuMessageWithPayload): Profile | false => {
@@ -92,4 +97,35 @@ export const useProfile = (address: string) => {
 	)
 
 	return { ...state, lastUpdate, profile }
+}
+
+export const useSyncProfile = () => {
+	const { waku, waiting } = useWaku()
+	const { address, connector } = useAccount()
+	const [profile] = useStore.profile()
+	const [lastProfileSync, setLastProfileSync] = useStore.lastProfileSync()
+
+	useEffect(() => {
+		if (!waku || !connector || !profile || waiting) {
+			return
+		}
+
+		// Only update the profile once a day
+		if (Date.now() - lastProfileSync.getTime() < 24 * 60 * 60) {
+			return
+		}
+
+		if (address !== profile.address) {
+			console.error(
+				`Profile address (${profile.address}) differs from signer address (${address})`
+			)
+			return
+		}
+
+		// TODO: Remove cast after Partial is removed from Partial<Profile> in store
+		createProfile(waku, connector, {
+			username: profile.username as string,
+			pictureHash: new Uint8Array([]),
+		}).then(() => setLastProfileSync(new Date()))
+	}, [waku, connector, waiting, profile])
 }
