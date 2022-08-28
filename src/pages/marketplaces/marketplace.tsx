@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useAccount } from 'wagmi'
 
 // Hooks
-import { useWaku } from '../../hooks/use-waku'
+import { useWakuContext } from '../../hooks/use-waku'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
@@ -55,7 +55,7 @@ export const Marketplace = () => {
 	}
 
 	const { address } = useAccount()
-	const { waku } = useWaku()
+	const { waku } = useWakuContext()
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
 	const { decimals } = useMarketplaceTokenDecimals(id)
 	const name = useMarketplaceName(id)

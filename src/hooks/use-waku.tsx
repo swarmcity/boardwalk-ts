@@ -1,5 +1,5 @@
 import { multiaddr } from '@multiformats/multiaddr'
-import { Waku } from 'js-waku'
+import { waitForRemotePeer, Waku } from 'js-waku'
 import { createWaku, CreateOptions } from 'js-waku/lib/create_waku'
 import {
 	createContext,
@@ -43,10 +43,25 @@ export const WakuProvider = ({
 	)
 }
 
-export const useWaku = () => {
+export const useWakuContext = () => {
 	const context = useContext(WakuContext)
 	if (!context) {
 		throw new Error('no context')
 	}
 	return context
+}
+
+export const useWaku = () => {
+	const { waku } = useWakuContext()
+	const [waiting, setWaiting] = useState(true)
+
+	useEffect(() => {
+		if (!waku) {
+			return
+		}
+
+		waitForRemotePeer(waku).then(() => setWaiting(false))
+	}, [waku])
+
+	return { waku, waiting }
 }

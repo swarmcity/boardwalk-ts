@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router'
 import { useAccount } from 'wagmi'
 
 // Hooks
-import { useWaku } from '../../hooks/use-waku'
+import { useWakuContext } from '../../hooks/use-waku'
 
 // Services
 import {
@@ -24,7 +24,7 @@ type ReplyFormProps = {
 const ReplyForm = ({ item, marketplace, decimals }: ReplyFormProps) => {
 	const [text, setText] = useState('')
 
-	const { waku } = useWaku()
+	const { waku } = useWakuContext()
 	const { connector } = useAccount()
 
 	const postReply = async (event: FormEvent<HTMLElement>) => {
@@ -64,7 +64,7 @@ export const MarketplaceItem = () => {
 	const itemId = BigNumber.from(itemIdString)
 
 	const { address } = useAccount()
-	const { waku } = useWaku()
+	const { waku } = useWakuContext()
 	const { decimals } = useMarketplaceTokenDecimals(id)
 	const contract = useMarketplaceContract(id)
 	const { connector } = useAccount()

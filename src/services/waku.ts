@@ -8,31 +8,19 @@ import type { DependencyList } from 'react'
 import type { QueryOptions } from 'js-waku/lib/waku_store'
 import type { Signer } from 'ethers'
 
+// Hooks
+import { useWaku } from '../hooks/use-waku'
+
 // Custom types
 export type WakuMessageWithPayload = WakuMessage & { get payload(): Uint8Array }
 
-export const useWaku = (waku: Waku | undefined) => {
-	const [waiting, setWaiting] = useState(true)
-
-	useEffect(() => {
-		if (!waku) {
-			return
-		}
-
-		waitForRemotePeer(waku).then(() => setWaiting(false))
-	}, [waku])
-
-	return waiting
-}
-
 export const useWakuStoreQuery = (
-	waku: Waku | undefined,
 	callback: QueryOptions['callback'],
 	getTopic: () => string,
 	dependencies: DependencyList,
 	options: Omit<QueryOptions, 'callback'> = {}
 ) => {
-	const waiting = useWaku(waku)
+	const { waku, waiting } = useWaku()
 	const [loading, setLoading] = useState(false)
 
 	useEffect(() => {

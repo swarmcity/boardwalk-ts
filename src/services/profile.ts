@@ -69,7 +69,7 @@ const decodeMessage = (message: WakuMessageWithPayload): Profile | false => {
 	)
 }
 
-export const useProfile = (waku: Waku | undefined, address: string) => {
+export const useProfile = (address: string) => {
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 	const [profile, setProfile] = useState<Profile>()
 
@@ -85,7 +85,6 @@ export const useProfile = (waku: Waku | undefined, address: string) => {
 	}
 
 	const state = useWakuStoreQuery(
-		waku,
 		callback,
 		() => getProfileTopic(address),
 		[address],
