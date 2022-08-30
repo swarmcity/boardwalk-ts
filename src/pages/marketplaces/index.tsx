@@ -55,7 +55,11 @@ export const Marketplaces = () => {
 				<main className="flex-space">
 					<figure className="avatar avatar-sm">
 						<CreateAvatar>
-							<img src={profile?.avatar || avatarDefault} alt="user avatar" />
+							<img
+								className="avatar-img"
+								src={profile?.avatar || avatarDefault}
+								alt="user avatar"
+							/>
 						</CreateAvatar>
 						<figcaption>
 							<a href="#" className="username">
