@@ -80,7 +80,7 @@ export const useLatestTopicData = <Data>(
 				setData(data)
 				setPayload(message.payload)
 				setLastUpdate(Date.now())
-				return false
+				return true
 			}
 		}
 	}
