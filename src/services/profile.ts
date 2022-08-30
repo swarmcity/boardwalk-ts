@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi'
 import { setStore, useStore } from '../store'
 
 // Types
-import type { Waku } from 'js-waku'
+import { Protocols, Waku } from 'js-waku'
 import type { Signer } from 'ethers'
 import type { Profile } from '../types/profile'
 
@@ -120,7 +120,7 @@ const updateProfile = async (
 }
 
 export const useSyncProfile = () => {
-	const { waku, waiting } = useWaku()
+	const { waku, waiting } = useWaku([Protocols.Relay])
 	const { address, connector } = useAccount()
 	const [profile] = useStore.profile()
 	const {

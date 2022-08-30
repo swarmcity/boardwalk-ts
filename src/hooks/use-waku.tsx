@@ -9,6 +9,9 @@ import {
 	useState,
 } from 'react'
 
+// Types
+import type { Protocols } from 'js-waku'
+
 // Config
 const DEFAULT_SETTINGS: CreateOptions = {}
 
@@ -51,7 +54,7 @@ export const useWakuContext = () => {
 	return context
 }
 
-export const useWaku = () => {
+export const useWaku = (protocols?: Protocols[]) => {
 	const { waku } = useWakuContext()
 	const [waiting, setWaiting] = useState(true)
 
@@ -60,7 +63,7 @@ export const useWaku = () => {
 			return
 		}
 
-		waitForRemotePeer(waku).then(() => setWaiting(false))
+		waitForRemotePeer(waku, protocols).then(() => setWaiting(false))
 	}, [waku])
 
 	return { waku, waiting }

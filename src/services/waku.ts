@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
-import { waitForRemotePeer, WakuMessage, PageDirection } from 'js-waku'
+import {
+	waitForRemotePeer,
+	WakuMessage,
+	PageDirection,
+	Protocols,
+} from 'js-waku'
 
 // Types
 import type { Waku } from 'js-waku'
@@ -19,7 +24,7 @@ export const useWakuStoreQuery = (
 	dependencies: DependencyList,
 	options: Omit<QueryOptions, 'callback'> = {}
 ) => {
-	const { waku, waiting } = useWaku()
+	const { waku, waiting } = useWaku([Protocols.Store])
 	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
