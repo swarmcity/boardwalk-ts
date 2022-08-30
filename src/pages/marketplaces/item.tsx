@@ -7,13 +7,28 @@ import { useAccount } from 'wagmi'
 // Hooks
 import { useWakuContext } from '../../hooks/use-waku'
 
+// Lib
+import { bufferToHex, displayAddress } from '../../lib/tools'
+
 // Services
 import {
 	useMarketplaceContract,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
-import { createReply, useItemReplies } from './services/marketplace-item'
+import {
+	createReply,
+	ItemReplyClean,
+	useItemReplies,
+} from './services/marketplace-item'
 import { Item, useMarketplaceItems } from './services/marketplace-items'
+import { useProfile } from '../../services/profile'
+import { useProfilePicture } from '../../services/profile-picture'
+
+// Assets
+import avatarDefault from '../../assets/imgs/avatar.svg?url'
+
+// Protos
+import { ProfilePicture as ProfilePictureProto } from '../../protos/ProfilePicture'
 
 type ReplyFormProps = {
 	item: Item
@@ -52,6 +67,43 @@ const ReplyForm = ({ item, marketplace, decimals }: ReplyFormProps) => {
 			</p>
 			<button type="submit">Submit</button>
 		</form>
+	)
+}
+
+const ProfilePicture = ({ picture }: { picture?: ProfilePictureProto }) => {
+	const avatar = useMemo(() => {
+		if (!picture) {
+			return avatarDefault
+		}
+
+		const blob = new Blob([picture.data], { type: picture?.type })
+		return URL.createObjectURL(blob)
+	}, [picture])
+
+	return <img src={avatar} />
+}
+
+const formatFrom = (address: string, username?: string) => {
+	if (!username) {
+		return displayAddress(address)
+	}
+
+	return `${username} (${displayAddress(address)})`
+}
+
+const Reply = ({ reply }: { reply: ItemReplyClean }) => {
+	const data = useProfile(reply.from)
+	const { profile } = data
+	const { picture } = useProfilePicture(
+		profile?.pictureHash ? bufferToHex(profile.pictureHash) : ''
+	)
+
+	return (
+		<li>
+			<p>From: {formatFrom(reply.from, profile?.username)}</p>
+			<ProfilePicture picture={picture} />
+			<p>{reply.text}</p>
+		</li>
 	)
 }
 
@@ -114,10 +166,7 @@ export const MarketplaceItem = () => {
 				{replies.length ? (
 					<ul>
 						{replies.map((reply) => (
-							<li key={reply.signature}>
-								<p>From: {reply.from}</p>
-								<p>{reply.text}</p>
-							</li>
+							<Reply key={reply.signature} reply={reply} />
 						))}
 					</ul>
 				) : (
