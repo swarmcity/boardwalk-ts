@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { waitForRemotePeer, WakuMessage } from 'js-waku'
-import { Wallet } from 'ethers'
+import { waitForRemotePeer, WakuMessage, PageDirection } from 'js-waku'
 
 // Types
 import type { Waku } from 'js-waku'
@@ -21,7 +20,7 @@ export const useWakuStoreQuery = (
 	options: Omit<QueryOptions, 'callback'> = {}
 ) => {
 	const { waku, waiting } = useWaku()
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
 		if (!waku || waiting) {
@@ -38,31 +37,53 @@ export const useWakuStoreQuery = (
 
 export const postWakuMessage = async (
 	waku: Waku,
-	connector: { getSigner: () => Promise<Signer> },
-	getTopic: (address: string) => string,
+	topic: string,
 	payload: Uint8Array
 ) => {
 	const promise = waitForRemotePeer(waku)
-
-	// Get signer
-	const signer = await connector.getSigner()
-	const address = await signer.getAddress()
-
-	if (!(signer instanceof Wallet)) {
-		throw new Error('not implemented yet')
-	}
 
 	// Wait for peers
 	// TODO: Should probably be moved somewhere else so the UI can access the state
 	await promise
 
 	// Post the metadata on Waku
-	const message = await WakuMessage.fromBytes(payload, getTopic(address))
+	const message = await WakuMessage.fromBytes(payload, topic)
 
 	// Send the message
 	await waku.relay.send(message)
+
+	// Return message
+	return message
 }
 
 export const wrapSigner = (signer: Signer) => ({
 	getSigner: async () => signer,
 })
+
+export const useLatestTopicData = <Data>(
+	topic: string,
+	decodeMessage: (message: WakuMessageWithPayload) => Data | false
+) => {
+	const [lastUpdate, setLastUpdate] = useState(Date.now())
+	const [data, setData] = useState<Data>()
+	const [payload, setPayload] = useState<Uint8Array>()
+
+	const callback = (messages: WakuMessage[]) => {
+		for (const message of messages) {
+			const data = decodeMessage(message as WakuMessageWithPayload)
+			if (data) {
+				setData(data)
+				setPayload(message.payload)
+				setLastUpdate(Date.now())
+				return false
+			}
+		}
+	}
+
+	const state = useWakuStoreQuery(callback, () => topic, [topic], {
+		pageDirection: PageDirection.BACKWARD,
+		pageSize: 1,
+	})
+
+	return { ...state, lastUpdate, data, payload }
+}

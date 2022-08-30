@@ -3,4 +3,6 @@ export type Profile = {
 	address: string
 	encryptedWallet: string
 	avatar?: string
+	lastUpdate: Date
+	lastSync?: Date
 }

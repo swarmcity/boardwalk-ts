@@ -29,3 +29,21 @@ export function readLocalStore<T>(key: string, prefix?: string): T | undefined {
 		return undefined
 	}
 }
+
+// TODO: Improve types
+export function readLocalStoreAndRevive<
+	T extends Record<string, unknown>,
+	K extends keyof T,
+	V extends T[K]
+>(
+	key: string,
+	prefix?: string,
+	reviver?: (key: string, value: string) => V
+): T | undefined {
+	try {
+		const json = localStorage.getItem(getKey(key, prefix))
+		return json && JSON.parse(json, reviver)
+	} catch (err) {
+		return undefined
+	}
+}

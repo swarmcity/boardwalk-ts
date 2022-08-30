@@ -1,28 +1,33 @@
-import { useEffect, useState } from 'react'
-import { PageDirection, WakuMessage } from 'js-waku'
+import { useEffect } from 'react'
+import { useAccount } from 'wagmi'
+
+// Store
+import { setStore, useStore } from '../store'
 
 // Types
 import type { Waku } from 'js-waku'
 import type { Signer } from 'ethers'
+import type { Profile } from '../types/profile'
 
 // Protos
-import { Profile } from '../protos/Profile'
+import { Profile as ProfileProto } from '../protos/Profile'
 
 // Services
 import {
 	postWakuMessage,
-	useWakuStoreQuery,
+	useLatestTopicData,
 	WakuMessageWithPayload,
-	wrapSigner,
 } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
+import { createProfilePicture } from './profile-picture'
+
+// Hooks
 import { useWaku } from '../hooks/use-waku'
-import { useAccount } from 'wagmi'
-import { useStore } from '../store'
 
 type CreateProfile = {
 	username: string
-	pictureHash: Uint8Array
+	pictureHash?: Uint8Array
+	date: string
 }
 
 // EIP-712
@@ -33,10 +38,11 @@ const eip712Config: EIP712Config = {
 		salt: '0xe3dd854eb9d23c94680b3ec632b9072842365d9a702ab0df7da8bc398ee52c7d', // keccak256('profile')
 	},
 	types: {
-		Reply: [
+		Profile: [
 			{ name: 'address', type: 'address' },
 			{ name: 'username', type: 'string' },
 			{ name: 'pictureHash', type: 'bytes' },
+			{ name: 'date', type: 'string' },
 		],
 	},
 }
@@ -51,67 +57,80 @@ export const createProfile = async (
 	input: CreateProfile
 ) => {
 	const signer = await connector.getSigner()
+	const topic = getProfileTopic(await signer.getAddress())
 	const payload = await createSignedProto(
 		eip712Config,
 		(signer: Uint8Array) => ({ address: signer, ...input }),
 		(signer: string) => ({ address: signer, ...input }),
-		Profile,
+		ProfileProto,
 		signer
 	)
 
-	return postWakuMessage(waku, wrapSigner(signer), getProfileTopic, payload)
+	return postWakuMessage(waku, topic, payload)
 }
 
-const decodeMessage = (message: WakuMessageWithPayload): Profile | false => {
+const decodeMessage = (
+	message: WakuMessageWithPayload
+): ProfileProto | false => {
 	return decodeSignedPayload(
 		eip712Config,
 		{
 			formatValue: (profile, address) => ({ ...profile, address }),
 			getSigner: (profile) => profile.address,
 		},
-		Profile,
+		ProfileProto,
 		message.payload
 	)
 }
 
 export const useProfile = (address: string) => {
-	const [lastUpdate, setLastUpdate] = useState(Date.now())
-	const [profile, setProfile] = useState<Profile>()
+	const { data, ...state } = useLatestTopicData(
+		getProfileTopic(address),
+		decodeMessage
+	)
+	return { ...state, profile: data }
+}
 
-	const callback = (messages: WakuMessage[]) => {
-		for (const message of messages) {
-			const profile = decodeMessage(message as WakuMessageWithPayload)
-			if (profile) {
-				setProfile(profile)
-				setLastUpdate(Date.now())
-				return false
-			}
-		}
+const postPicture = async (waku: Waku, dataUri?: string) => {
+	if (!dataUri) {
+		return
 	}
 
-	const state = useWakuStoreQuery(
-		callback,
-		() => getProfileTopic(address),
-		[address],
-		{ pageDirection: PageDirection.BACKWARD }
-	)
+	const { hash } = await createProfilePicture(waku, { dataUri })
+	return new Uint8Array(hash)
+}
 
-	return { ...state, lastUpdate, profile }
+// TODO: Fix teaful issues
+const updateProfile = async (
+	waku: Waku,
+	connector: { getSigner: () => Promise<Signer> },
+	profile: Profile
+) => {
+	const pictureHash = await postPicture(waku, profile.avatar)
+
+	await createProfile(waku, connector, {
+		username: profile.username,
+		date: profile.lastUpdate.toISOString(),
+		pictureHash,
+	})
+
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-expect-error
+	setStore.profile.lastSync(new Date())
 }
 
 export const useSyncProfile = () => {
 	const { waku, waiting } = useWaku()
 	const { address, connector } = useAccount()
 	const [profile] = useStore.profile()
-	const [lastProfileSync, setLastProfileSync] = useStore.lastProfileSync()
+	const {
+		loading,
+		profile: wakuProfile,
+		payload,
+	} = useProfile(profile?.address ?? '')
 
 	useEffect(() => {
-		if (!waku || !connector || !profile || waiting) {
-			return
-		}
-
-		// Only update the profile once a day
-		if (Date.now() - lastProfileSync.getTime() < 24 * 60 * 60) {
+		if (!waku || !connector || !profile || !address || waiting || loading) {
 			return
 		}
 
@@ -122,10 +141,39 @@ export const useSyncProfile = () => {
 			return
 		}
 
-		// TODO: Remove cast after Partial is removed from Partial<Profile> in store
-		createProfile(waku, connector, {
-			username: profile.username as string,
-			pictureHash: new Uint8Array([]),
-		}).then(() => setLastProfileSync(new Date()))
-	}, [waku, connector, waiting, profile])
+		const wakuDate = new Date(wakuProfile?.date ?? 0)
+		const profileDate = new Date(profile?.lastUpdate ?? 0)
+
+		// If remote is more recent
+		if (wakuDate > profileDate) {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
+			setStore.profile.username(wakuProfile.username)
+
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
+			setStore.profile.lastUpdate(new Date(wakuProfile.date))
+
+			return
+		}
+
+		// If the local profile is more recent, store it
+		if (profileDate > wakuDate) {
+			// TODO: Remove cast after Partial is removed from Partial<Profile> in store
+			updateProfile(waku, connector, profile as Profile)
+			return
+		}
+
+		// If both profiles are in sync, only update the profile once a day
+		if (
+			payload &&
+			Date.now() - (profile.lastSync?.getTime() ?? 0) > 24 * 60 * 60
+		) {
+			postWakuMessage(waku, getProfileTopic(address), payload).then(() => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-expect-error
+				setStore.profile.lastSync(new Date())
+			})
+		}
+	}, [waku, connector, waiting, profile?.lastUpdate, loading])
 }

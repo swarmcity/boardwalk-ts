@@ -13,6 +13,7 @@ import { MarketplaceItem } from './item'
 
 // Components
 import { Redirect } from '../../components/redirect'
+import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Lib
 import { formatBalance } from '../../lib/tools'
@@ -53,7 +54,9 @@ export const Marketplaces = () => {
 			<div className="container">
 				<main className="flex-space">
 					<figure className="avatar avatar-sm">
-						<img src={profile?.avatar || avatarDefault} alt="user avatar" />
+						<CreateAvatar>
+							<img src={profile?.avatar || avatarDefault} alt="user avatar" />
+						</CreateAvatar>
 						<figcaption>
 							<a href="#" className="username">
 								{profile?.username}
