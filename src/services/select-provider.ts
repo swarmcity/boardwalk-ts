@@ -1,4 +1,4 @@
-import { arrayify } from '@ethersproject/bytes'
+import { arrayify, hexlify } from '@ethersproject/bytes'
 
 // Types
 import type { Waku } from 'js-waku'
@@ -18,7 +18,7 @@ import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
 type Marketplace = {
 	address: string
 	name: string
-	chainId: number
+	chainId: bigint
 }
 
 type CreateSelectProvider = {
@@ -39,6 +39,17 @@ const eip712Config: EIP712Config = {
 			{ name: 'item', type: 'uint256' },
 		],
 	},
+}
+
+export const formatSelectProviderEIP712Config = (marketplace: Marketplace) => {
+	const config = { ...eip712Config }
+	config.domain = {
+		...config.domain,
+		name: marketplace.name,
+		chainId: marketplace.chainId,
+		verifyingContract: marketplace.address,
+	}
+	return config
 }
 
 export const getSelectProviderTopic = (marketplace: string, itemId: bigint) => {
@@ -65,7 +76,7 @@ export const createSelectProvider = async (
 		item: BigInt(data.item),
 	})
 	const payload = await createSignedProto(
-		eip712Config,
+		formatSelectProviderEIP712Config(data.marketplace),
 		formatData,
 		formatData,
 		SelectProvider,
@@ -79,7 +90,11 @@ const decodeMessage = (
 	message: WakuMessageWithPayload
 ): SelectProvider | false => {
 	return decodeSignedPayload(
-		eip712Config,
+		(decoded) =>
+			formatSelectProviderEIP712Config({
+				...decoded.marketplace,
+				address: hexlify(decoded.marketplace.address),
+			}),
 		{
 			formatValue: (data, address) => ({ ...data, address }),
 			getSigner: (data) => data.seeker,

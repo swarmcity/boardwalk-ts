@@ -71,14 +71,16 @@ export const decodeSignedPayload = <
 	Values extends Record<string, unknown>,
 	ProtoType extends SignedPayload<Values>
 >(
-	eip712Config: EIP712Config,
+	eip712Config: EIP712Config | ((data: ProtoType) => EIP712Config),
 	config: VerifyPayloadConfig<ProtoType>,
 	proto: Proto<ProtoType>,
 	payload: Uint8Array
 ): ProtoType | false => {
 	try {
 		const decoded = proto.decode(payload)
-		return verifyPayload(eip712Config, config, decoded) && decoded
+		const eipConfig =
+			typeof eip712Config === 'function' ? eip712Config(decoded) : eip712Config
+		return verifyPayload(eipConfig, config, decoded) && decoded
 	} catch (err) {
 		return false
 	}
