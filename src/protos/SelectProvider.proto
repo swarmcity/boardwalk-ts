@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message Marketplace {
+	bytes address = 1;
+	string name = 2;
+	uint64 chainId = 3;
+}
+
+message SelectProvider {
+	Marketplace marketplace = 1;
+	bytes seeker = 2;
+	bytes provider = 3;
+	uint64 item = 4;
+	bytes signature = 99;
+}
