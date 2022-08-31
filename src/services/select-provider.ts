@@ -1,3 +1,5 @@
+import { arrayify } from '@ethersproject/bytes'
+
 // Types
 import type { Waku } from 'js-waku'
 import type { Signer } from 'ethers'
@@ -12,9 +14,6 @@ import {
 	WakuMessageWithPayload,
 } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
-
-// Hooks
-import { arrayify } from '@ethersproject/bytes'
 
 type Marketplace = {
 	address: string
