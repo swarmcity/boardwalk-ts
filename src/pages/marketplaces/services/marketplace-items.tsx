@@ -135,7 +135,7 @@ export const useGetWakuItems = (
 	marketplace: string
 ) => {
 	const [waiting, setWaiting] = useState(true)
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState(true)
 	const [items, setItems] = useState<WakuItem[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 

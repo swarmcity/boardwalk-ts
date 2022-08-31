@@ -21,10 +21,16 @@ export function updateLocalStore<Store extends Record<string, unknown>>(
 	}
 }
 
-export function readLocalStore<T>(key: string, prefix?: string): T | undefined {
+export function readLocalStore<T, K extends keyof T>(
+	key: string,
+	prefix?: string,
+	reviver?: T extends Record<string, unknown>
+		? (key: keyof T, value: string) => T[K]
+		: undefined
+): T | undefined {
 	try {
 		const json = localStorage.getItem(getKey(key, prefix))
-		return json ? (JSON.parse(json) as T) : undefined
+		return json && JSON.parse(json, reviver)
 	} catch (err) {
 		return undefined
 	}

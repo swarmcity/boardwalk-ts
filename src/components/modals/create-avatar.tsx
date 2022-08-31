@@ -1,6 +1,6 @@
 // Store
 import { useRef, useState } from 'react'
-import { useStore } from '../../store'
+import { setStore } from '../../store'
 import cancel from '../../assets/imgs/cancel.svg?url'
 import checkMarkBlue from '../../assets/imgs/checkMarkBlue.svg?url'
 import iconRotate from '../../assets/imgs/iconRotate.svg?url'
@@ -16,11 +16,8 @@ interface Props {
 
 export const CreateAvatar = ({ children }: Props) => {
 	const [avatar, setAvatar] = useState<string>('')
-	const cropperRef = useRef<CropperRef>(null)
-
 	const [shown, setShown] = useState<boolean>()
-
-	const [profile, setProfile] = useStore.profile()
+	const cropperRef = useRef<CropperRef>(null)
 
 	const onFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
 		if (!(event.target instanceof HTMLInputElement)) {
@@ -85,9 +82,15 @@ export const CreateAvatar = ({ children }: Props) => {
 							className="btn-icon"
 							onClick={(e) => {
 								e.stopPropagation()
-								updateAvatar().then((newAvatar) =>
-									setProfile({ ...profile, avatar: newAvatar })
-								)
+								updateAvatar().then((newAvatar) => {
+									// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+									// @ts-expect-error
+									setStore.profile.avatar(newAvatar)
+
+									// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+									// @ts-expect-error
+									setStore.profile.lastUpdate(new Date())
+								})
 								setShown(false)
 							}}
 						>

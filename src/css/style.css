@@ -7846,7 +7846,7 @@ body #app figure.avatar.avatar-sm {
 	width: auto;
 	align-items: center;
 }
-body #app figure.avatar.avatar-sm img {
+body #app figure.avatar.avatar-sm img.avatar-img {
 	width: 40px;
 	height: auto;
 	margin-right: 10px;
@@ -8587,7 +8587,7 @@ body #app .account-wallet .flex-space {
 	body #app .account-wallet .flex-space figure.avatar .username {
 		font-size: 14px;
 	}
-	body #app .account-wallet .flex-space figure.avatar.avatar-sm img {
+	body #app .account-wallet .flex-space figure.avatar.avatar-sm img.avatar-img {
 		width: 60px;
 	}
 }

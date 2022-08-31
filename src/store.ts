@@ -10,9 +10,14 @@ type Store = {
 	profile: Partial<Profile> | undefined
 }
 
-export const { useStore, getStore, withStore } = createStore<Store>(
+export const { useStore, getStore, withStore, setStore } = createStore<Store>(
 	{
-		profile: readLocalStore('profile'),
+		profile: readLocalStore('profile', undefined, (key, value) => {
+			if (key === 'lastUpdate' || key === 'lastSync') {
+				return new Date(value)
+			}
+			return value
+		}),
 	},
 	({ store, prevStore }) => {
 		updateLocalStore(store, prevStore, 'profile')

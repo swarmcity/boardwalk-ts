@@ -24,6 +24,7 @@ export const ChoosePassword = () => {
 				...profile,
 				encryptedWallet,
 				address: wallet.address,
+				lastUpdate: new Date(),
 			})
 			setLoading(false)
 			navigate(ACCOUNT_CREATED)

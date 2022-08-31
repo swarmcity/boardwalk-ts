@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams } from 'react-router'
 
 // Hooks
-import { useWaku } from '../../hooks/use-waku'
+import { useWakuContext } from '../../hooks/use-waku'
 
 // Types
 import type { FormEvent } from 'react'
@@ -17,7 +17,7 @@ export const MarketplaceListItem = () => {
 
 	const [description, setDescription] = useState<string>()
 	const [price, setPrice] = useState<number>()
-	const { waku } = useWaku()
+	const { waku } = useWakuContext()
 	const { connector } = useAccount()
 
 	const onSubmit = async (event: FormEvent<HTMLFormElement>) => {

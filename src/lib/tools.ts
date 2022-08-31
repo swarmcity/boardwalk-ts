@@ -35,3 +35,11 @@ export const bufferToHex = (buffer: ArrayBuffer) => {
 		.map((x) => x.toString(16).padStart(2, '0'))
 		.join('')
 }
+
+export const displayAddress = (address: string) => {
+	return address.substring(0, 6) + '..' + address.substring(38)
+}
+
+export const dataUriToBlob = async (dataUri: string) => {
+	return await (await fetch(dataUri)).blob()
+}

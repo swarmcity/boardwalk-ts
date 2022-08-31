@@ -13,6 +13,7 @@ import { MarketplaceItem } from './item'
 
 // Components
 import { Redirect } from '../../components/redirect'
+import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Lib
 import { formatBalance } from '../../lib/tools'
@@ -20,6 +21,9 @@ import { formatBalance } from '../../lib/tools'
 // Assets
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
 import exit from '../../assets/imgs/exit.svg?url'
+
+// Services
+import { useSyncProfile } from '../../services/profile'
 
 export const Marketplaces = () => {
 	const [profile, setProfile] = useStore.profile()
@@ -32,6 +36,9 @@ export const Marketplaces = () => {
 		addressOrName: address,
 		watch: true,
 	})
+
+	// Keep the profile in sync
+	useSyncProfile()
 
 	if (!profile?.address) {
 		return <Redirect to={LOGIN} />
@@ -47,7 +54,13 @@ export const Marketplaces = () => {
 			<div className="container">
 				<main className="flex-space">
 					<figure className="avatar avatar-sm">
-						<img src={profile?.avatar || avatarDefault} alt="user avatar" />
+						<CreateAvatar>
+							<img
+								className="avatar-img"
+								src={profile?.avatar || avatarDefault}
+								alt="user avatar"
+							/>
+						</CreateAvatar>
 						<figcaption>
 							<a href="#" className="username">
 								{profile?.username}

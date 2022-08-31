@@ -15,11 +15,11 @@ import type { BigNumber, Signer } from 'ethers'
 // Protos
 import { ItemReply } from '../../../protos/ItemReply'
 
-type CreateReply = {
+export type CreateReply = {
 	text: string
 }
 
-type ItemReplyClean = {
+export type ItemReplyClean = {
 	marketplace: string
 	item: bigint
 	text: string
