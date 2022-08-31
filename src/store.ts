@@ -1,11 +1,7 @@
 import createStore from 'teaful'
 
 // Lib
-import {
-	readLocalStore,
-	readLocalStoreAndRevive,
-	updateLocalStore,
-} from './lib/store'
+import { readLocalStore, updateLocalStore } from './lib/store'
 
 // Types
 import type { Profile } from './types/profile'
@@ -17,7 +13,7 @@ type Store = {
 
 export const { useStore, getStore, withStore, setStore } = createStore<Store>(
 	{
-		profile: readLocalStoreAndRevive('profile', undefined, (key, value) => {
+		profile: readLocalStore('profile', undefined, (key, value) => {
 			if (key === 'lastUpdate' || key === 'lastSync') {
 				return new Date(value)
 			}
