@@ -8,6 +8,8 @@ import erc20Abi from '../../../abis/erc20.json'
 
 // Lib
 import { cleanOutput } from '../../../lib/ethers'
+
+// Services
 import { Status } from './marketplace-items'
 
 export const useMarketplaceContract = (address: string) => {

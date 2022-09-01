@@ -3,6 +3,7 @@ import { FormEvent, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useAccount, useNetwork } from 'wagmi'
 import { hexlify, splitSignature } from '@ethersproject/bytes'
+import { getAddress } from '@ethersproject/address'
 
 // Hooks
 import { useWaku, useWakuContext } from '../../hooks/use-waku'
@@ -37,7 +38,6 @@ import {
 	useSelectProvider,
 } from '../../services/select-provider'
 import { SelectProvider } from '../../protos/SelectProvider'
-import { getAddress } from '@ethersproject/address'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -310,7 +310,7 @@ export const MarketplaceItem = () => {
 		navigate(`/marketplace/${id}`)
 	}
 
-	const status = chainItem.item.status
+	const { status } = chainItem.item
 
 	return (
 		<div>
