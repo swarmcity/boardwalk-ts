@@ -1,9 +1,16 @@
-import { Contract } from 'ethers'
+import { BigNumberish, Contract } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { useProvider } from 'wagmi'
 
 // ABIs
 import marketplaceAbi from '../../../abis/marketplace.json'
+import erc20Abi from '../../../abis/erc20.json'
+
+// Lib
+import { cleanOutput } from '../../../lib/ethers'
+
+// Services
+import { Status } from './marketplace-items'
 
 export const useMarketplaceContract = (address: string) => {
 	const provider = useProvider()
@@ -34,26 +41,7 @@ export const useMarketplaceTokenContract = (address: string) => {
 	useEffect(() => {
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
-			const token = new Contract(
-				await contract.token(),
-				[
-					{
-						constant: true,
-						inputs: [],
-						name: 'decimals',
-						outputs: [
-							{
-								name: '',
-								type: 'uint8',
-							},
-						],
-						payable: false,
-						stateMutability: 'view',
-						type: 'function',
-					},
-				],
-				provider
-			)
+			const token = new Contract(await contract.token(), erc20Abi, provider)
 			setToken(token)
 		})()
 	}, [contract])
@@ -81,4 +69,30 @@ export const useMarketplaceTokenDecimals = (address: string) => {
 	}, [token])
 
 	return { decimals, loading }
+}
+
+export const useMarketplaceItem = (marketplace: string, itemId: bigint) => {
+	const contract = useMarketplaceContract(marketplace)
+	const [item, setItem] = useState<{
+		fee: bigint
+		metadata: string
+		price: bigint
+		providerAddress: string
+		providerRep: bigint
+		seekerAddress: string
+		seekerRep: bigint
+		status: Status
+	}>()
+	const [lastUpdate, setLastUpdate] = useState(Date.now())
+	const [loading, setLoading] = useState(true)
+
+	useEffect(() => {
+		contract.items(itemId).then((item: Array<BigNumberish | string>) => {
+			setItem(cleanOutput(item))
+			setLastUpdate(Date.now())
+			setLoading(false)
+		})
+	}, [marketplace, itemId])
+
+	return { item, lastUpdate, loading }
 }

@@ -1,11 +1,12 @@
 import { formatUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
 import { FormEvent, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { useAccount } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
+import { hexlify, splitSignature } from '@ethersproject/bytes'
+import { getAddress } from '@ethersproject/address'
 
 // Hooks
-import { useWakuContext } from '../../hooks/use-waku'
+import { useWaku, useWakuContext } from '../../hooks/use-waku'
 
 // Lib
 import { bufferToHex, displayAddress } from '../../lib/tools'
@@ -13,6 +14,9 @@ import { bufferToHex, displayAddress } from '../../lib/tools'
 // Services
 import {
 	useMarketplaceContract,
+	useMarketplaceItem,
+	useMarketplaceName,
+	useMarketplaceTokenContract,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
 import {
@@ -20,7 +24,7 @@ import {
 	ItemReplyClean,
 	useItemReplies,
 } from './services/marketplace-item'
-import { Item, useMarketplaceItems } from './services/marketplace-items'
+import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { useProfile } from '../../services/profile'
 import { useProfilePicture } from '../../services/profile-picture'
 
@@ -29,6 +33,21 @@ import avatarDefault from '../../assets/imgs/avatar.svg?url'
 
 // Protos
 import { ProfilePicture as ProfilePictureProto } from '../../protos/ProfilePicture'
+import {
+	createSelectProvider,
+	useSelectProvider,
+} from '../../services/select-provider'
+import { SelectProvider } from '../../protos/SelectProvider'
+
+const Statuses = {
+	[Status.None]: 'None',
+	[Status.Open]: 'Open',
+	[Status.Funded]: 'Funded',
+	[Status.Done]: 'Done',
+	[Status.Disputed]: 'Disputed',
+	[Status.Resolved]: 'Resolved',
+	[Status.Cancelled]: 'Cancelled',
+}
 
 type ReplyFormProps = {
 	item: Item
@@ -91,19 +110,155 @@ const formatFrom = (address: string, username?: string) => {
 	return `${username} (${displayAddress(address)})`
 }
 
-const Reply = ({ reply }: { reply: ItemReplyClean }) => {
-	const data = useProfile(reply.from)
-	const { profile } = data
+const Reply = ({
+	reply,
+	ownItem,
+	marketplace,
+	item,
+}: {
+	reply: ItemReplyClean
+	ownItem: boolean
+	marketplace: string
+	item: bigint
+}) => {
+	const { waku } = useWaku()
+
+	// Wagmi
+	const { connector } = useAccount()
+	const { chain } = useNetwork()
+
+	// Marketplace
+	const name = useMarketplaceName(marketplace)
+
+	// Profile
+	const { profile } = useProfile(reply.from)
 	const { picture } = useProfilePicture(
 		profile?.pictureHash ? bufferToHex(profile.pictureHash) : ''
 	)
+
+	// State
+	const [loading, setLoading] = useState(false)
+	const [selected, setSelected] = useState(false)
+
+	const selectProvider = async () => {
+		if (!waku || !connector || !chain?.id || !name) {
+			return
+		}
+
+		setLoading(true)
+
+		await createSelectProvider(waku, connector, {
+			marketplace: {
+				address: marketplace,
+				chainId: BigInt(chain.id),
+				name,
+			},
+			provider: reply.from,
+			item,
+		})
+
+		setSelected(true)
+		setLoading(false)
+	}
 
 	return (
 		<li>
 			<p>From: {formatFrom(reply.from, profile?.username)}</p>
 			<ProfilePicture picture={picture} />
 			<p>{reply.text}</p>
+			{ownItem &&
+				(selected ? (
+					<p>Provider selected!</p>
+				) : (
+					<button disabled={loading} onClick={selectProvider}>
+						Choose as provider
+					</button>
+				))}
 		</li>
+	)
+}
+
+const SelectedProvider = ({
+	data,
+	lastUpdate,
+}: {
+	data: SelectProvider
+	lastUpdate: number
+}) => {
+	const provider = useMemo(() => hexlify(data.provider), [lastUpdate])
+	const { profile } = useProfile(hexlify(provider))
+	return <div>Provider selected: {formatFrom(provider, profile?.username)}</div>
+}
+
+const FundDeal = ({
+	data,
+	marketplace,
+	item,
+}: {
+	data?: SelectProvider
+	marketplace: string
+	item: bigint
+}) => {
+	const { v, r, s } = splitSignature(data?.signature ?? [])
+	const contract = useMarketplaceContract(marketplace)
+	const token = useMarketplaceTokenContract(marketplace)
+	const { connector } = useAccount()
+
+	// State
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<Error>()
+	const [success, setSuccess] = useState(false)
+
+	// NOTE: Custom `useEffect` instead of useContractWrite because prepared writes
+	// cause the password modal to pop up immediately, and reckless writes show the
+	// modal again after the password was successfully inserted for some reason.
+	const fund = async () => {
+		if (!token) {
+			setError(new Error('still loading...'))
+			return
+		}
+
+		setLoading(true)
+		setSuccess(false)
+
+		let tx
+
+		try {
+			const signer = await connector?.getSigner()
+			const mp = await contract.connect(signer)
+
+			// Get the price
+			const { price, fee } = await mp.items(item)
+
+			// Convert the price to bigint
+			const amountToApprove = price.add(fee.div(2))
+
+			// Approve the tokens to be spent by the marketplace
+			tx = await token.connect(signer).approve(marketplace, amountToApprove)
+			await tx.wait()
+
+			// Fund the item
+			tx = await mp.fundItem(item, v, r, s)
+			await tx.wait()
+
+			setSuccess(true)
+			setError(undefined)
+		} catch (err) {
+			console.error(err)
+			setError(err as Error)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	return (
+		<div>
+			<p>You're the provider!</p>
+			<button onClick={fund} disabled={loading || success}>
+				{success ? 'Success!' : 'Fund the deal'}
+			</button>
+			{JSON.stringify(error)}
+		</div>
 	)
 }
 
@@ -113,7 +268,7 @@ export const MarketplaceItem = () => {
 		throw new Error('no id or item')
 	}
 
-	const itemId = BigNumber.from(itemIdString)
+	const itemId = BigInt(itemIdString)
 
 	const { address } = useAccount()
 	const { waku } = useWakuContext()
@@ -121,7 +276,14 @@ export const MarketplaceItem = () => {
 	const contract = useMarketplaceContract(id)
 	const { connector } = useAccount()
 	const navigate = useNavigate()
-	const { replies } = useItemReplies(waku, id, itemId.toBigInt())
+	const { replies } = useItemReplies(waku, id, itemId)
+	const selectedProvider = useSelectProvider(id, itemId)
+	const provider = useMemo(() => {
+		const address = selectedProvider.data?.provider
+		return address && getAddress(hexlify(address))
+	}, [selectedProvider.lastUpdate])
+
+	const chainItem = useMarketplaceItem(id, itemId)
 
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
@@ -129,8 +291,8 @@ export const MarketplaceItem = () => {
 		return items.find(({ id }) => id.eq(itemId))
 	}, [lastUpdate])
 
-	if (!item) {
-		if (loading || waiting) {
+	if (!item || !chainItem.item) {
+		if (loading || waiting || chainItem.loading) {
 			return <p>Loading...</p>
 		}
 
@@ -148,6 +310,8 @@ export const MarketplaceItem = () => {
 		navigate(`/marketplace/${id}`)
 	}
 
+	const { status } = chainItem.item
+
 	return (
 		<div>
 			<h3>{item.metadata.description}</h3>
@@ -161,12 +325,31 @@ export const MarketplaceItem = () => {
 					: `${formatUnits(item.price, decimals)} DAI`}
 			</span>
 
+			<p>
+				Status: {Statuses[status]} ({formatFrom(chainItem.item.providerAddress)}
+				)
+			</p>
+
+			{selectedProvider.data && (
+				<SelectedProvider {...selectedProvider} data={selectedProvider.data} />
+			)}
+
+			{provider === address && status === 1 && (
+				<FundDeal marketplace={id} item={itemId} data={selectedProvider.data} />
+			)}
+
 			<div>
 				Replies:
 				{replies.length ? (
 					<ul>
 						{replies.map((reply) => (
-							<Reply key={reply.signature} reply={reply} />
+							<Reply
+								key={reply.signature}
+								reply={reply}
+								ownItem={item.owner === address}
+								marketplace={id}
+								item={itemId}
+							/>
 						))}
 					</ul>
 				) : (
@@ -174,13 +357,14 @@ export const MarketplaceItem = () => {
 				)}
 			</div>
 
-			{item.owner === address ? (
-				<button onClick={cancelItem} disabled={!contract || !connector}>
-					Cancel item
-				</button>
-			) : (
-				<ReplyForm item={item} marketplace={id} decimals={decimals} />
-			)}
+			{status === 1 &&
+				(item.owner === address ? (
+					<button onClick={cancelItem} disabled={!contract || !connector}>
+						Cancel item
+					</button>
+				) : (
+					<ReplyForm item={item} marketplace={id} decimals={decimals} />
+				))}
 		</div>
 	)
 }
