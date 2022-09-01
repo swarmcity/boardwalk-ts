@@ -1,4 +1,5 @@
 import { arrayify, hexlify } from '@ethersproject/bytes'
+import { getAddress } from '@ethersproject/address'
 
 // Types
 import type { Waku } from 'js-waku'
@@ -53,6 +54,7 @@ export const formatSelectProviderEIP712Config = (marketplace: Marketplace) => {
 }
 
 export const getSelectProviderTopic = (marketplace: string, itemId: bigint) => {
+	marketplace = getAddress(marketplace)
 	return `/swarmcity/1/marketplace-${marketplace}-item-${itemId}-select-provider/proto`
 }
 

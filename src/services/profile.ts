@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useAccount } from 'wagmi'
+import { getAddress } from '@ethersproject/address'
 
 // Store
 import { setStore, useStore } from '../store'
@@ -48,7 +49,7 @@ const eip712Config: EIP712Config = {
 }
 
 export const getProfileTopic = (address: string) => {
-	return `/swarmcity/1/profile-${address}/proto`
+	return `/swarmcity/1/profile-${getAddress(address)}/proto`
 }
 
 export const createProfile = async (
