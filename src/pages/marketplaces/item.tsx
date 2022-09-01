@@ -1,11 +1,11 @@
 import { formatUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
 import { FormEvent, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { useAccount } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
+import { hexlify } from '@ethersproject/bytes'
 
 // Hooks
-import { useWakuContext } from '../../hooks/use-waku'
+import { useWaku, useWakuContext } from '../../hooks/use-waku'
 
 // Lib
 import { bufferToHex, displayAddress } from '../../lib/tools'
@@ -13,6 +13,7 @@ import { bufferToHex, displayAddress } from '../../lib/tools'
 // Services
 import {
 	useMarketplaceContract,
+	useMarketplaceName,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
 import {
@@ -29,6 +30,11 @@ import avatarDefault from '../../assets/imgs/avatar.svg?url'
 
 // Protos
 import { ProfilePicture as ProfilePictureProto } from '../../protos/ProfilePicture'
+import {
+	createSelectProvider,
+	useSelectProvider,
+} from '../../services/select-provider'
+import { SelectProvider } from '../../protos/SelectProvider'
 
 type ReplyFormProps = {
 	item: Item
@@ -91,20 +97,84 @@ const formatFrom = (address: string, username?: string) => {
 	return `${username} (${displayAddress(address)})`
 }
 
-const Reply = ({ reply }: { reply: ItemReplyClean }) => {
-	const data = useProfile(reply.from)
-	const { profile } = data
+const Reply = ({
+	reply,
+	ownItem,
+	marketplace,
+	item,
+}: {
+	reply: ItemReplyClean
+	ownItem: boolean
+	marketplace: string
+	item: bigint
+}) => {
+	const { waku } = useWaku()
+
+	// Wagmi
+	const { connector } = useAccount()
+	const { chain } = useNetwork()
+
+	// Marketplace
+	const name = useMarketplaceName(marketplace)
+
+	// Profile
+	const { profile } = useProfile(reply.from)
 	const { picture } = useProfilePicture(
 		profile?.pictureHash ? bufferToHex(profile.pictureHash) : ''
 	)
+
+	// State
+	const [loading, setLoading] = useState(false)
+	const [selected, setSelected] = useState(false)
+
+	const selectProvider = async () => {
+		if (!waku || !connector || !chain?.id || !name) {
+			return
+		}
+
+		setLoading(true)
+
+		await createSelectProvider(waku, connector, {
+			marketplace: {
+				address: marketplace,
+				chainId: BigInt(chain.id),
+				name,
+			},
+			provider: reply.from,
+			item,
+		})
+
+		setSelected(true)
+		setLoading(false)
+	}
 
 	return (
 		<li>
 			<p>From: {formatFrom(reply.from, profile?.username)}</p>
 			<ProfilePicture picture={picture} />
 			<p>{reply.text}</p>
+			{ownItem &&
+				(selected ? (
+					<p>Provider selected!</p>
+				) : (
+					<button disabled={loading} onClick={selectProvider}>
+						Choose as provider
+					</button>
+				))}
 		</li>
 	)
+}
+
+const SelectedProvider = ({
+	data,
+	lastUpdate,
+}: {
+	data: SelectProvider
+	lastUpdate: number
+}) => {
+	const provider = useMemo(() => hexlify(data.provider), [lastUpdate])
+	const { profile } = useProfile(hexlify(provider))
+	return <div>Provider selected: {formatFrom(provider, profile?.username)}</div>
 }
 
 export const MarketplaceItem = () => {
@@ -113,7 +183,7 @@ export const MarketplaceItem = () => {
 		throw new Error('no id or item')
 	}
 
-	const itemId = BigNumber.from(itemIdString)
+	const itemId = BigInt(itemIdString)
 
 	const { address } = useAccount()
 	const { waku } = useWakuContext()
@@ -121,7 +191,8 @@ export const MarketplaceItem = () => {
 	const contract = useMarketplaceContract(id)
 	const { connector } = useAccount()
 	const navigate = useNavigate()
-	const { replies } = useItemReplies(waku, id, itemId.toBigInt())
+	const { replies } = useItemReplies(waku, id, itemId)
+	const selectedProvider = useSelectProvider(id, itemId)
 
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
@@ -160,13 +231,22 @@ export const MarketplaceItem = () => {
 					? 'Loading...'
 					: `${formatUnits(item.price, decimals)} DAI`}
 			</span>
+			{selectedProvider.data && (
+				<SelectedProvider {...selectedProvider} data={selectedProvider.data} />
+			)}
 
 			<div>
 				Replies:
 				{replies.length ? (
 					<ul>
 						{replies.map((reply) => (
-							<Reply key={reply.signature} reply={reply} />
+							<Reply
+								key={reply.signature}
+								reply={reply}
+								ownItem={item.owner === address}
+								marketplace={id}
+								item={itemId}
+							/>
 						))}
 					</ul>
 				) : (

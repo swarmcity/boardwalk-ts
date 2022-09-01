@@ -1,3 +1,4 @@
+import { getAddress } from '@ethersproject/address'
 import type { FetchBalanceResult } from '@wagmi/core'
 
 export const shuffle = <T>(array: T[], len = array.length) => {
@@ -37,6 +38,7 @@ export const bufferToHex = (buffer: ArrayBuffer) => {
 }
 
 export const displayAddress = (address: string) => {
+	address = getAddress(address)
 	return address.substring(0, 6) + '..' + address.substring(38)
 }
 
