@@ -56,6 +56,14 @@ export const getSelectProviderTopic = (marketplace: string, itemId: bigint) => {
 	return `/swarmcity/1/marketplace-${marketplace}-item-${itemId}-select-provider/proto`
 }
 
+const toArray = <Condition extends boolean>(
+	condition: Condition,
+	string: string
+): Condition extends true ? Uint8Array : string => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return (condition ? arrayify(string) : string) as any
+}
+
 export const createSelectProvider = async (
 	waku: Waku,
 	connector: { getSigner: () => Promise<Signer> },
@@ -63,22 +71,28 @@ export const createSelectProvider = async (
 ) => {
 	const signer = await connector.getSigner()
 	const topic = getSelectProviderTopic(data.marketplace.address, data.item)
-	const marketplace = {
+
+	const formatMarketplace = <Condition extends boolean>(array: Condition) => ({
 		...data.marketplace,
-		address: arrayify(data.marketplace.address),
+		address: toArray(array, data.marketplace.address),
 		chainId: BigInt(data.marketplace.chainId),
-	}
-	const formatData = <S>(signer: S) => ({
+	})
+
+	const formatData = <Condition extends boolean>(
+		array: Condition,
+		signer: Condition extends true ? Uint8Array : string
+	) => ({
 		seeker: signer,
 		...data,
-		marketplace,
-		provider: arrayify(data.provider),
+		marketplace: formatMarketplace(array),
+		provider: toArray(array, data.provider),
 		item: BigInt(data.item),
 	})
+
 	const payload = await createSignedProto(
 		formatSelectProviderEIP712Config(data.marketplace),
-		formatData,
-		formatData,
+		(signer: Uint8Array) => formatData(true, signer),
+		(signer: string) => formatData(false, signer),
 		SelectProvider,
 		signer
 	)
@@ -96,7 +110,11 @@ const decodeMessage = (
 				address: hexlify(decoded.marketplace.address),
 			}),
 		{
-			formatValue: (data, address) => ({ ...data, address }),
+			formatValue: (data: SelectProvider) => ({
+				seeker: hexlify(data.seeker),
+				provider: hexlify(data.provider),
+				item: data.item,
+			}),
 			getSigner: (data) => data.seeker,
 		},
 		SelectProvider,
@@ -109,5 +127,5 @@ export const useSelectProvider = (marketplace: string, itemId: bigint) => {
 		getSelectProviderTopic(marketplace, itemId),
 		decodeMessage
 	)
-	return { ...state, profile: data }
+	return { ...state, data }
 }
