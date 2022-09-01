@@ -2,7 +2,7 @@ import { formatUnits } from '@ethersproject/units'
 import { FormEvent, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useAccount, useNetwork } from 'wagmi'
-import { hexlify } from '@ethersproject/bytes'
+import { hexlify, splitSignature } from '@ethersproject/bytes'
 
 // Hooks
 import { useWaku, useWakuContext } from '../../hooks/use-waku'
@@ -14,6 +14,7 @@ import { bufferToHex, displayAddress } from '../../lib/tools'
 import {
 	useMarketplaceContract,
 	useMarketplaceName,
+	useMarketplaceTokenContract,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
 import {
@@ -35,6 +36,7 @@ import {
 	useSelectProvider,
 } from '../../services/select-provider'
 import { SelectProvider } from '../../protos/SelectProvider'
+import { getAddress } from '@ethersproject/address'
 
 type ReplyFormProps = {
 	item: Item
@@ -177,6 +179,78 @@ const SelectedProvider = ({
 	return <div>Provider selected: {formatFrom(provider, profile?.username)}</div>
 }
 
+const FundDeal = ({
+	data,
+	marketplace,
+	item,
+}: {
+	data?: SelectProvider
+	marketplace: string
+	item: bigint
+}) => {
+	const { v, r, s } = splitSignature(data?.signature ?? [])
+	const contract = useMarketplaceContract(marketplace)
+	const token = useMarketplaceTokenContract(marketplace)
+	const { connector } = useAccount()
+
+	// State
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<Error>()
+	const [success, setSuccess] = useState(false)
+
+	// NOTE: Custom `useEffect` instead of useContractWrite because prepared writes
+	// cause the password modal to pop up immediately, and reckless writes show the
+	// modal again after the password was successfully inserted for some reason.
+	const fund = async () => {
+		if (!token) {
+			setError(new Error('still loading...'))
+			return
+		}
+
+		setLoading(true)
+		setSuccess(false)
+
+		let tx
+
+		try {
+			const signer = await connector?.getSigner()
+			const mp = await contract.connect(signer)
+
+			// Get the price
+			const { price, fee } = await mp.items(item)
+
+			// Convert the price to bigint
+			const amountToApprove = price.add(fee.div(2))
+
+			// Approve the tokens to be spent by the marketplace
+			tx = await token.connect(signer).approve(marketplace, amountToApprove)
+			await tx.wait()
+
+			// Fund the item
+			tx = await mp.fundItem(item, v, r, s)
+			await tx.wait()
+
+			setSuccess(true)
+			setError(undefined)
+		} catch (err) {
+			console.error(err)
+			setError(err as Error)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	return (
+		<div>
+			<p>You're the provider!</p>
+			<button onClick={fund} disabled={loading || success}>
+				{success ? 'Success!' : 'Fund the deal'}
+			</button>
+			{JSON.stringify(error)}
+		</div>
+	)
+}
+
 export const MarketplaceItem = () => {
 	const { id, item: itemIdString } = useParams<{ id: string; item: string }>()
 	if (!id || !itemIdString) {
@@ -193,6 +267,10 @@ export const MarketplaceItem = () => {
 	const navigate = useNavigate()
 	const { replies } = useItemReplies(waku, id, itemId)
 	const selectedProvider = useSelectProvider(id, itemId)
+	const provider = useMemo(() => {
+		const address = selectedProvider.data?.provider
+		return address && getAddress(hexlify(address))
+	}, [selectedProvider.lastUpdate])
 
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
@@ -231,8 +309,13 @@ export const MarketplaceItem = () => {
 					? 'Loading...'
 					: `${formatUnits(item.price, decimals)} DAI`}
 			</span>
+
 			{selectedProvider.data && (
 				<SelectedProvider {...selectedProvider} data={selectedProvider.data} />
+			)}
+
+			{provider === address && (
+				<FundDeal marketplace={id} item={itemId} data={selectedProvider.data} />
 			)}
 
 			<div>

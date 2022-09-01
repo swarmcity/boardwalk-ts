@@ -4,6 +4,7 @@ import { useProvider } from 'wagmi'
 
 // ABIs
 import marketplaceAbi from '../../../abis/marketplace.json'
+import erc20Abi from '../../../abis/erc20.json'
 
 export const useMarketplaceContract = (address: string) => {
 	const provider = useProvider()
@@ -34,26 +35,7 @@ export const useMarketplaceTokenContract = (address: string) => {
 	useEffect(() => {
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
-			const token = new Contract(
-				await contract.token(),
-				[
-					{
-						constant: true,
-						inputs: [],
-						name: 'decimals',
-						outputs: [
-							{
-								name: '',
-								type: 'uint8',
-							},
-						],
-						payable: false,
-						stateMutability: 'view',
-						type: 'function',
-					},
-				],
-				provider
-			)
+			const token = new Contract(await contract.token(), erc20Abi, provider)
 			setToken(token)
 		})()
 	}, [contract])

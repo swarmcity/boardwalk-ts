@@ -34,7 +34,7 @@ const eip712Config: EIP712Config = {
 		version: '1',
 	},
 	types: {
-		Profile: [
+		PermitProvider: [
 			{ name: 'seeker', type: 'address' },
 			{ name: 'provider', type: 'address' },
 			{ name: 'item', type: 'uint256' },
