@@ -13,6 +13,7 @@ import { bufferToHex, displayAddress } from '../../lib/tools'
 // Services
 import {
 	useMarketplaceContract,
+	useMarketplaceItem,
 	useMarketplaceName,
 	useMarketplaceTokenContract,
 	useMarketplaceTokenDecimals,
@@ -22,7 +23,7 @@ import {
 	ItemReplyClean,
 	useItemReplies,
 } from './services/marketplace-item'
-import { Item, useMarketplaceItems } from './services/marketplace-items'
+import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { useProfile } from '../../services/profile'
 import { useProfilePicture } from '../../services/profile-picture'
 
@@ -37,6 +38,16 @@ import {
 } from '../../services/select-provider'
 import { SelectProvider } from '../../protos/SelectProvider'
 import { getAddress } from '@ethersproject/address'
+
+const Statuses = {
+	[Status.None]: 'None',
+	[Status.Open]: 'Open',
+	[Status.Funded]: 'Funded',
+	[Status.Done]: 'Done',
+	[Status.Disputed]: 'Disputed',
+	[Status.Resolved]: 'Resolved',
+	[Status.Cancelled]: 'Cancelled',
+}
 
 type ReplyFormProps = {
 	item: Item
@@ -272,14 +283,16 @@ export const MarketplaceItem = () => {
 		return address && getAddress(hexlify(address))
 	}, [selectedProvider.lastUpdate])
 
+	const chainItem = useMarketplaceItem(id, itemId)
+
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
 	const item = useMemo(() => {
 		return items.find(({ id }) => id.eq(itemId))
 	}, [lastUpdate])
 
-	if (!item) {
-		if (loading || waiting) {
+	if (!item || !chainItem.item) {
+		if (loading || waiting || chainItem.loading) {
 			return <p>Loading...</p>
 		}
 
@@ -297,6 +310,8 @@ export const MarketplaceItem = () => {
 		navigate(`/marketplace/${id}`)
 	}
 
+	const status = chainItem.item.status
+
 	return (
 		<div>
 			<h3>{item.metadata.description}</h3>
@@ -310,11 +325,16 @@ export const MarketplaceItem = () => {
 					: `${formatUnits(item.price, decimals)} DAI`}
 			</span>
 
+			<p>
+				Status: {Statuses[status]} ({formatFrom(chainItem.item.providerAddress)}
+				)
+			</p>
+
 			{selectedProvider.data && (
 				<SelectedProvider {...selectedProvider} data={selectedProvider.data} />
 			)}
 
-			{provider === address && (
+			{provider === address && status === 1 && (
 				<FundDeal marketplace={id} item={itemId} data={selectedProvider.data} />
 			)}
 
@@ -337,13 +357,14 @@ export const MarketplaceItem = () => {
 				)}
 			</div>
 
-			{item.owner === address ? (
-				<button onClick={cancelItem} disabled={!contract || !connector}>
-					Cancel item
-				</button>
-			) : (
-				<ReplyForm item={item} marketplace={id} decimals={decimals} />
-			)}
+			{status === 1 &&
+				(item.owner === address ? (
+					<button onClick={cancelItem} disabled={!contract || !connector}>
+						Cancel item
+					</button>
+				) : (
+					<ReplyForm item={item} marketplace={id} decimals={decimals} />
+				))}
 		</div>
 	)
 }
