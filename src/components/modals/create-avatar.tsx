@@ -83,12 +83,7 @@ export const CreateAvatar = ({ children }: Props) => {
 							onClick={(e) => {
 								e.stopPropagation()
 								updateAvatar().then((newAvatar) => {
-									// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-									// @ts-expect-error
 									setStore.profile.avatar(newAvatar)
-
-									// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-									// @ts-expect-error
 									setStore.profile.lastUpdate(new Date())
 								})
 								setShown(false)

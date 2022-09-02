@@ -115,8 +115,6 @@ const updateProfile = async (
 		pictureHash,
 	})
 
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
 	setStore.profile.lastSync(new Date())
 }
 
@@ -146,15 +144,9 @@ export const useSyncProfile = () => {
 		const profileDate = new Date(profile?.lastUpdate ?? 0)
 
 		// If remote is more recent
-		if (wakuDate > profileDate) {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error
+		if (wakuProfile && wakuDate > profileDate) {
 			setStore.profile.username(wakuProfile.username)
-
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error
 			setStore.profile.lastUpdate(new Date(wakuProfile.date))
-
 			return
 		}
 
@@ -171,8 +163,6 @@ export const useSyncProfile = () => {
 			Date.now() - (profile.lastSync?.getTime() ?? 0) > 24 * 60 * 60
 		) {
 			postWakuMessage(waku, getProfileTopic(address), payload).then(() => {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-expect-error
 				setStore.profile.lastSync(new Date())
 			})
 		}

@@ -30,7 +30,7 @@
 		"react-easy-crop": "^4.4.2",
 		"react-router": "^6.3.0",
 		"react-router-dom": "^6.3.0",
-		"teaful": "^0.10.0",
+		"teaful": "^0.11.0",
 		"wagmi": "^0.6.0"
 	},
 	"devDependencies": {
