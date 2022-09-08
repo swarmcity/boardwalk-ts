@@ -12,6 +12,18 @@ import { cleanOutput } from '../../../lib/ethers'
 // Services
 import { Status } from './marketplace-items'
 
+// Types
+export type MarketplaceItem = {
+	fee: bigint
+	metadata: string
+	price: bigint
+	providerAddress: string
+	providerRep: bigint
+	seekerAddress: string
+	seekerRep: bigint
+	status: Status
+}
+
 export const useMarketplaceContract = (address: string) => {
 	const provider = useProvider()
 	return useMemo(
@@ -73,16 +85,7 @@ export const useMarketplaceTokenDecimals = (address: string) => {
 
 export const useMarketplaceItem = (marketplace: string, itemId: bigint) => {
 	const contract = useMarketplaceContract(marketplace)
-	const [item, setItem] = useState<{
-		fee: bigint
-		metadata: string
-		price: bigint
-		providerAddress: string
-		providerRep: bigint
-		seekerAddress: string
-		seekerRep: bigint
-		status: Status
-	}>()
+	const [item, setItem] = useState<MarketplaceItem>()
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 	const [loading, setLoading] = useState(true)
 
