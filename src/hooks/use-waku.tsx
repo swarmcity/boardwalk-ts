@@ -71,8 +71,6 @@ export const useWaku = (protocols?: Protocols[]) => {
 	const { waku, availableProtocols, addAvailableProtocols } = useWakuContext()
 	const [waiting, setWaiting] = useState(true)
 
-	console.log({ availableProtocols })
-
 	useEffect(() => {
 		if (!waku) {
 			return
