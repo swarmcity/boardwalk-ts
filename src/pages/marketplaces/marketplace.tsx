@@ -132,23 +132,29 @@ export const Marketplace = () => {
 				</Typography>
 			</Container>
 			<Container>
-				{loading ? (
-					<Typography>Fetching your marketplace data...</Typography>
-				) : (
-					<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
-						<div style={{ marginTop: 22, marginBottom: 32 }}>
-							<DisplayItems marketplace={id} items={own} decimals={decimals} />
-						</div>
+				<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
+					{loading ? (
+						<Typography>Fetching your marketplace data...</Typography>
+					) : (
+						<>
+							<div style={{ marginTop: 22, marginBottom: 32 }}>
+								<DisplayItems
+									marketplace={id}
+									items={own}
+									decimals={decimals}
+								/>
+							</div>
 
-						<div style={{ marginTop: 22 }}>
-							<DisplayItems
-								marketplace={id}
-								items={other}
-								decimals={decimals}
-							/>
-						</div>
-					</div>
-				)}
+							<div style={{ marginTop: 22 }}>
+								<DisplayItems
+									marketplace={id}
+									items={other}
+									decimals={decimals}
+								/>
+							</div>
+						</>
+					)}
+				</div>
 			</Container>
 		</>
 	)

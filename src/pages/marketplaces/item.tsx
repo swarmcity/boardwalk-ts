@@ -130,10 +130,9 @@ const ReplyForm = ({
 						alignItems: 'center',
 						textAlign: 'left',
 						width: '100%',
-						flexGrow: 1,
 					}}
 				>
-					<div style={{ width: '100%', flexGrow: 1 }}>
+					<div style={{ width: '100%' }}>
 						<Input
 							id="reply"
 							onChange={(event) => setText(event.currentTarget.value)}
@@ -141,28 +140,22 @@ const ReplyForm = ({
 							Your reply
 						</Input>
 					</div>
-					<p
+					<Typography
+						variant="body-bold-16"
 						style={{
-							fontFamily: 'Montserrat',
-							fontStyle: 'normal',
-							fontWeight: 700,
-							fontSize: 16,
-							color: '#333333',
-							margin: 0,
 							marginTop: 12,
-							flexGrow: 1,
 							width: '100%',
 						}}
 					>
 						{decimals === undefined
 							? 'Loading...'
 							: `for ${formatUnits(item.price, decimals)} DAI.`}
-					</p>
+					</Typography>
 				</div>
 			</div>
 			<div style={{ marginTop: 26 }}>
 				<IconButton variant="cancel" onClick={onCancel} />
-				<IconButton variant="confirmAction" onClick={() => {}} />
+				<IconButton variant="confirmAction" onClick={postReply} />
 			</div>
 		</div>
 	)
