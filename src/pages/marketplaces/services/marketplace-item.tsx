@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Wallet } from 'ethers'
-import { waitForRemotePeer, WakuMessage, utils } from 'js-waku'
+import { waitForRemotePeer, WakuMessage, utils, Protocols } from 'js-waku'
 import { verifyTypedData } from '@ethersproject/wallet'
 import { getAddress } from '@ethersproject/address'
 
@@ -14,6 +14,9 @@ import type { BigNumber, Signer } from 'ethers'
 
 // Protos
 import { ItemReply } from '../../../protos/ItemReply'
+
+// Hooks
+import { useWaku } from '../../../hooks/use-waku'
 
 export type CreateReply = {
 	text: string
@@ -139,23 +142,11 @@ const decodeWakuReplies = (
 	)
 }
 
-export const useItemReplies = (
-	waku: Waku | undefined,
-	marketplace: string,
-	item: bigint
-) => {
-	const [waiting, setWaiting] = useState(true)
+export const useItemReplies = (marketplace: string, item: bigint) => {
+	const { waku, waiting } = useWaku([Protocols.Store])
 	const [loading, setLoading] = useState(false)
 	const [replies, setReplies] = useState<ItemReplyClean[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
-
-	useEffect(() => {
-		if (!waku) {
-			return
-		}
-
-		waitForRemotePeer(waku).then(() => setWaiting(false))
-	}, [waku])
 
 	useEffect(() => {
 		if (!waku || waiting) {

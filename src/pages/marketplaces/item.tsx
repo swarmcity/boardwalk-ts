@@ -399,12 +399,11 @@ export const MarketplaceItem = () => {
 	const itemId = BigInt(itemIdString)
 
 	const { address } = useAccount()
-	const { waku } = useWakuContext()
 	const { decimals } = useMarketplaceTokenDecimals(id)
 	const contract = useMarketplaceContract(id)
 	const { connector } = useAccount()
 	const navigate = useNavigate()
-	const { replies } = useItemReplies(waku, id, itemId)
+	const { replies } = useItemReplies(id, itemId)
 	const selectedProvider = useSelectProvider(id, itemId)
 	const provider = useMemo(() => {
 		const address = selectedProvider.data?.provider
@@ -416,7 +415,7 @@ export const MarketplaceItem = () => {
 	const name = useMarketplaceName(id)
 
 	// TODO: Replace this with a function that only fetches the appropriate item
-	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
+	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(id)
 	const item = useMemo(() => {
 		return items.find(({ id }) => id.eq(itemId))
 	}, [lastUpdate])

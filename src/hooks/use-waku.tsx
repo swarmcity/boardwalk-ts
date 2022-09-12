@@ -1,5 +1,5 @@
 import { multiaddr } from '@multiformats/multiaddr'
-import { waitForRemotePeer, Waku } from 'js-waku'
+import { waitForRemotePeer, Waku, Protocols } from 'js-waku'
 import { createWaku, CreateOptions } from 'js-waku/lib/create_waku'
 import {
 	createContext,
@@ -9,13 +9,14 @@ import {
 	useState,
 } from 'react'
 
-// Types
-import type { Protocols } from 'js-waku'
-
 // Config
 const DEFAULT_SETTINGS: CreateOptions = {}
 
-export const WakuContext = createContext<{ waku?: Waku } | null>(null)
+export const WakuContext = createContext<{
+	waku?: Waku
+	availableProtocols: Set<Protocols>
+	addAvailableProtocols: (protocols: Protocols[]) => void
+} | null>(null)
 
 export const WakuProvider = ({
 	children,
@@ -25,6 +26,12 @@ export const WakuProvider = ({
 	settings?: CreateOptions
 }) => {
 	const [waku, setWaku] = useState<Waku>()
+	const [availableProtocols, setAvailableProtocols] = useState<Set<Protocols>>(
+		new Set()
+	)
+	const addAvailableProtocols = (protocols: Protocols[]) => {
+		setAvailableProtocols(new Set([...availableProtocols, ...protocols]))
+	}
 
 	useEffect(() => {
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
@@ -42,7 +49,11 @@ export const WakuProvider = ({
 	}, [settings])
 
 	return (
-		<WakuContext.Provider value={{ waku }}>{children}</WakuContext.Provider>
+		<WakuContext.Provider
+			value={{ waku, availableProtocols, addAvailableProtocols }}
+		>
+			{children}
+		</WakuContext.Provider>
 	)
 }
 
@@ -54,16 +65,39 @@ export const useWakuContext = () => {
 	return context
 }
 
+// NOTE: This might cause issues if we lose a peer on the way, but there's an upstream issue
+// TODO: Make this more robust
 export const useWaku = (protocols?: Protocols[]) => {
-	const { waku } = useWakuContext()
+	const { waku, availableProtocols, addAvailableProtocols } = useWakuContext()
 	const [waiting, setWaiting] = useState(true)
+
+	console.log({ availableProtocols })
 
 	useEffect(() => {
 		if (!waku) {
 			return
 		}
 
-		waitForRemotePeer(waku, protocols).then(() => setWaiting(false))
+		if (!protocols) {
+			protocols = [Protocols.Relay]
+		}
+
+		// If all protocols are available, we're good
+		if (protocols.some((protocol) => availableProtocols.has(protocol))) {
+			setWaiting(false)
+			return
+		}
+
+		// Fetch the protocols that aren't available yet
+		const diff = protocols.filter(
+			(protocol) => !availableProtocols.has(protocol)
+		)
+
+		// Wait for the missing protocols to be available
+		waitForRemotePeer(waku, diff).then(() => {
+			addAvailableProtocols(diff)
+			setWaiting(false)
+		})
 	}, [waku])
 
 	return { waku, waiting }
