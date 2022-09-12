@@ -5,6 +5,7 @@ import avatarDefault from '../../assets/imgs/avatar.svg?url'
 import { bufferToHex } from '../../lib/tools'
 import { useProfile } from '../../services/profile'
 import { useProfilePicture } from '../../services/profile-picture'
+import { Avatar } from '../../ui/avatar'
 import { getColor } from '../../ui/colors'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
@@ -101,20 +102,7 @@ export function User() {
 							<IconButton variant="close" onClick={() => navigate(-1)} />
 						</div>
 					</div>
-					<div
-						style={{
-							width: 75,
-							height: 75,
-							borderRadius: '50%',
-							marginTop: 96,
-							overflow: 'hidden',
-						}}
-					>
-						<img
-							style={{ maxWidth: '100%', maxHeight: '100%' }}
-							src={avatar ?? avatarDefault}
-						/>
-					</div>
+					<Avatar style={{ marginTop: 96 }} avatar={avatar ?? avatarDefault} />
 					<Typography variant="body-bold-16" style={{ marginTop: 17 }}>
 						{profile?.username}
 					</Typography>
