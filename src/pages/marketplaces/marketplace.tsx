@@ -1,7 +1,11 @@
-import { formatUnits } from '@ethersproject/units'
 import { useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAccount } from 'wagmi'
+import {
+	MarketplaceListingItem,
+	FullscreenLoading,
+	IconButton,
+} from '@swarm-city/ui-library'
 
 // Hooks
 import { useWakuContext } from '../../hooks/use-waku'
@@ -15,6 +19,7 @@ import {
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
+import { BigNumber } from 'ethers'
 
 type DisplayItemsProps = {
 	marketplace: string
@@ -22,27 +27,43 @@ type DisplayItemsProps = {
 	decimals: number | undefined
 }
 
+export function formatMoney(amount: bigint | BigNumber, decimals = 18) {
+	const base =
+		typeof amount === 'bigint' ? Number(amount) : Number(amount.toBigInt())
+	return base / 10 ** decimals
+}
+
 const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
+	const navigate = useNavigate()
 	return (
 		<>
 			{items
 				.filter(({ status }) => status === Status.Open)
 				.map((item, index) => (
-					<Link
-						to={`/marketplace/${marketplace}/item/${item.id.toString()}`}
+					<div
 						key={index}
+						style={{
+							backgroundColor: 'white',
+							marginBottom: 6,
+							padding: 21,
+							cursor: 'pointer',
+						}}
+						onClick={() =>
+							navigate(`/marketplace/${marketplace}/item/${item.id.toString()}`)
+						}
 					>
-						<h3>{item.metadata.description}</h3>
-						<span>{new Date(item.timestamp * 1000).toISOString()}</span>
-						<p>
-							{item.owner} - {item.seekerRep.toString()} SWMR
-						</p>
-						<span>
-							{decimals === undefined
-								? 'Loading...'
-								: `${formatUnits(item.price, decimals)} DAI`}
-						</span>
-					</Link>
+						<MarketplaceListingItem
+							title={item.metadata.description}
+							repliesCount={0}
+							date={new Date(item.timestamp * 1000)}
+							amount={formatMoney(item.price)}
+							user={{
+								// TODO: get the owner name and avatar
+								name: item.owner.substring(0, 10),
+								reputation: item.seekerRep.toNumber(),
+							}}
+						/>
+					</div>
 				))}
 		</>
 	)
@@ -58,6 +79,7 @@ export const Marketplace = () => {
 	const { waku } = useWakuContext()
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
 	const { decimals } = useMarketplaceTokenDecimals(id)
+	const navigate = useNavigate()
 	const name = useMarketplaceName(id)
 
 	// Filter out the user's items from the other ones
@@ -74,23 +96,64 @@ export const Marketplace = () => {
 		[lastUpdate]
 	)
 
-	if (waiting) {
-		return <p>Waiting for Waku</p>
+	if (waiting || loading) {
+		return <FullscreenLoading />
 	}
 
 	return (
-		<div>
-			{loading && <p>Loading</p>}
-			<h2>{name}</h2>
-			<Link to={MARKETPLACE_ADD(id)}>Add</Link>
-			<div>
-				<h2 style={{ textDecoration: 'underline' }}>My items</h2>
-				<DisplayItems marketplace={id} items={own} decimals={decimals} />
+		<div
+			style={{
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				flexDirection: 'column',
+				textAlign: 'left',
+			}}
+		>
+			<div style={{ position: 'fixed', right: 50, zIndex: 50, bottom: 60 }}>
+				<IconButton
+					variant="requestStart"
+					onClick={() => navigate(MARKETPLACE_ADD(id))}
+				/>
 			</div>
+			<div style={{ maxWidth: 1000, width: '100%', textAlign: 'left' }}>
+				<h2
+					style={{
+						fontFamily: 'Montserrat',
+						fontStyle: 'normal',
+						fontWeight: 700,
+						fontSize: 28,
+						color: '#333333',
+						margin: 0,
+						flexGrow: 1,
+						marginLeft: 40,
+						marginRight: 40,
+					}}
+				>
+					{name}
+				</h2>
+			</div>
+			<div
+				style={{
+					maxWidth: 1000,
+					width: '100%',
+					marginLeft: 10,
+					marginRight: 10,
+					display: 'flex',
+					alignItems: 'center',
+					flexGrow: 1,
+				}}
+			>
+				<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
+					{/* {loading && <p>Loading</p>} */}
+					<div style={{ marginTop: 22, marginBottom: 32 }}>
+						<DisplayItems marketplace={id} items={own} decimals={decimals} />
+					</div>
 
-			<div>
-				<h2 style={{ textDecoration: 'underline' }}>Other items</h2>
-				<DisplayItems marketplace={id} items={other} decimals={decimals} />
+					<div style={{ marginTop: 22 }}>
+						<DisplayItems marketplace={id} items={other} decimals={decimals} />
+					</div>
+				</div>
 			</div>
 		</div>
 	)

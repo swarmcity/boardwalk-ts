@@ -38,6 +38,16 @@ import {
 	useSelectProvider,
 } from '../../services/select-provider'
 import { SelectProvider } from '../../protos/SelectProvider'
+import {
+	Button,
+	IconButton,
+	Input,
+	Reply as ReplyUI,
+	RequestItem,
+} from '@swarm-city/ui-library'
+import { useStore } from '../../store'
+import { Container } from '../../ui/container'
+import { Typography } from '../../ui/typography'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -53,10 +63,17 @@ type ReplyFormProps = {
 	item: Item
 	marketplace: string
 	decimals: number | undefined
+	onCancel: () => void
 }
 
-const ReplyForm = ({ item, marketplace, decimals }: ReplyFormProps) => {
+const ReplyForm = ({
+	item,
+	marketplace,
+	decimals,
+	onCancel,
+}: ReplyFormProps) => {
 	const [text, setText] = useState('')
+	const [profile, setProfile] = useStore.profile()
 
 	const { waku } = useWakuContext()
 	const { connector } = useAccount()
@@ -73,19 +90,81 @@ const ReplyForm = ({ item, marketplace, decimals }: ReplyFormProps) => {
 	}
 
 	return (
-		<form onSubmit={postReply}>
-			<input
-				type="text"
-				value={text}
-				onChange={(event) => setText(event.currentTarget.value)}
-			/>
-			<p>
-				{decimals === undefined
-					? 'Loading...'
-					: `For ${formatUnits(item.price, decimals)} DAI`}
-			</p>
-			<button type="submit">Submit</button>
-		</form>
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'stretch',
+				flexGrow: 1,
+				width: '100%',
+			}}
+		>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					alignItems: 'center',
+					justifyContent: 'stretch',
+					flexGrow: 1,
+					width: '100%',
+				}}
+			>
+				<div>
+					<img
+						style={{
+							width: 40,
+							height: 'auto',
+							borderRadius: '50%',
+							margin: '0 12px 0 0',
+							borderStyle: 'none',
+						}}
+						src={profile?.avatar ?? avatarDefault}
+					/>
+				</div>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'stretch',
+						alignItems: 'center',
+						textAlign: 'left',
+						width: '100%',
+						flexGrow: 1,
+					}}
+				>
+					<div style={{ width: '100%', flexGrow: 1 }}>
+						<Input
+							id="reply"
+							onChange={(event) => setText(event.currentTarget.value)}
+						>
+							Your reply
+						</Input>
+					</div>
+					<p
+						style={{
+							fontFamily: 'Montserrat',
+							fontStyle: 'normal',
+							fontWeight: 700,
+							fontSize: 16,
+							color: '#333333',
+							margin: 0,
+							marginTop: 12,
+							flexGrow: 1,
+							width: '100%',
+						}}
+					>
+						{decimals === undefined
+							? 'Loading...'
+							: `for ${formatUnits(item.price, decimals)} DAI.`}
+					</p>
+				</div>
+			</div>
+			<div style={{ marginTop: 26 }}>
+				<IconButton variant="cancel" onClick={onCancel} />
+				<IconButton variant="confirmAction" onClick={() => {}} />
+			</div>
+		</div>
 	)
 }
 
@@ -136,6 +215,15 @@ const Reply = ({
 		profile?.pictureHash ? bufferToHex(profile.pictureHash) : ''
 	)
 
+	const avatar = useMemo(() => {
+		if (!picture) {
+			return avatarDefault
+		}
+
+		const blob = new Blob([picture.data], { type: picture?.type })
+		return URL.createObjectURL(blob)
+	}, [picture])
+
 	// State
 	const [loading, setLoading] = useState(false)
 	const [selected, setSelected] = useState(false)
@@ -162,19 +250,15 @@ const Reply = ({
 	}
 
 	return (
-		<li>
-			<p>From: {formatFrom(reply.from, profile?.username)}</p>
-			<ProfilePicture picture={picture} />
-			<p>{reply.text}</p>
-			{ownItem &&
-				(selected ? (
-					<p>Provider selected!</p>
-				) : (
-					<button disabled={loading} onClick={selectProvider}>
-						Choose as provider
-					</button>
-				))}
-		</li>
+		<ReplyUI
+			replyTitle={reply.text}
+			replyDate={new Date()}
+			replierName={formatFrom(reply.from, profile?.username)}
+			avatar={avatar}
+			replierRep={0}
+			replyAmt={0}
+			myReply={ownItem}
+		/>
 	)
 }
 
@@ -284,6 +368,8 @@ export const MarketplaceItem = () => {
 	}, [selectedProvider.lastUpdate])
 
 	const chainItem = useMarketplaceItem(id, itemId)
+	const [isReplying, setIsReplying] = useState<boolean>(false)
+	const name = useMarketplaceName(id)
 
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
@@ -292,11 +378,46 @@ export const MarketplaceItem = () => {
 	}, [lastUpdate])
 
 	if (!item || !chainItem.item) {
-		if (loading || waiting || chainItem.loading) {
-			return <p>Loading...</p>
-		}
+		const text =
+			loading || waiting || chainItem.loading
+				? 'Loading...'
+				: 'Item not found...'
 
-		return <p>Item not found...</p>
+		return (
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					flexDirection: 'column',
+					textAlign: 'left',
+					width: '100%',
+				}}
+			>
+				<div style={{ maxWidth: 1000, width: '100%', textAlign: 'left' }}>
+					<div
+						style={{
+							flexGrow: 1,
+							marginLeft: 40,
+							marginRight: 40,
+							width: '100%',
+						}}
+					>
+						<h2
+							style={{
+								fontFamily: 'Montserrat',
+								fontStyle: 'normal',
+								fontWeight: 700,
+								fontSize: 28,
+								color: '#333333',
+							}}
+						>
+							{text}
+						</h2>
+					</div>
+				</div>
+			</div>
+		)
 	}
 
 	const cancelItem = async () => {
@@ -313,58 +434,145 @@ export const MarketplaceItem = () => {
 	const { status } = chainItem.item
 
 	return (
-		<div>
-			<h3>{item.metadata.description}</h3>
-			<span>{new Date(item.timestamp * 1000).toISOString()}</span>
-			<p>
-				{item.owner} - {item.seekerRep.toString()} SWMR
-			</p>
-			<span>
-				{decimals === undefined
-					? 'Loading...'
-					: `${formatUnits(item.price, decimals)} DAI`}
-			</span>
-
-			<p>
-				Status: {Statuses[status]} ({formatFrom(chainItem.item.providerAddress)}
-				)
-			</p>
-
-			{selectedProvider.data && (
-				<SelectedProvider {...selectedProvider} data={selectedProvider.data} />
-			)}
-
-			{provider === address && status === 1 && (
-				<FundDeal marketplace={id} item={itemId} data={selectedProvider.data} />
-			)}
-
-			<div>
-				Replies:
-				{replies.length ? (
-					<ul>
-						{replies.map((reply) => (
-							<Reply
-								key={reply.signature}
-								reply={reply}
-								ownItem={item.owner === address}
-								marketplace={id}
-								item={itemId}
+		<>
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					flexDirection: 'column',
+					textAlign: 'left',
+				}}
+			>
+				<Container>
+					<div
+						style={{
+							flexGrow: 1,
+							marginLeft: 40,
+							marginRight: 40,
+							width: '100%',
+							padding: 10,
+						}}
+					>
+						<Typography variant="h2">{name} </Typography>
+					</div>
+				</Container>
+				<Container>
+					<div
+						style={{
+							backgroundColor: '#FAFAFA',
+							boxShadow: '0px 1px 0px #DFDFDF',
+							position: 'relative',
+							padding: 30,
+							marginLeft: 10,
+							marginRight: 10,
+						}}
+					>
+						<div style={{ position: 'absolute', right: 15, top: 15 }}>
+							<IconButton
+								variant="close"
+								onClick={() => navigate(`/marketplace/${id}`)}
 							/>
-						))}
-					</ul>
-				) : (
-					'No replies...'
+						</div>
+						<RequestItem
+							detail
+							title={item.metadata.description}
+							date={new Date(item.timestamp * 1000)}
+							repliesCount={0}
+							amount={0}
+							user={{
+								name: item.owner.substring(0, 10),
+								reputation: item.seekerRep.toNumber(),
+							}}
+						/>
+					</div>
+					<div
+						style={{
+							backgroundColor: '#FAFAFA',
+							boxShadow: '0px 1px 0px #DFDFDF',
+							borderTop: '1px dashed #DFDFDF',
+							position: 'relative',
+							marginLeft: 10,
+							marginRight: 10,
+						}}
+					>
+						<div
+							style={{
+								padding: 30,
+							}}
+						>
+							{replies.length ? (
+								<>
+									{replies.map((reply) => (
+										<div
+											key={reply.signature}
+											style={{ width: '100%', marginBottom: 25 }}
+										>
+											<Reply
+												reply={reply}
+												ownItem={item.owner === address}
+												marketplace={id}
+												item={itemId}
+											/>
+										</div>
+									))}
+								</>
+							) : (
+								!isReplying && (
+									<div
+										style={{
+											textAlign: 'center',
+											fontFamily: 'Montserrat',
+											fontStyle: 'normal',
+											fontWeight: 300,
+											fontSize: 12,
+											color: '#ACACAC',
+										}}
+									>
+										No replies yet.
+									</div>
+								)
+							)}
+							{status === 1 && item.owner !== address && isReplying && (
+								<ReplyForm
+									item={item}
+									marketplace={id}
+									decimals={decimals}
+									onCancel={() => setIsReplying(false)}
+								/>
+							)}
+						</div>
+						{status === 1 && item.owner !== address && !isReplying && (
+							<div
+								style={{
+									position: 'absolute',
+									bottom: -13,
+									right: 46,
+								}}
+							>
+								<IconButton
+									variant="reply"
+									onClick={() => {
+										setIsReplying(true)
+									}}
+								/>
+							</div>
+						)}
+					</div>
+				</Container>
+
+				{status === 1 && item.owner === address && (
+					<div style={{ marginTop: 58 }}>
+						<Button
+							variant="danger"
+							onClick={cancelItem}
+							disabled={!contract || !connector}
+						>
+							cancel this request
+						</Button>
+					</div>
 				)}
 			</div>
-
-			{status === 1 &&
-				(item.owner === address ? (
-					<button onClick={cancelItem} disabled={!contract || !connector}>
-						Cancel item
-					</button>
-				) : (
-					<ReplyForm item={item} marketplace={id} decimals={decimals} />
-				))}
-		</div>
+		</>
 	)
 }
