@@ -446,7 +446,7 @@ export const MarketplaceItem = () => {
 			>
 				<Container>
 					<Typography
-						variant="h5"
+						variant="header-28"
 						color="grey4"
 						style={{
 							marginLeft: 40,

@@ -54,7 +54,7 @@ export const MarketplaceListItem = () => {
 					confirm={{ onClick: submit }}
 				>
 					<div style={{ padding: 20 }}>
-						<Typography variant="h3" style={{ marginBottom: 12 }}>
+						<Typography variant="header-35" style={{ marginBottom: 12 }}>
 							You are about to post this request for {price} DAI.
 						</Typography>
 						<Typography>This cannot be undone.</Typography>
@@ -65,7 +65,7 @@ export const MarketplaceListItem = () => {
 			)}
 			<Container>
 				<Typography
-					variant="h5"
+					variant="header-28"
 					color="grey4"
 					style={{
 						marginLeft: 40,
@@ -114,19 +114,16 @@ export const MarketplaceListItem = () => {
 										What is your offer?
 									</Input>
 								</div>
-								<div
+								<Typography
+									variant="body-bold-16"
+									color="yellow"
 									style={{
-										fontFamily: 'Montserrat',
-										fontStyle: 'normal',
-										fontWeight: 700,
-										fontSize: 16,
-										color: '#EFD96F',
 										width: 100,
 										marginLeft: 10,
 									}}
 								>
 									DAI
-								</div>
+								</Typography>
 							</div>
 							<div
 								style={{
@@ -145,19 +142,47 @@ export const MarketplaceListItem = () => {
 						<div
 							style={{
 								position: 'relative',
-								height: 66,
 								textAlign: 'right',
 								borderTop: '1px solid #DFDFDF',
 							}}
 						>
-							<IconButton
-								disabled={!price || !description}
-								style={{ bottom: -13, right: 46 }}
-								variant="requestNext"
-								onClick={() => setConfirmationReq(true)}
+							{price && price > 0 ? (
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'end',
+										alignItems: 'center',
+										marginRight: 30,
+										marginTop: 21,
+									}}
+								>
+									<Typography variant="small-light-12" color="grey3">
+										Total cost:
+									</Typography>
+									<Typography
+										variant="header-22"
+										color="grey4"
+										style={{ marginLeft: 12 }}
+									>
+										{price + fee} DAI
+									</Typography>
+								</div>
+							) : null}
+							<div
+								style={{
+									position: 'relative',
+									textAlign: 'right',
+								}}
 							>
-								Next
-							</IconButton>
+								<IconButton
+									disabled={!price || !description}
+									style={{ bottom: -13, right: 46 }}
+									variant="requestNext"
+									onClick={() => setConfirmationReq(true)}
+								>
+									Next
+								</IconButton>
+							</div>
 						</div>
 					</div>
 				</div>

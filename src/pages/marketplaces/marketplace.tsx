@@ -98,7 +98,7 @@ export const Marketplace = () => {
 		return (
 			<Container>
 				<Typography
-					variant="h5"
+					variant="header-28"
 					color="grey4"
 					style={{
 						marginLeft: 40,
@@ -121,7 +121,7 @@ export const Marketplace = () => {
 			</div>
 			<Container>
 				<Typography
-					variant="h5"
+					variant="header-28"
 					color="grey4"
 					style={{
 						marginLeft: 40,

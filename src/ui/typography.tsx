@@ -2,7 +2,18 @@ import { HTMLAttributes } from 'react'
 import { Colors, getColor } from './colors'
 
 interface Props extends HTMLAttributes<HTMLSpanElement> {
-	variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'h7' | 'h8'
+	variant?:
+		| 'header-56'
+		| 'header-44'
+		| 'header-35'
+		| 'header-30'
+		| 'header-28'
+		| 'header-26'
+		| 'header-24'
+		| 'header-22'
+		| 'body-bold-16'
+		| 'body-light-16'
+		| 'small-light-12'
 	color?: Colors
 	textAlign?: 'center' | 'left' | 'right' | 'justify' | 'initial' | 'inherit'
 }
@@ -26,7 +37,7 @@ export function Typography({
 		...style,
 	}
 	switch (variant) {
-		case 'h1':
+		case 'header-56':
 			return (
 				<h1
 					style={{
@@ -38,7 +49,7 @@ export function Typography({
 					{children}
 				</h1>
 			)
-		case 'h2':
+		case 'header-44':
 			return (
 				<h2
 					style={{
@@ -50,7 +61,7 @@ export function Typography({
 					{children}
 				</h2>
 			)
-		case 'h3':
+		case 'header-35':
 			return (
 				<h3
 					style={{
@@ -62,7 +73,7 @@ export function Typography({
 					{children}
 				</h3>
 			)
-		case 'h4':
+		case 'header-30':
 			return (
 				<h4
 					style={{
@@ -74,7 +85,7 @@ export function Typography({
 					{children}
 				</h4>
 			)
-		case 'h5':
+		case 'header-28':
 			return (
 				<h5
 					style={{
@@ -86,7 +97,7 @@ export function Typography({
 					{children}
 				</h5>
 			)
-		case 'h6':
+		case 'header-26':
 			return (
 				<h6
 					style={{
@@ -98,7 +109,7 @@ export function Typography({
 					{children}
 				</h6>
 			)
-		case 'h7':
+		case 'header-24':
 			return (
 				<span
 					style={{
@@ -110,7 +121,7 @@ export function Typography({
 					{children}
 				</span>
 			)
-		case 'h8':
+		case 'header-22':
 			return (
 				<span
 					style={{
@@ -122,7 +133,24 @@ export function Typography({
 					{children}
 				</span>
 			)
-		default:
+		case 'body-bold-16':
+			return (
+				<span
+					style={{
+						fontFamily: 'Montserrat',
+						fontStyle: 'normal',
+						fontWeight: 700,
+						fontSize: 16,
+						color,
+						textAlign,
+						...style,
+					}}
+					{...props}
+				>
+					{children}
+				</span>
+			)
+		case 'small-light-12':
 			return (
 				<span
 					style={{
@@ -132,6 +160,17 @@ export function Typography({
 						fontSize: 12,
 						color,
 						textAlign,
+						...style,
+					}}
+					{...props}
+				>
+					{children}
+				</span>
+			)
+		default:
+			return (
+				<span
+					style={{
 						...style,
 					}}
 					{...props}
