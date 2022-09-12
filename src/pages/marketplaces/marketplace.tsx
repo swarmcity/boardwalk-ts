@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useAccount } from 'wagmi'
 import { MarketplaceListingItem, IconButton } from '@swarm-city/ui-library'
 
@@ -54,7 +54,7 @@ const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
 							title={item.metadata.description}
 							repliesCount={0}
 							date={new Date(item.timestamp * 1000)}
-							amount={formatMoney(item.price)}
+							amount={formatMoney(item.price, decimals)}
 							user={{
 								// TODO: get the owner name and avatar
 								name: item.owner.substring(0, 10),
