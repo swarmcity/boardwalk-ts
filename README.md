@@ -109,34 +109,39 @@ Tom is very excited he got paid because he knows it opens up a whole new world o
 - [ ] Epic 2: As a user, I can see my reputation in each marketplace, so I can get a sense of how other users might perceive me. [Issue #11](https://github.com/swarmcity/boardwalk-ts/issues/11)
 
 ## S01 E05: Going Sour
-In Episode 5 Tom tries to make up his mind about where to post his first request. He needs translation services in a language he doesn't speak, but there are so many possibilities to choose from! 
+
+In Episode 5 Tom tries to make up his mind about where to post his first request. He needs translation services in a language he doesn't speak, but there are so many possibilities to choose from!
 
 In order to decide, Tom checks out the information display for several different marketplaces.
 
-He chooses the #Frontier marketplace and posts a new request. After perusing the responses Tom selects Brenda as a provider, which results in a deal between them. 
+He chooses the #Frontier marketplace and posts a new request. After perusing the responses Tom selects Brenda as a provider, which results in a deal between them.
 
-Although Brenda agreed to the deal, she never delivers. Tom wonders where she is so he sends her a chat message in their shared deal. 
+Although Brenda agreed to the deal, she never delivers. Tom wonders where she is so he sends her a chat message in their shared deal.
 
 Brenda replies "Damn, it's just too hard for me, Ton! You want it in what langwage?", which of course makes Tom seriously ticked off. Had he known Brenda couldn't spell and wouldn't deliver he never would have selected her. Unfortunately Tom has to resort to his last option: initiating conflict resolution with the Marketplace Maintainer. Will Tom get justice?
 
 #### New epics in this episode:
-- [ ] As a user I can find the details for a marketplace, so I can learn more about it.
 
-- [ ] As a user, I can chat so I can communicate about the deal.
+- [ ] As a user I can find the details for a marketplace, so I can learn more about it. [Issue #35](https://github.com/swarmcity/boardwalk-ts/issues/35)
 
-- [ ] As a user I can start a conflict about the deal, so I can express I do not agree to the deal anymore.
+- [ ] As a user, I can chat so I can communicate about the deal. [Issue #36](https://github.com/swarmcity/boardwalk-ts/issues/36)
+
+- [ ] As a user I can start a conflict about the deal, so I can express I do not agree to the deal anymore. [Issue #37](https://github.com/swarmcity/boardwalk-ts/issues/37)
 
 ## S01 E06: Finding Peace
+
 In Episode 6 we meet Crystal, the Marketplace Maintainer. She is responsible for resolving the conflict between Tom and Brenda.
 
 Crystal checks the details of their deal. She theb joins the chat with Tom and Brenda, and starts communicating with them. She evaluates both sides of the argument.
 
-Crystal resolves the conflict in favor of Tom. Brenda realizes it was her own fault for taking on a job she couldn't handle. (For one thing, spelling your customer's name right is important!) Will she do a better job next time? 
+Crystal resolves the conflict in favor of Tom. Brenda realizes it was her own fault for taking on a job she couldn't handle. (For one thing, spelling your customer's name right is important!) Will she do a better job next time?
 
 #### New epics in this episode:
+
 - [ ] As a Marktplace Maintainer I can resolve conflicts, so users have a fair marketplace.
 
 ## S01 E07: Searching New Horizons
+
 In Episode 7, Brenda tries to reply to a request on a different marketplace.
 
 Brenda sees the marketplacelist and chooses a different marketplace she's interested in. This time she filters the list to only see requests nearby, because she believes she'll have a better chance of fulfilling requests that occur in her general neighborhood.
@@ -146,6 +151,7 @@ Brenda sees Gary's request. It's nearby, and it's the amount she's looking for, 
 Gary loses his patience with Brenda, so he deselects her and picks someone else.
 
 #### New epics in this episode:
+
 - [ ] As a user, I can view all marketplaces with the number of completed deals for each, so I can see all community activity.
 
 - [ ] As a user, I can filter a marketplaces’s items by my geo-range of choice so I can see items in my area.
@@ -164,4 +170,4 @@ After deselecting Brenda, Gary selects Pepe as a Provider. Unfortunately, Pepe d
 
 - [ ] As a Seeker, I can cancel my request, so the request is no longer on the marketplace.
 
-- [ ] As a user, I get notified so I can quickly navigate to the actionnable items. [delete this?]
+- [ ] As a user, I get notified so I can quickly navigate to the actionnable items.
