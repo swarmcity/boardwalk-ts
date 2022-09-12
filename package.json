@@ -53,8 +53,7 @@
 		"protons": "^5.1.0",
 		"puppeteer": "^16.0.0",
 		"typescript": "^4.7.4",
-		"vite": "^3.0.4",
-		"vite-plugin-react-svg": "^0.2.0"
+		"vite": "^3.0.4"
 	},
 	"engines": {
 		"node": ">=16.0.0"
