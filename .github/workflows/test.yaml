@@ -32,7 +32,7 @@ jobs:
 
       - name: Install npm deps
         if: steps.cache-npm.outputs.cache-hit != 'true'
-        run: npm ci --force
+        run: npm ci
 
       - name: Run linting test
         run: npm run lint

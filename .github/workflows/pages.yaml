@@ -45,7 +45,7 @@ jobs:
           node-version: 16
 
       - name: Install npm deps
-        run: npm ci -f
+        run: npm ci
 
       - name: Build for gh-pages
         run: |
