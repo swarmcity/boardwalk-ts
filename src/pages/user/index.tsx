@@ -1,6 +1,6 @@
 import { IconButton } from '@swarm-city/ui-library'
 import { useMemo } from 'react'
-import { useParams } from 'react-router'
+import { useParams, useNavigate } from 'react-router'
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
 import { bufferToHex } from '../../lib/tools'
 import { useProfile } from '../../services/profile'
@@ -34,6 +34,7 @@ const marketplaces: Marketplace[] = [
 ]
 
 export function User() {
+    const navigate = useNavigate()
 	const { id } = useParams<string>()
 	if (!id) {
 		throw new Error('no id')
@@ -97,7 +98,7 @@ export function User() {
 				>
 					<div style={{ position: 'relative', width: '100%' }}>
 						<div style={{ position: 'absolute', right: 15, top: 15 }}>
-							<IconButton variant="close" />
+							<IconButton variant="close" onClick={() => navigate(-1)} />
 						</div>
 					</div>
 					<div
