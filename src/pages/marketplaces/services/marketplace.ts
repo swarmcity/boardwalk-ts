@@ -12,6 +12,7 @@ import { cleanOutput } from '../../../lib/ethers'
 
 // Services
 import { Status } from './marketplace-items'
+import { useReputation } from '../../../services/reputation'
 
 // Types
 export type MarketplaceItem = {
@@ -155,6 +156,22 @@ export const useMarketplaceItem = (marketplace: string, itemId: bigint) => {
 	}, [marketplace, itemId])
 
 	return { item, lastUpdate, loading }
+}
+
+export const useMarketplaceSeekerReputation = (
+	marketplace: string,
+	user: string
+) => {
+	const config = useMarketplaceConfig(marketplace, ['seekerRep'])
+	return useReputation(config?.seekerRep, user)
+}
+
+export const useMarketplaceProviderReputation = (
+	marketplace: string,
+	user: string
+) => {
+	const config = useMarketplaceConfig(marketplace, ['providerRep'])
+	return useReputation(config?.providerRep, user)
 }
 
 // TODO: Replace this with a public function once new contracts are deployed
