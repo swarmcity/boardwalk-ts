@@ -1,4 +1,4 @@
-import { BigNumberish, Contract } from 'ethers'
+import { BigNumber, BigNumberish, Contract } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { useProvider } from 'wagmi'
 import { JsonRpcBatchProvider, JsonRpcProvider } from '@ethersproject/providers'
@@ -155,4 +155,18 @@ export const useMarketplaceItem = (marketplace: string, itemId: bigint) => {
 	}, [marketplace, itemId])
 
 	return { item, lastUpdate, loading }
+}
+
+// TODO: Replace this with a public function once new contracts are deployed
+export const useMarketplaceDealCount = (marketplace: string) => {
+	const provider = useProvider()
+	const [count, setCount] = useState<BigNumberish>()
+
+	useEffect(() => {
+		provider
+			.getStorageAt(marketplace, 9)
+			.then((count) => setCount(BigNumber.from(count).sub(1)))
+	}, [marketplace])
+
+	return count
 }
