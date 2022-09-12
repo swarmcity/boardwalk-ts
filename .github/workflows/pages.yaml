@@ -51,6 +51,7 @@ jobs:
         run: |
           npm run build
           echo "boardwalk.swarm.city" > ./dist/CNAME
+          cp ./dist/index.html ./dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v1
