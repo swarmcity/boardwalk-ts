@@ -24,6 +24,7 @@ import exit from '../../assets/imgs/exit.svg?url'
 
 // Services
 import { useSyncProfile } from '../../services/profile'
+import { Container } from '../../ui/container'
 
 export const Marketplaces = () => {
 	const [profile, setProfile] = useStore.profile()
@@ -46,41 +47,48 @@ export const Marketplaces = () => {
 
 	return (
 		<div className="bg-gray-lt account-wallet">
-			<div className="icon-exit">
-				<a style={{ cursor: 'pointer' }} onClick={() => setProfile()}>
-					<img src={exit} />
-				</a>
-			</div>
-			<div className="container">
-				<main className="flex-space">
-					<figure className="avatar avatar-sm">
-						<CreateAvatar>
-							<img
-								className="avatar-img"
-								src={profile?.avatar || avatarDefault}
-								alt="user avatar"
-							/>
-						</CreateAvatar>
-						<figcaption>
-							<a href="#" className="username">
-								{profile?.username}
-							</a>
-							<div>
-								<Link to={ACCOUNT_WALLET} className="wallet-balance">
-									{balance ? formatBalance(balance) : `0.00 ${symbol}`}
-								</Link>
-							</div>
-						</figcaption>
-					</figure>
-				</main>
+			<Container style={{ marginTop: 60 }}>
+				<div
+					style={{
+						marginLeft: 40,
+						marginRight: 40,
+						display: 'flex',
+						alignItems: 'center',
+					}}
+				>
+					<div style={{ flexGrow: 1 }}>
+						<figure className="avatar avatar-sm">
+							<CreateAvatar>
+								<img
+									className="avatar-img"
+									src={profile?.avatar || avatarDefault}
+									alt="user avatar"
+								/>
+							</CreateAvatar>
+							<figcaption>
+								<a href="#" className="username">
+									{profile?.username}
+								</a>
+								<div>
+									<Link to={ACCOUNT_WALLET} className="wallet-balance">
+										{balance ? formatBalance(balance) : `0.00 ${symbol}`}
+									</Link>
+								</div>
+							</figcaption>
+						</figure>
+					</div>
+					<a style={{ cursor: 'pointer' }} onClick={() => setProfile()}>
+						<img src={exit} />
+					</a>
+				</div>
+			</Container>
 
-				<Routes>
-					<Route element={<MarketplaceList />} path="/" />
-					<Route element={<Marketplace />} path="/:id" />
-					<Route element={<MarketplaceListItem />} path="/:id/add" />
-					<Route element={<MarketplaceItem />} path="/:id/item/:item" />
-				</Routes>
-			</div>
+			<Routes>
+				<Route element={<MarketplaceList />} path="/" />
+				<Route element={<Marketplace />} path="/:id" />
+				<Route element={<MarketplaceListItem />} path="/:id/add" />
+				<Route element={<MarketplaceItem />} path="/:id/item/:item" />
+			</Routes>
 		</div>
 	)
 }

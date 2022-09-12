@@ -33,6 +33,7 @@ import { WakuProvider } from './hooks/use-waku'
 // Types
 import type { PasswordSignerRef } from './components/modals/password-signer'
 import type { RefObject } from 'react'
+import { User } from './pages/user'
 
 const { chains, provider, webSocketProvider } = configureChains(
 	[WAGMI_CHAIN],
@@ -105,6 +106,7 @@ export const App = () => {
 					<Route element={<Marketplaces />} path={`${ROUTES.MARKETPLACES}/*`} />
 					<Route element={<AccountRestore />} path={ROUTES.ACCOUNT_RESTORE} />
 					<Route element={<Home />} path={ROUTES.HOME} />
+					<Route element={<User />} path={ROUTES.USER(':id')} />
 					<Route
 						element={<AccountWallet />}
 						path={`${ROUTES.ACCOUNT_WALLET}/*`}

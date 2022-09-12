@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { MarketplaceItem, FullscreenLoading } from '@swarm-city/ui-library'
 
 // Routes and config
 import { MARKETPLACE } from '../../routes'
@@ -12,7 +13,7 @@ export const MarketplaceList = () => {
 
 	// TODO: Difference between loading and "empty marketplace"
 	if (!marketplaces) {
-		return <p>Loading...</p>
+		return <FullscreenLoading />
 	}
 
 	return (
@@ -20,11 +21,12 @@ export const MarketplaceList = () => {
 			{Object.values(marketplaces)
 				.filter(({ deleted }) => !deleted)
 				.map(({ address, name }) => (
-					<div key={address} onClick={() => navigate(MARKETPLACE(address))}>
-						<h2>{name}</h2>
-						{/* TODO: List of completed deals */}
-						<p>? deals completed</p>
-					</div>
+					<MarketplaceItem
+						key={address}
+						onClick={() => navigate(MARKETPLACE(address))}
+						title={name}
+						completedDeals={0 /* TODO: fetch completed deals */}
+					/>
 				))}
 		</div>
 	)
