@@ -3,7 +3,6 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAccount } from 'wagmi'
 import {
 	MarketplaceListingItem,
-	FullscreenLoading,
 	IconButton,
 } from '@swarm-city/ui-library'
 
@@ -20,6 +19,8 @@ import {
 } from './services/marketplace'
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { BigNumber } from 'ethers'
+import { Container } from '../../ui/container'
+import { Typography } from '../../ui/typography'
 
 type DisplayItemsProps = {
 	marketplace: string
@@ -96,65 +97,62 @@ export const Marketplace = () => {
 		[lastUpdate]
 	)
 
-	if (waiting || loading) {
-		return <FullscreenLoading />
+	if (waiting) {
+		return (
+			<Container>
+				<Typography
+					variant="h5"
+					color="grey4"
+					style={{
+						marginLeft: 40,
+						marginRight: 40,
+					}}
+				>
+					Connecting to waku...
+				</Typography>
+			</Container>
+		)
 	}
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				flexDirection: 'column',
-				textAlign: 'left',
-			}}
-		>
+		<>
 			<div style={{ position: 'fixed', right: 50, zIndex: 50, bottom: 60 }}>
 				<IconButton
 					variant="requestStart"
 					onClick={() => navigate(MARKETPLACE_ADD(id))}
 				/>
 			</div>
-			<div style={{ maxWidth: 1000, width: '100%', textAlign: 'left' }}>
-				<h2
+			<Container>
+				<Typography
+					variant="h5"
+					color="grey4"
 					style={{
-						fontFamily: 'Montserrat',
-						fontStyle: 'normal',
-						fontWeight: 700,
-						fontSize: 28,
-						color: '#333333',
-						margin: 0,
-						flexGrow: 1,
 						marginLeft: 40,
 						marginRight: 40,
 					}}
 				>
-					{name}
-				</h2>
-			</div>
-			<div
-				style={{
-					maxWidth: 1000,
-					width: '100%',
-					marginLeft: 10,
-					marginRight: 10,
-					display: 'flex',
-					alignItems: 'center',
-					flexGrow: 1,
-				}}
-			>
-				<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
-					{/* {loading && <p>Loading</p>} */}
-					<div style={{ marginTop: 22, marginBottom: 32 }}>
-						<DisplayItems marketplace={id} items={own} decimals={decimals} />
-					</div>
+					{name ?? 'Loading...'}
+				</Typography>
+			</Container>
+			<Container>
+				{loading ? (
+					<Typography>Fetching your marketplace data...</Typography>
+				) : (
+					<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
+						<div style={{ marginTop: 22, marginBottom: 32 }}>
+							<DisplayItems marketplace={id} items={own} decimals={decimals} />
+						</div>
 
-					<div style={{ marginTop: 22 }}>
-						<DisplayItems marketplace={id} items={other} decimals={decimals} />
+						<div style={{ marginTop: 22 }}>
+							<DisplayItems
+								marketplace={id}
+								items={other}
+								decimals={decimals}
+							/>
+						</div>
 					</div>
-				</div>
-			</div>
-		</div>
+				)}
+			</Container>
+		</>
 	)
 }

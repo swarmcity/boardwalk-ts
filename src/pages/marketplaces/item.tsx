@@ -445,17 +445,16 @@ export const MarketplaceItem = () => {
 				}}
 			>
 				<Container>
-					<div
+					<Typography
+						variant="h5"
+						color="grey4"
 						style={{
-							flexGrow: 1,
 							marginLeft: 40,
 							marginRight: 40,
-							width: '100%',
-							padding: 10,
 						}}
 					>
-						<Typography variant="h2">{name} </Typography>
-					</div>
+						{name ?? 'Loading...'}
+					</Typography>
 				</Container>
 				<Container>
 					<div

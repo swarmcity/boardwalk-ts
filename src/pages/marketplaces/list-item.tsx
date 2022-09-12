@@ -54,8 +54,8 @@ export const MarketplaceListItem = () => {
 					confirm={{ onClick: submit }}
 				>
 					<div style={{ padding: 20 }}>
-						<Typography variant="h1" style={{ marginBottom: 12 }}>
-							You’re about to post this request for {price} DAI.
+						<Typography variant="h3" style={{ marginBottom: 12 }}>
+							You are about to post this request for {price} DAI.
 						</Typography>
 						<Typography>This cannot be undone.</Typography>
 						<br />
@@ -64,9 +64,16 @@ export const MarketplaceListItem = () => {
 				</ConfirmModal>
 			)}
 			<Container>
-				<div style={{ flexGrow: 1, marginLeft: 40, marginRight: 40 }}>
-					<Typography variant="h3">{name}</Typography>
-				</div>
+				<Typography
+					variant="h5"
+					color="grey4"
+					style={{
+						marginLeft: 40,
+						marginRight: 40,
+					}}
+				>
+					{name ?? 'Loading...'}
+				</Typography>
 			</Container>
 			<Container>
 				<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>

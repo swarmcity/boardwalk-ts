@@ -17,13 +17,13 @@ export type Colors =
 export function getColor(color?: Colors) {
 	switch (color) {
 		case 'blue':
-            return '#24B1FF'
+			return '#24B1FF'
 		case 'green':
-            return '#6AD792'
+			return '#6AD792'
 		case 'green-text':
-            return '#23B460'
+			return '#23B460'
 		case 'grey1':
-            return '#F2F2F2'
+			return '#F2F2F2'
 		case 'grey2':
 			return '#ACACAC'
 		case 'grey2-lines':
