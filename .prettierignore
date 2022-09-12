@@ -1,3 +1,4 @@
 /dist
 /test/data
 package-lock.json
+/src/protos/*.ts
