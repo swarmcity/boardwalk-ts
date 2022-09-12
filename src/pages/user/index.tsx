@@ -34,7 +34,7 @@ const marketplaces: Marketplace[] = [
 ]
 
 export function User() {
-    const navigate = useNavigate()
+	const navigate = useNavigate()
 	const { id } = useParams<string>()
 	if (!id) {
 		throw new Error('no id')

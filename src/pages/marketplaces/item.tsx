@@ -32,7 +32,6 @@ import { useProfilePicture } from '../../services/profile-picture'
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
 
 // Protos
-import { ProfilePicture as ProfilePictureProto } from '../../protos/ProfilePicture'
 import {
 	createSelectProvider,
 	useSelectProvider,
@@ -48,6 +47,7 @@ import {
 import { useStore } from '../../store'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
+import { getColor } from '../../ui/colors'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -73,7 +73,7 @@ const ReplyForm = ({
 	onCancel,
 }: ReplyFormProps) => {
 	const [text, setText] = useState('')
-	const [profile, setProfile] = useStore.profile()
+	const [profile] = useStore.profile()
 
 	const { waku } = useWakuContext()
 	const { connector } = useAccount()
@@ -161,19 +161,6 @@ const ReplyForm = ({
 	)
 }
 
-const ProfilePicture = ({ picture }: { picture?: ProfilePictureProto }) => {
-	const avatar = useMemo(() => {
-		if (!picture) {
-			return avatarDefault
-		}
-
-		const blob = new Blob([picture.data], { type: picture?.type })
-		return URL.createObjectURL(blob)
-	}, [picture])
-
-	return <img src={avatar} />
-}
-
 const formatFrom = (address: string, username?: string) => {
 	if (!username) {
 		return displayAddress(address)
@@ -187,11 +174,13 @@ const Reply = ({
 	ownItem,
 	marketplace,
 	item,
+	canSelectProvider,
 }: {
 	reply: ItemReplyClean
 	ownItem: boolean
 	marketplace: string
 	item: bigint
+	canSelectProvider: boolean
 }) => {
 	const { waku } = useWaku()
 
@@ -220,6 +209,7 @@ const Reply = ({
 	// State
 	const [loading, setLoading] = useState(false)
 	const [selected, setSelected] = useState(false)
+	const [showSelectBtn, setShowSelectBtn] = useState(false)
 
 	const selectProvider = async () => {
 		if (!waku || !connector || !chain?.id || !name) {
@@ -241,17 +231,78 @@ const Reply = ({
 		setSelected(true)
 		setLoading(false)
 	}
+	if (loading) return <span>Loading...</span>
 
 	return (
-		<ReplyUI
-			replyTitle={reply.text}
-			replyDate={new Date()}
-			replierName={formatFrom(reply.from, profile?.username)}
-			avatar={avatar}
-			replierRep={0}
-			replyAmt={0}
-			myReply={ownItem}
-		/>
+		<>
+			{/* TODO: fix this in the component itself, this is very temporary */}
+			{canSelectProvider && !showSelectBtn && (
+				<div style={{ position: 'relative', width: '100%' }}>
+					<div style={{ position: 'absolute', right: 0, top: 5 }}>
+						<IconButton
+							variant="select"
+							style={{ backgroundColor: 'white', border: 'solid 1px black' }}
+							onClick={() => {
+								setShowSelectBtn(true)
+							}}
+						/>
+					</div>
+				</div>
+			)}
+			{canSelectProvider && showSelectBtn && !selected && (
+				<div style={{ position: 'relative', width: '100%' }}>
+					<IconButton
+						variant="select"
+						style={{
+							backgroundColor: 'white',
+							border: 'solid 1px black',
+							transform: 'rotate(180deg)',
+						}}
+						onClick={() => {
+							setShowSelectBtn(false)
+						}}
+					/>
+				</div>
+			)}
+			<ReplyUI
+				replyTitle={reply.text}
+				replyDate={new Date()}
+				replierName={formatFrom(reply.from, profile?.username)}
+				avatar={avatar}
+				replierRep={0}
+				replyAmt={0}
+				myReply={ownItem}
+				detail
+			/>
+			{showSelectBtn && !selected && (
+				<Button size="large" onClick={selectProvider}>
+					select {formatFrom(reply.from, profile?.username)}
+				</Button>
+			)}
+			{showSelectBtn && selected && (
+				<div
+					style={{
+						backgroundColor: getColor('blue'),
+						padding: 10,
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+						width: '100%',
+					}}
+				>
+					<Typography variant="body-bold-16" color="white">
+						You selected {formatFrom(reply.from, profile?.username)} to make a
+						deal
+					</Typography>
+					<Typography variant="small-light-12" color="white">
+						Waiting for {formatFrom(reply.from, profile?.username)} to respond
+					</Typography>
+					<Button size="large" variant="action" onClick={selectProvider}>
+						unselect {formatFrom(reply.from, profile?.username)}
+					</Button>
+				</div>
+			)}
+		</>
 	)
 }
 
@@ -370,6 +421,8 @@ export const MarketplaceItem = () => {
 		return items.find(({ id }) => id.eq(itemId))
 	}, [lastUpdate])
 
+	console.log(item)
+
 	if (!item || !chainItem.item) {
 		const text =
 			loading || waiting || chainItem.loading
@@ -477,6 +530,24 @@ export const MarketplaceItem = () => {
 								reputation: item.seekerRep.toNumber(),
 							}}
 						/>
+						{selectedProvider.data && (
+							<SelectedProvider
+								{...selectedProvider}
+								data={selectedProvider.data}
+							/>
+						)}
+
+						{provider === address && status === 1 && (
+							<FundDeal
+								marketplace={id}
+								item={itemId}
+								data={selectedProvider.data}
+							/>
+						)}
+						<p>
+							Status: {Statuses[status]} (
+							{formatFrom(chainItem.item.providerAddress)})
+						</p>
 					</div>
 					<div
 						style={{
@@ -503,6 +574,9 @@ export const MarketplaceItem = () => {
 											<Reply
 												reply={reply}
 												ownItem={item.owner === address}
+												canSelectProvider={
+													status === 1 && item.owner === address
+												}
 												marketplace={id}
 												item={itemId}
 											/>
