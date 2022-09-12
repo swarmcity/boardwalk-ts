@@ -1,10 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAccount } from 'wagmi'
-import {
-	MarketplaceListingItem,
-	IconButton,
-} from '@swarm-city/ui-library'
+import { MarketplaceListingItem, IconButton } from '@swarm-city/ui-library'
 
 // Hooks
 import { useWakuContext } from '../../hooks/use-waku'

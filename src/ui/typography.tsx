@@ -33,6 +33,7 @@ export function Typography({
 						fontSize: 56,
 						...headerStyles,
 					}}
+					{...props}
 				>
 					{children}
 				</h1>
@@ -44,6 +45,7 @@ export function Typography({
 						fontSize: 44,
 						...headerStyles,
 					}}
+					{...props}
 				>
 					{children}
 				</h2>
@@ -55,6 +57,7 @@ export function Typography({
 						fontSize: 35,
 						...headerStyles,
 					}}
+					{...props}
 				>
 					{children}
 				</h3>
@@ -66,6 +69,7 @@ export function Typography({
 						fontSize: 30,
 						...headerStyles,
 					}}
+					{...props}
 				>
 					{children}
 				</h4>
@@ -77,6 +81,7 @@ export function Typography({
 						fontSize: 28,
 						...headerStyles,
 					}}
+					{...props}
 				>
 					{children}
 				</h5>
@@ -88,6 +93,7 @@ export function Typography({
 						fontSize: 26,
 						...headerStyles,
 					}}
+					{...props}
 				>
 					{children}
 				</h6>
@@ -99,6 +105,7 @@ export function Typography({
 						fontSize: 24,
 						...headerStyles,
 					}}
+					{...props}
 				>
 					{children}
 				</span>
@@ -110,6 +117,7 @@ export function Typography({
 						fontSize: 22,
 						...headerStyles,
 					}}
+					{...props}
 				>
 					{children}
 				</span>
@@ -126,6 +134,7 @@ export function Typography({
 						textAlign,
 						...style,
 					}}
+					{...props}
 				>
 					{children}
 				</span>
