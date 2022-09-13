@@ -38,11 +38,7 @@ export const useWakuStoreQuery = (
 
 		// Early abort if the effect was replaced
 		const callback = (messages: WakuMessage[]) => {
-			if (cancelled) {
-				return true
-			}
-
-			return _callback?.(messages)
+			return cancelled ? true : _callback?.(messages)
 		}
 
 		waku.store
