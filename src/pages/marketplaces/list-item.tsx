@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router'
 import { IconButton, Input, ConfirmModal } from '@swarm-city/ui-library'
 
 // Hooks
-import { useWakuContext } from '../../hooks/use-waku'
+import { useWaku } from '../../hooks/use-waku'
 
 // Types
 import type { MouseEvent } from 'react'
@@ -22,7 +22,7 @@ export const MarketplaceListItem = () => {
 	const [description, setDescription] = useState<string>()
 	const [price, setPrice] = useState<number>()
 	const [confirmationReq, setConfirmationReq] = useState<boolean>(false)
-	const { waku } = useWakuContext()
+	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
 	const navigate = useNavigate()
 	const fee = 0.5 // TODO: this should somehow be estimated, right?
@@ -51,7 +51,7 @@ export const MarketplaceListItem = () => {
 			{confirmationReq && (
 				<ConfirmModal
 					cancel={{ onClick: () => setConfirmationReq(false) }}
-					confirm={{ onClick: submit }}
+					confirm={{ onClick: submit, disabled: waiting }}
 				>
 					<div style={{ padding: 20 }}>
 						<Typography variant="header-35" style={{ marginBottom: 12 }}>

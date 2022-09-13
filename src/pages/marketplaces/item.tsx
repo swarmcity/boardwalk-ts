@@ -6,7 +6,7 @@ import { hexlify, splitSignature } from '@ethersproject/bytes'
 import { getAddress } from '@ethersproject/address'
 
 // Hooks
-import { useWaku, useWakuContext } from '../../hooks/use-waku'
+import { useWaku } from '../../hooks/use-waku'
 
 // Lib
 import { formatFrom } from '../../lib/tools'
@@ -75,7 +75,7 @@ const ReplyForm = ({
 	const [text, setText] = useState('')
 	const [profile] = useStore.profile()
 
-	const { waku } = useWakuContext()
+	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
 
 	const postReply = async (event: FormEvent<HTMLElement>) => {
@@ -155,7 +155,11 @@ const ReplyForm = ({
 			</div>
 			<div style={{ marginTop: 26 }}>
 				<IconButton variant="cancel" onClick={onCancel} />
-				<IconButton variant="confirmAction" onClick={postReply} />
+				<IconButton
+					variant="confirmAction"
+					onClick={postReply}
+					disabled={waiting}
+				/>
 			</div>
 		</div>
 	)
@@ -174,7 +178,7 @@ const Reply = ({
 	item: bigint
 	canSelectProvider: boolean
 }) => {
-	const { waku } = useWaku()
+	const { waku, waiting } = useWaku()
 
 	// Wagmi
 	const { connector } = useAccount()
@@ -256,7 +260,7 @@ const Reply = ({
 				detail
 			/>
 			{showSelectBtn && !selected && (
-				<Button size="large" onClick={selectProvider}>
+				<Button size="large" onClick={selectProvider} disabled={waiting}>
 					select {formatFrom(reply.from, profile?.username)}
 				</Button>
 			)}
