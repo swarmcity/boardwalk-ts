@@ -41,6 +41,6 @@ export const cancelItem = async (
 ) => {
 	const signer = await connector.getSigner()
 	const contract = getMarketplaceContract(marketplace, signer)
-	const tx = await contract.connect(signer).cancelItem(item)
+	const tx = await contract.cancelItem(item)
 	await tx.wait()
 }
