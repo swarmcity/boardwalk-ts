@@ -15,7 +15,7 @@ export const fundItem = async (
 	item: bigint,
 	signature: Uint8Array
 ) => {
-	const signer = await connector?.getSigner()
+	const signer = await connector.getSigner()
 	const contract = getMarketplaceContract(marketplace, signer)
 	const token = await getMarketplaceTokenContract(marketplace, signer)
 
