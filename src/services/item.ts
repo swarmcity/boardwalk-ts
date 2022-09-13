@@ -44,3 +44,14 @@ export const cancelItem = async (
 	const tx = await contract.cancelItem(item)
 	await tx.wait()
 }
+
+export const payoutItem = async (
+	connector: { getSigner: () => Promise<Signer> },
+	marketplace: string,
+	item: bigint
+) => {
+	const signer = await connector.getSigner()
+	const contract = getMarketplaceContract(marketplace, signer)
+	const tx = await contract.payoutItem(item)
+	await tx.wait()
+}
