@@ -13,8 +13,23 @@ import {
 } from './services/marketplace'
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { BigNumber } from 'ethers'
+
+// UI
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
+
+// Services
+import { useProfile } from '../../services/profile'
+import { useProfilePictureURL } from '../../services/profile-picture'
+
+// Lib
+import { formatFrom } from '../../lib/tools'
+
+type DisplayItemProps = {
+	marketplace: string
+	item: Item
+	decimals: number | undefined
+}
 
 type DisplayItemsProps = {
 	marketplace: string
@@ -28,37 +43,54 @@ export function formatMoney(amount: bigint | BigNumber, decimals = 18) {
 	return base / 10 ** decimals
 }
 
-const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
+const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 	const navigate = useNavigate()
+	const { address } = useAccount()
+
+	// Profile
+	const { profile } = useProfile(item.owner)
+	const avatar = useProfilePictureURL(profile?.pictureHash)
+
+	return (
+		<div
+			style={{
+				backgroundColor: 'white',
+				marginBottom: 6,
+				padding: 21,
+				cursor: 'pointer',
+			}}
+			onClick={() =>
+				navigate(`/marketplace/${marketplace}/item/${item.id.toString()}`)
+			}
+		>
+			<MarketplaceListingItem
+				title={item.metadata.description}
+				repliesCount={0}
+				date={new Date(item.timestamp * 1000)}
+				amount={formatMoney(item.price, decimals)}
+				user={{
+					name: formatFrom(item.owner, profile?.username),
+					reputation: item.seekerRep.toNumber(),
+					myself: item.owner === address,
+					avatar,
+				}}
+			/>
+		</div>
+	)
+}
+
+const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
 	return (
 		<>
 			{items
 				.filter(({ status }) => status === Status.Open)
-				.map((item, index) => (
-					<div
-						key={index}
-						style={{
-							backgroundColor: 'white',
-							marginBottom: 6,
-							padding: 21,
-							cursor: 'pointer',
-						}}
-						onClick={() =>
-							navigate(`/marketplace/${marketplace}/item/${item.id.toString()}`)
-						}
-					>
-						<MarketplaceListingItem
-							title={item.metadata.description}
-							repliesCount={0}
-							date={new Date(item.timestamp * 1000)}
-							amount={formatMoney(item.price, decimals)}
-							user={{
-								// TODO: get the owner name and avatar
-								name: item.owner.substring(0, 10),
-								reputation: item.seekerRep.toNumber(),
-							}}
-						/>
-					</div>
+				.map((item) => (
+					<DisplayItem
+						key={item.id.toString()}
+						marketplace={marketplace}
+						decimals={decimals}
+						item={item}
+					/>
 				))}
 		</>
 	)
