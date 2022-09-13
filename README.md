@@ -138,7 +138,7 @@ Crystal resolves the conflict in favor of Tom. Brenda realizes it was her own fa
 
 #### New epics in this episode:
 
-- [ ] As a Marktplace Maintainer I can resolve conflicts, so users have a fair marketplace.
+- [ ] As a Marktplace Maintainer I can resolve conflicts, so users have a fair marketplace. [Issue 43](https://github.com/swarmcity/boardwalk-ts/issues/43)
 
 ## S01 E07: Searching New Horizons
 
@@ -152,11 +152,9 @@ Gary loses his patience with Brenda, so he deselects her and picks someone else.
 
 #### New epics in this episode:
 
-- [ ] As a user, I can view all marketplaces with the number of completed deals for each, so I can see all community activity.
+- [ ] As Seeker, I can deselect the Provider I previously selected, so I can choose another one. [Issue 45](https://github.com/swarmcity/boardwalk-ts/issues/45)
 
 - [ ] As a user, I can filter a marketplaces’s items by my geo-range of choice so I can see items in my area.
-
-- [ ] As Seeker, I can deselect the Provider I previously selected, so I can choose another one.
 
 ## S01 E08: Bad Luck Gary
 
