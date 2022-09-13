@@ -421,8 +421,6 @@ export const MarketplaceItem = () => {
 		return items.find(({ id }) => id.eq(itemId))
 	}, [lastUpdate])
 
-	console.log(item)
-
 	if (!item || !chainItem.item) {
 		const text =
 			loading || waiting || chainItem.loading
