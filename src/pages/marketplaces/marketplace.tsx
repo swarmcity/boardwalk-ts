@@ -3,9 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAccount } from 'wagmi'
 import { MarketplaceListingItem, IconButton } from '@swarm-city/ui-library'
 
-// Hooks
-import { useWakuContext } from '../../hooks/use-waku'
-
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
 
@@ -74,8 +71,7 @@ export const Marketplace = () => {
 	}
 
 	const { address } = useAccount()
-	const { waku } = useWakuContext()
-	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(waku, id)
+	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(id)
 	const { decimals } = useMarketplaceTokenDecimals(id)
 	const navigate = useNavigate()
 	const name = useMarketplaceName(id)

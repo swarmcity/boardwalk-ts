@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { waitForRemotePeer, Waku, WakuMessage } from 'js-waku'
+import { Protocols, waitForRemotePeer, Waku, WakuMessage } from 'js-waku'
 import { BigNumber, Contract, Event } from 'ethers'
 import { useProvider } from 'wagmi'
 import { Interface } from 'ethers/lib/utils'
@@ -18,6 +18,7 @@ import erc20Abi from '../../../abis/erc20.json'
 // Lib
 import { bufferToHex, numberToBigInt } from '../../../lib/tools'
 import { shouldUpdate } from '../../../lib/blockchain'
+import { useWaku } from '../../../hooks/use-waku'
 
 // Status
 export enum Status {
@@ -130,22 +131,11 @@ const decodeWakuMessages = (messages: WakuMessage[]): Promise<WakuItem>[] => {
 	)
 }
 
-export const useGetWakuItems = (
-	waku: Waku | undefined,
-	marketplace: string
-) => {
-	const [waiting, setWaiting] = useState(true)
+export const useGetWakuItems = (marketplace: string) => {
+	const { waku, waiting } = useWaku([Protocols.Store])
 	const [loading, setLoading] = useState(true)
 	const [items, setItems] = useState<WakuItem[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
-
-	useEffect(() => {
-		if (!waku) {
-			return
-		}
-
-		waitForRemotePeer(waku).then(() => setWaiting(false))
-	}, [waku])
 
 	useEffect(() => {
 		if (!waku || waiting) {
@@ -290,11 +280,8 @@ export const useGetMarketplaceItems = (address: string) => {
 	return { loading, items, lastUpdate }
 }
 
-export const useMarketplaceItems = (
-	waku: Waku | undefined,
-	marketplace: string
-) => {
-	const wakuItems = useGetWakuItems(waku, marketplace)
+export const useMarketplaceItems = (marketplace: string) => {
+	const wakuItems = useGetWakuItems(marketplace)
 	const chainItems = useGetMarketplaceItems(marketplace)
 	const [items, setItems] = useState<Item[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
