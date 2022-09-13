@@ -45,3 +45,11 @@ export const displayAddress = (address: string) => {
 export const dataUriToBlob = async (dataUri: string) => {
 	return await (await fetch(dataUri)).blob()
 }
+
+export const formatFrom = (address: string, username?: string) => {
+	if (!username) {
+		return displayAddress(address)
+	}
+
+	return `${username} (${displayAddress(address)})`
+}

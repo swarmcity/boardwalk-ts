@@ -9,7 +9,7 @@ import { getAddress } from '@ethersproject/address'
 import { useWaku, useWakuContext } from '../../hooks/use-waku'
 
 // Lib
-import { bufferToHex, displayAddress } from '../../lib/tools'
+import { bufferToHex, formatFrom } from '../../lib/tools'
 
 // Services
 import {
@@ -159,14 +159,6 @@ const ReplyForm = ({
 			</div>
 		</div>
 	)
-}
-
-const formatFrom = (address: string, username?: string) => {
-	if (!username) {
-		return displayAddress(address)
-	}
-
-	return `${username} (${displayAddress(address)})`
 }
 
 const Reply = ({
