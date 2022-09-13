@@ -101,11 +101,10 @@ export const createItem = async (
 	const amountToApprove = amount + (await contract.fee()).toBigInt() / 2n
 
 	// Approve the tokens to be spent by the marketplace
-	let tx = await token.approve(marketplace, amountToApprove)
-	await tx.wait()
+	await token.approve(marketplace, amountToApprove)
 
 	// Post the item on chain
-	tx = await contract.newItem(amount, new Uint8Array(hash))
+	const tx = await contract.newItem(amount, new Uint8Array(hash))
 	await tx.wait()
 }
 
