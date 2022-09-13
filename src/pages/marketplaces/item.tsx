@@ -13,7 +13,6 @@ import { formatFrom } from '../../lib/tools'
 
 // Services
 import {
-	useMarketplaceContract,
 	useMarketplaceItem,
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
@@ -26,7 +25,7 @@ import {
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
-import { fundItem } from '../../services/item'
+import { cancelItem, fundItem } from '../../services/item'
 
 // Assets
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
@@ -364,7 +363,6 @@ export const MarketplaceItem = () => {
 
 	const { address } = useAccount()
 	const { decimals } = useMarketplaceTokenDecimals(id)
-	const contract = useMarketplaceContract(id)
 	const { connector } = useAccount()
 	const navigate = useNavigate()
 	const { replies } = useItemReplies(id, itemId)
@@ -427,14 +425,13 @@ export const MarketplaceItem = () => {
 		)
 	}
 
-	const cancelItem = async () => {
-		if (!connector) {
+	const canCancel = connector
+	const cancel = async () => {
+		if (!canCancel) {
 			throw new Error('no connector')
 		}
 
-		const signer = await connector.getSigner()
-		const tx = await contract.connect(signer).cancelItem(itemId)
-		await tx.wait()
+		await cancelItem(connector, id, itemId)
 		navigate(`/marketplace/${id}`)
 	}
 
@@ -590,11 +587,7 @@ export const MarketplaceItem = () => {
 
 				{status === 1 && item.owner === address && (
 					<div style={{ marginTop: 58 }}>
-						<Button
-							variant="danger"
-							onClick={cancelItem}
-							disabled={!contract || !connector}
-						>
+						<Button variant="danger" onClick={cancel} disabled={!canCancel}>
 							cancel this request
 						</Button>
 					</div>
