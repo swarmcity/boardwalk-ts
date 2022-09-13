@@ -2,7 +2,7 @@ import { formatUnits } from '@ethersproject/units'
 import { FormEvent, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useAccount, useNetwork } from 'wagmi'
-import { hexlify, splitSignature } from '@ethersproject/bytes'
+import { hexlify } from '@ethersproject/bytes'
 import { getAddress } from '@ethersproject/address'
 
 // Hooks
@@ -16,7 +16,6 @@ import {
 	useMarketplaceContract,
 	useMarketplaceItem,
 	useMarketplaceName,
-	useMarketplaceTokenContract,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
 import {
@@ -27,6 +26,7 @@ import {
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
+import { fundItem } from '../../services/item'
 
 // Assets
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
@@ -303,6 +303,8 @@ const SelectedProvider = ({
 	return <div>Provider selected: {formatFrom(provider, profile?.username)}</div>
 }
 
+// TODO: Make `data` not optional, as this component should only
+// ever be displayed if we actually have all the required data.
 const FundDeal = ({
 	data,
 	marketplace,
@@ -312,9 +314,6 @@ const FundDeal = ({
 	marketplace: string
 	item: bigint
 }) => {
-	const { v, r, s } = splitSignature(data?.signature ?? [])
-	const contract = useMarketplaceContract(marketplace)
-	const token = useMarketplaceTokenContract(marketplace)
 	const { connector } = useAccount()
 
 	// State
@@ -322,38 +321,18 @@ const FundDeal = ({
 	const [error, setError] = useState<Error>()
 	const [success, setSuccess] = useState(false)
 
-	// NOTE: Custom `useEffect` instead of useContractWrite because prepared writes
-	// cause the password modal to pop up immediately, and reckless writes show the
-	// modal again after the password was successfully inserted for some reason.
+	// Fund function
+	const canFund = connector && data?.signature
 	const fund = async () => {
-		if (!token) {
-			setError(new Error('still loading...'))
+		if (!canFund) {
 			return
 		}
 
 		setLoading(true)
 		setSuccess(false)
 
-		let tx
-
 		try {
-			const signer = await connector?.getSigner()
-			const mp = await contract.connect(signer)
-
-			// Get the price
-			const { price, fee } = await mp.items(item)
-
-			// Convert the price to bigint
-			const amountToApprove = price.add(fee.div(2))
-
-			// Approve the tokens to be spent by the marketplace
-			tx = await token.connect(signer).approve(marketplace, amountToApprove)
-			await tx.wait()
-
-			// Fund the item
-			tx = await mp.fundItem(item, v, r, s)
-			await tx.wait()
-
+			await fundItem(connector, marketplace, item, data?.signature)
 			setSuccess(true)
 			setError(undefined)
 		} catch (err) {
@@ -367,7 +346,7 @@ const FundDeal = ({
 	return (
 		<div>
 			<p>You're the provider!</p>
-			<button onClick={fund} disabled={loading || success}>
+			<button onClick={fund} disabled={loading || success || !canFund}>
 				{success ? 'Success!' : 'Fund the deal'}
 			</button>
 			{JSON.stringify(error)}
