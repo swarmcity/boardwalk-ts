@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-	waitForRemotePeer,
-	WakuMessage,
-	PageDirection,
-	Protocols,
-} from 'js-waku'
+import { WakuMessage, PageDirection, Protocols } from 'js-waku'
 
 // Types
 import type { Waku } from 'js-waku'
@@ -59,12 +54,6 @@ export const postWakuMessage = async (
 	topic: string,
 	payload: Uint8Array
 ) => {
-	const promise = waitForRemotePeer(waku)
-
-	// Wait for peers
-	// TODO: Should probably be moved somewhere else so the UI can access the state
-	await promise
-
 	// Post the metadata on Waku
 	const message = await WakuMessage.fromBytes(payload, topic)
 

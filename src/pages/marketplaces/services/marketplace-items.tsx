@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { waitForRemotePeer, Waku, WakuMessage } from 'js-waku'
+import { Waku, WakuMessage } from 'js-waku'
 import { BigNumber, Contract, Event } from 'ethers'
 import { useProvider } from 'wagmi'
 import { Interface } from 'ethers/lib/utils'
@@ -73,8 +73,6 @@ export const createItem = async (
 	{ price, description }: CreateItem,
 	connector: { getSigner: () => Promise<Signer> }
 ) => {
-	const promise = waitForRemotePeer(waku)
-
 	// Get signer
 	const signer = await connector.getSigner()
 
@@ -89,10 +87,6 @@ export const createItem = async (
 	const tokenAddress = await contract.token()
 	const token = new Contract(tokenAddress, erc20Abi, signer)
 	const decimals = await token.decimals()
-
-	// Wait for peers
-	// TODO: Should probably be moved somewhere else so the UI can access the state
-	await promise
 
 	// Post the metadata on Waku
 	const message = await WakuMessage.fromBytes(

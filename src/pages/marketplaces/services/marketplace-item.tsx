@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Wallet } from 'ethers'
-import { waitForRemotePeer, WakuMessage, utils } from 'js-waku'
+import { WakuMessage, utils } from 'js-waku'
 import { verifyTypedData } from '@ethersproject/wallet'
 import { getAddress } from '@ethersproject/address'
 
@@ -60,8 +60,6 @@ export const createReply = async (
 	{ text }: CreateReply,
 	connector: { getSigner: () => Promise<Signer> }
 ) => {
-	const promise = waitForRemotePeer(waku)
-
 	// Get signer
 	const signer = await connector.getSigner()
 	const from = await signer.getAddress()
@@ -83,10 +81,6 @@ export const createReply = async (
 		from: utils.hexToBytes(from.substring(2).toLowerCase()),
 		signature,
 	})
-
-	// Wait for peers
-	// TODO: Should probably be moved somewhere else so the UI can access the state
-	await promise
 
 	// Post the metadata on Waku
 	const message = await WakuMessage.fromBytes(
