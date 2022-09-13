@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Protocols, waitForRemotePeer, Waku, WakuMessage } from 'js-waku'
+import { waitForRemotePeer, Waku, WakuMessage } from 'js-waku'
 import { BigNumber, Contract, Event } from 'ethers'
 import { useProvider } from 'wagmi'
 import { Interface } from 'ethers/lib/utils'
@@ -18,7 +18,9 @@ import erc20Abi from '../../../abis/erc20.json'
 // Lib
 import { bufferToHex, numberToBigInt } from '../../../lib/tools'
 import { shouldUpdate } from '../../../lib/blockchain'
-import { useWaku } from '../../../hooks/use-waku'
+
+// Services
+import { useWakuStoreQuery } from '../../../services/waku'
 
 // Status
 export enum Status {
@@ -132,33 +134,24 @@ const decodeWakuMessages = (messages: WakuMessage[]): Promise<WakuItem>[] => {
 }
 
 export const useGetWakuItems = (marketplace: string) => {
-	const { waku, waiting } = useWaku([Protocols.Store])
-	const [loading, setLoading] = useState(true)
 	const [items, setItems] = useState<WakuItem[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
-	useEffect(() => {
-		if (!waku || waiting) {
-			return
-		}
+	const callback = (messages: WakuMessage[]) => {
+		// eslint-disable-next-line @typescript-eslint/no-extra-semi
+		;(async () => {
+			const decoded = await Promise.all(decodeWakuMessages(messages))
+			setItems((items) => [...items, ...decoded])
+			setLastUpdate(Date.now())
+		})()
+	}
 
-		setItems([])
-		setLoading(true)
-		const callback = (messages: WakuMessage[]) => {
-			// eslint-disable-next-line @typescript-eslint/no-extra-semi
-			;(async () => {
-				const decoded = await Promise.all(decodeWakuMessages(messages))
-				setItems((items) => [...items, ...decoded])
-				setLastUpdate(Date.now())
-			})()
-		}
+	const topic = getItemTopic(marketplace)
+	const state = useWakuStoreQuery(callback, () => topic, [topic])
 
-		waku.store
-			.queryHistory([getItemTopic(marketplace)], { callback })
-			.then(() => setLoading(false))
-	}, [waiting, marketplace])
+	useEffect(() => (state.loading ? setItems([]) : undefined), [state.loading])
 
-	return { waiting, loading, items, lastUpdate }
+	return { ...state, lastUpdate, items }
 }
 
 const decodeNewItemEvent = async (
