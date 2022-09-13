@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Wallet } from 'ethers'
-import { waitForRemotePeer, WakuMessage, utils, Protocols } from 'js-waku'
+import { waitForRemotePeer, WakuMessage, utils } from 'js-waku'
 import { verifyTypedData } from '@ethersproject/wallet'
 import { getAddress } from '@ethersproject/address'
 
@@ -16,7 +16,7 @@ import type { BigNumber, Signer } from 'ethers'
 import { ItemReply } from '../../../protos/ItemReply'
 
 // Hooks
-import { useWaku } from '../../../hooks/use-waku'
+import { useWakuStoreQuery } from '../../../services/waku'
 
 export type CreateReply = {
 	text: string
@@ -143,32 +143,23 @@ const decodeWakuReplies = (
 }
 
 export const useItemReplies = (marketplace: string, item: bigint) => {
-	const { waku, waiting } = useWaku([Protocols.Store])
-	const [loading, setLoading] = useState(false)
 	const [replies, setReplies] = useState<ItemReplyClean[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
-	useEffect(() => {
-		if (!waku || waiting) {
-			return
-		}
+	const callback = (messages: WakuMessage[]) => {
+		// eslint-disable-next-line @typescript-eslint/no-extra-semi
+		;(async () => {
+			const decoded = await Promise.all(decodeWakuReplies(messages))
+			const filtered = decoded.filter(Boolean) as ItemReplyClean[]
+			setReplies((replies) => [...replies, ...filtered])
+			setLastUpdate(Date.now())
+		})()
+	}
 
-		setReplies([])
-		setLoading(true)
-		const callback = (messages: WakuMessage[]) => {
-			// eslint-disable-next-line @typescript-eslint/no-extra-semi
-			;(async () => {
-				const decoded = await Promise.all(decodeWakuReplies(messages))
-				const filtered = decoded.filter(Boolean) as ItemReplyClean[]
-				setReplies((replies) => [...replies, ...filtered])
-				setLastUpdate(Date.now())
-			})()
-		}
+	const topic = getItemTopic(marketplace, item.toString())
+	const state = useWakuStoreQuery(callback, () => topic, [topic])
 
-		waku.store
-			.queryHistory([getItemTopic(marketplace, item.toString())], { callback })
-			.then(() => setLoading(false))
-	}, [waiting, marketplace, item])
+	useEffect(() => (state.loading ? setReplies([]) : undefined), [state.loading])
 
-	return { waiting, loading, replies, lastUpdate }
+	return { ...state, lastUpdate, replies }
 }
