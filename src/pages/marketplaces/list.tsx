@@ -5,10 +5,26 @@ import { MarketplaceItem, FullscreenLoading } from '@swarm-city/ui-library'
 import { MARKETPLACE } from '../../routes'
 
 // Services
-import { useMarketplaceListSync } from './services/marketplace-list'
+import {
+	MarketplaceListItem,
+	useMarketplaceListSync,
+} from './services/marketplace-list'
+import { useMarketplaceDealCount } from './services/marketplace'
+
+export const Item = ({ address, name }: MarketplaceListItem) => {
+	const navigate = useNavigate()
+	const deals = useMarketplaceDealCount(address)
+
+	return (
+		<MarketplaceItem
+			onClick={() => navigate(MARKETPLACE(address))}
+			title={name}
+			completedDeals={deals ? Number(deals) : 0}
+		/>
+	)
+}
 
 export const MarketplaceList = () => {
-	const navigate = useNavigate()
 	const marketplaces = useMarketplaceListSync()
 
 	// TODO: Difference between loading and "empty marketplace"
@@ -20,13 +36,8 @@ export const MarketplaceList = () => {
 		<div>
 			{Object.values(marketplaces)
 				.filter(({ deleted }) => !deleted)
-				.map(({ address, name }) => (
-					<MarketplaceItem
-						key={address}
-						onClick={() => navigate(MARKETPLACE(address))}
-						title={name}
-						completedDeals={0 /* TODO: fetch completed deals */}
-					/>
+				.map((marketplace) => (
+					<Item key={marketplace.address} {...marketplace} />
 				))}
 		</div>
 	)

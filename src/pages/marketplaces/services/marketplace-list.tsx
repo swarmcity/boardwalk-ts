@@ -15,7 +15,7 @@ const PREFIX = 'marketplace-list'
 const EVENT_ADDED = utils.id('MarketplaceAdded(address,string)')
 const EVENT_REMOVED = utils.id('MarketplaceRemoved(address)')
 
-type MarketplaceListItem = {
+export type MarketplaceListItem = {
 	address: string
 	name: string
 	blockNumber: number
@@ -23,7 +23,7 @@ type MarketplaceListItem = {
 	deleted?: boolean
 }
 
-type MarketplaceList = Record<string, MarketplaceListItem>
+export type MarketplaceList = Record<string, MarketplaceListItem>
 
 type MarketplaceStore = {
 	list: MarketplaceList | undefined
