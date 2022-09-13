@@ -34,7 +34,7 @@ In Episode 1 of the pilot-season: Terminal is born!
 
 [Terminal Repo](https://github.com/swarmcity/terminal-)
 
-- [ ] Completed
+- [x] Completed
 
 # Season 1
 
@@ -52,13 +52,13 @@ Who, oh who, will respond to Frank's request?
 
 #### New epics in this episode:
 
-- [ ] Epic 1: As a user, I can see all marketplaces with the number of completed deals for each one, so I can see the activity in Swarm City. [Issue #6](https://github.com/swarmcity/boardwalk-ts/issues/6)
+- [x] Epic 1: As a user, I can see all marketplaces with the number of completed deals for each one, so I can see the activity in Swarm City. [Issue #6](https://github.com/swarmcity/boardwalk-ts/issues/6)
 
-- [ ] Epic 2: As a Seeker, I can post a new request in a marketplace, describing what I am asking for and how much DAI I am offering, so providers can see what my need is. [Issue #1](https://github.com/swarmcity/boardwalk-ts/issues/1)
+- [x] Epic 2: As a Seeker, I can post a new request in a marketplace, describing what I am asking for and how much DAI I am offering, so providers can see what my need is. [Issue #1](https://github.com/swarmcity/boardwalk-ts/issues/1)
 
-- [ ] Epic 3: As a user, I can see all the items in a marketplace, so I know my activity, and activity of other people. [Issue #2](https://github.com/swarmcity/boardwalk-ts/issues/2)
+- [x] Epic 3: As a user, I can see all the items in a marketplace, so I know my activity, and activity of other people. [Issue #2](https://github.com/swarmcity/boardwalk-ts/issues/2)
 
-- [ ] Epic 4: As a user, I see the detail-view of a request/deal I’m active in so I can verify all the details of this request/deal. [Issue #3](https://github.com/swarmcity/boardwalk-ts/issues/3)
+- [x] Epic 4: As a user, I see the detail-view of a request/deal I’m active in so I can verify all the details of this request/deal. [Issue #3](https://github.com/swarmcity/boardwalk-ts/issues/3)
 
 ## S01 E02: Request Replies
 
@@ -72,9 +72,9 @@ Frank sees the two replies. Who will he choose?
 
 #### New epics in this episode:
 
-- [ ] Epic 1: As a Provider I can reply to a request, so I can express my interest in entering into the deal. [Issue #4](https://github.com/swarmcity/boardwalk-ts/issues/4)
+- [x] Epic 1: As a Provider I can reply to a request, so I can express my interest in entering into the deal. [Issue #4](https://github.com/swarmcity/boardwalk-ts/issues/4)
 
-- [ ] Epic 2: As a user I can see replies to a request. [Issue #5](https://github.com/swarmcity/boardwalk-ts/issues/5)
+- [x] Epic 2: As a user I can see replies to a request. [Issue #5](https://github.com/swarmcity/boardwalk-ts/issues/5)
 
 ## S01 E03: The Burden of Choice
 
@@ -88,11 +88,11 @@ Will they successfully complete this deal, or is there a conflict waiting around
 
 #### New epics in this episode:
 
-- [ ] Epic 1: As a user, I see another user’s reputation so I can interpret it to decide how trustworthy the other user is. [Issue #7](https://github.com/swarmcity/boardwalk-ts/issues/7)
+- [x] Epic 1: As a user, I see another user’s reputation so I can interpret it to decide how trustworthy the other user is. [Issue #7](https://github.com/swarmcity/boardwalk-ts/issues/7)
 
-- [ ] Epic 2: As a Seeker, I choose one of the Repliers to become my Provider so we can enter into a deal. [Issue #8](https://github.com/swarmcity/boardwalk-ts/issues/8)
+- [x] Epic 2: As a Seeker, I choose one of the Repliers to become my Provider so we can enter into a deal. [Issue #8](https://github.com/swarmcity/boardwalk-ts/issues/8)
 
-- [ ] Epic 3: As a Provider, I accept and fund the deal, so the Seeker and I are engaged in a deal. [Issue #9](https://github.com/swarmcity/boardwalk-ts/issues/9)
+- [x] Epic 3: As a Provider, I accept and fund the deal, so the Seeker and I are engaged in a deal. [Issue #9](https://github.com/swarmcity/boardwalk-ts/issues/9)
 
 ## S01 E04: The Successful Deal
 
@@ -154,8 +154,6 @@ Gary loses his patience with Brenda, so he deselects her and picks someone else.
 
 - [ ] As Seeker, I can deselect the Provider I previously selected, so I can choose another one. [Issue 45](https://github.com/swarmcity/boardwalk-ts/issues/45)
 
-- [ ] As a user, I can filter a marketplaces’s items by my geo-range of choice so I can see items in my area.
-
 ## S01 E08: Bad Luck Gary
 
 In Episode 8, Gary has no luck with his deal, so he just gives up.
@@ -164,8 +162,8 @@ After deselecting Brenda, Gary selects Pepe as a Provider. Unfortunately, Pepe d
 
 #### New epics in this episode:
 
-- [ ] As a Provider, I decline a Seeker's selection of me, so I can express I'm no longer interested in fullfilling the request.
+- [ ] As a Provider, I decline a Seeker's selection of me, so I can express I'm no longer interested in fullfilling the request. [Issue #55](https://github.com/swarmcity/boardwalk-ts/issues/55)
 
-- [ ] As a Seeker, I can cancel my request, so the request is no longer on the marketplace.
+- [ ] As a Seeker, I can cancel my request, so the request is no longer on the marketplace. [Issue #56](https://github.com/swarmcity/boardwalk-ts/issues/56)
 
-- [ ] As a user, I get notified so I can quickly navigate to the actionnable items.
+- [ ] As a user, I get notified so I can quickly navigate to the actionnable items. [Issue #57](https://github.com/swarmcity/boardwalk-ts/issues/57)
