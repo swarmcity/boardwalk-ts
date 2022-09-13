@@ -9,7 +9,7 @@ import { getAddress } from '@ethersproject/address'
 import { useWaku, useWakuContext } from '../../hooks/use-waku'
 
 // Lib
-import { bufferToHex, formatFrom } from '../../lib/tools'
+import { formatFrom } from '../../lib/tools'
 
 // Services
 import {
@@ -26,7 +26,7 @@ import {
 } from './services/marketplace-item'
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { useProfile } from '../../services/profile'
-import { useProfilePicture } from '../../services/profile-picture'
+import { useProfilePictureURL } from '../../services/profile-picture'
 
 // Assets
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
@@ -185,18 +185,7 @@ const Reply = ({
 
 	// Profile
 	const { profile } = useProfile(reply.from)
-	const { picture } = useProfilePicture(
-		profile?.pictureHash ? bufferToHex(profile.pictureHash) : ''
-	)
-
-	const avatar = useMemo(() => {
-		if (!picture) {
-			return avatarDefault
-		}
-
-		const blob = new Blob([picture.data], { type: picture?.type })
-		return URL.createObjectURL(blob)
-	}, [picture])
+	const avatar = useProfilePictureURL(profile?.pictureHash)
 
 	// State
 	const [loading, setLoading] = useState(false)
