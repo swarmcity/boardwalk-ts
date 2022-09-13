@@ -19,25 +19,39 @@ import { useWaku } from '../hooks/use-waku'
 export type WakuMessageWithPayload = WakuMessage & { get payload(): Uint8Array }
 
 export const useWakuStoreQuery = (
-	callback: QueryOptions['callback'],
+	_callback: QueryOptions['callback'],
 	getTopic: () => string,
 	dependencies: DependencyList,
 	options: Omit<QueryOptions, 'callback'> = {}
 ) => {
 	const { waku, waiting } = useWaku([Protocols.Store])
 	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState<string>()
 
 	useEffect(() => {
 		if (!waku || waiting) {
 			return
 		}
 
+		let cancelled = false
+		setLoading(true)
+
+		// Early abort if the effect was replaced
+		const callback = (messages: WakuMessage[]) => {
+			return cancelled ? true : _callback?.(messages)
+		}
+
 		waku.store
 			.queryHistory([getTopic()], { callback, ...options })
-			.then(() => setLoading(false))
+			.catch((error) => !cancelled && setError(error))
+			.finally(() => !cancelled && setLoading(false))
+
+		return () => {
+			cancelled = true
+		}
 	}, [waiting, ...dependencies])
 
-	return { waiting, loading }
+	return { waiting, loading, error }
 }
 
 export const postWakuMessage = async (
