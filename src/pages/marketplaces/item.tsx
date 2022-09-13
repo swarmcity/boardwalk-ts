@@ -25,7 +25,7 @@ import {
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
-import { cancelItem, fundItem } from '../../services/item'
+import { cancelItem, fundItem, payoutItem } from '../../services/item'
 
 // Assets
 import avatarDefault from '../../assets/imgs/avatar.svg?url'
@@ -302,6 +302,52 @@ const SelectedProvider = ({
 	return <div>Provider selected: {formatFrom(provider, profile?.username)}</div>
 }
 
+const PayoutItem = ({
+	marketplace,
+	item,
+}: {
+	marketplace: string
+	item: bigint
+}) => {
+	const { connector } = useAccount()
+
+	// State
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<Error>()
+	const [success, setSuccess] = useState(false)
+
+	// Payout function
+	const canPayout = connector
+	const payout = async () => {
+		if (!canPayout) {
+			return
+		}
+
+		setLoading(true)
+		setSuccess(false)
+
+		try {
+			await payoutItem(connector, marketplace, item)
+			setSuccess(true)
+			setError(undefined)
+		} catch (err) {
+			console.error(err)
+			setError(err as Error)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	return (
+		<div>
+			<button onClick={payout} disabled={loading || success}>
+				{success ? 'Success!' : 'Payout the deal'}
+			</button>
+			{JSON.stringify(error)}
+		</div>
+	)
+}
+
 // TODO: Make `data` not optional, as this component should only
 // ever be displayed if we actually have all the required data.
 const FundDeal = ({
@@ -495,13 +541,19 @@ export const MarketplaceItem = () => {
 							/>
 						)}
 
-						{provider === address && status === 1 && (
+						{provider === address && status === Status.Open && (
 							<FundDeal
 								marketplace={id}
 								item={itemId}
 								data={selectedProvider.data}
 							/>
 						)}
+
+						{chainItem.item.seekerAddress === address &&
+							status === Status.Funded && (
+								<PayoutItem marketplace={id} item={itemId} />
+							)}
+
 						<p>
 							Status: {Statuses[status]} (
 							{formatFrom(chainItem.item.providerAddress)})
@@ -533,7 +585,7 @@ export const MarketplaceItem = () => {
 												reply={reply}
 												ownItem={item.owner === address}
 												canSelectProvider={
-													status === 1 && item.owner === address
+													status === Status.Open && item.owner === address
 												}
 												marketplace={id}
 												item={itemId}
@@ -557,16 +609,18 @@ export const MarketplaceItem = () => {
 									</div>
 								)
 							)}
-							{status === 1 && item.owner !== address && isReplying && (
-								<ReplyForm
-									item={item}
-									marketplace={id}
-									decimals={decimals}
-									onCancel={() => setIsReplying(false)}
-								/>
-							)}
+							{status === Status.Open &&
+								item.owner !== address &&
+								isReplying && (
+									<ReplyForm
+										item={item}
+										marketplace={id}
+										decimals={decimals}
+										onCancel={() => setIsReplying(false)}
+									/>
+								)}
 						</div>
-						{status === 1 && item.owner !== address && !isReplying && (
+						{status === Status.Open && item.owner !== address && !isReplying && (
 							<div
 								style={{
 									position: 'absolute',
@@ -585,7 +639,7 @@ export const MarketplaceItem = () => {
 					</div>
 				</Container>
 
-				{status === 1 && item.owner === address && (
+				{status === Status.Open && item.owner === address && (
 					<div style={{ marginTop: 58 }}>
 						<Button variant="danger" onClick={cancel} disabled={!canCancel}>
 							cancel this request
