@@ -2,15 +2,16 @@ import { HTMLAttributes } from 'react'
 import avatarDefault from '../assets/imgs/avatar.svg?url'
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-	avatar: string
+	avatar?: string
+	size?: number
 }
 
-export function Avatar({ avatar, style }: Props) {
+export function Avatar({ avatar, style, size }: Props) {
 	return (
 		<div
 			style={{
-				width: 75,
-				height: 75,
+				width: size ?? 75,
+				height: size ?? 75,
 				borderRadius: '50%',
 				overflow: 'hidden',
 				...style,
