@@ -36,17 +36,13 @@ import {
 	useSelectProvider,
 } from '../../services/select-provider'
 import { SelectProvider } from '../../protos/SelectProvider'
-import {
-	Button,
-	IconButton,
-	Input,
-	Reply as ReplyUI,
-	RequestItem,
-} from '@swarm-city/ui-library'
+import { Button, IconButton, Input, RequestItem } from '@swarm-city/ui-library'
 import { useStore } from '../../store'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
 import { getColor } from '../../ui/colors'
+import { Reply as ReplyUI } from '../../ui/components/reply'
+import { formatName } from '../../ui/utils'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -169,13 +165,13 @@ const Reply = ({
 	ownItem,
 	marketplace,
 	item,
-	canSelectProvider,
+	status,
 }: {
 	reply: ItemReplyClean
 	ownItem: boolean
 	marketplace: string
 	item: bigint
-	canSelectProvider: boolean
+	status: Status
 }) => {
 	const { waku, waiting } = useWaku()
 
@@ -193,7 +189,7 @@ const Reply = ({
 	// State
 	const [loading, setLoading] = useState(false)
 	const [selected, setSelected] = useState(false)
-	const [showSelectBtn, setShowSelectBtn] = useState(false)
+	const [detailedView, setDetailedView] = useState(false)
 
 	const selectProvider = async () => {
 		if (!waku || !connector || !chain?.id || !name) {
@@ -215,75 +211,121 @@ const Reply = ({
 		setSelected(true)
 		setLoading(false)
 	}
-	if (loading) return <span>Loading...</span>
+	if (loading || waiting) return <span>Loading...</span>
+
+	const user = {
+		name: profile?.username,
+		address: reply.from,
+		reputation: 0,
+		avatar,
+	}
 
 	return (
 		<>
-			{/* TODO: fix this in the component itself, this is very temporary */}
-			{canSelectProvider && !showSelectBtn && (
-				<div style={{ position: 'relative', width: '100%' }}>
-					<div style={{ position: 'absolute', right: 0, top: 5 }}>
-						<IconButton
-							variant="select"
-							style={{ backgroundColor: 'white', border: 'solid 1px black' }}
-							onClick={() => {
-								setShowSelectBtn(true)
-							}}
-						/>
-					</div>
-				</div>
-			)}
-			{canSelectProvider && showSelectBtn && !selected && (
-				<div style={{ position: 'relative', width: '100%' }}>
+			{status === Status.Open && ownItem && detailedView && (
+				<div
+					style={{
+						backgroundColor: getColor('white'),
+						borderRadius: '50%',
+						width: 37,
+						height: 37,
+						boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						cursor: 'pointer',
+						marginLeft: 30,
+						marginTop: 30,
+						marginBottom: 20,
+					}}
+				>
 					<IconButton
 						variant="select"
-						style={{
-							backgroundColor: 'white',
-							border: 'solid 1px black',
-							transform: 'rotate(180deg)',
-						}}
-						onClick={() => {
-							setShowSelectBtn(false)
-						}}
+						onClick={() => setDetailedView(false)}
+						style={{ transform: 'rotate(180deg)' }}
 					/>
 				</div>
 			)}
+
 			<ReplyUI
-				replyTitle={reply.text}
-				replyDate={new Date()}
-				replierName={formatFrom(reply.from, profile?.username)}
-				avatar={avatar}
-				replierRep={0}
-				replyAmt={0}
-				myReply={ownItem}
-				detail
+				title={reply.text}
+				date={new Date()}
+				amount={0}
+				isMyReply={ownItem}
+				onSelectClick={() => setDetailedView(true)}
+				selected={detailedView}
+				showSelectBtn={status === Status.Open && ownItem}
+				user={user}
 			/>
-			{showSelectBtn && !selected && (
-				<Button size="large" onClick={selectProvider} disabled={waiting}>
-					select {formatFrom(reply.from, profile?.username)}
-				</Button>
-			)}
-			{showSelectBtn && selected && (
+
+			{/* Show select provider button */}
+			{detailedView && status === Status.Open && ownItem && !selected && (
 				<div
 					style={{
-						backgroundColor: getColor('blue'),
-						padding: 10,
-						display: 'flex',
-						flexDirection: 'column',
-						justifyContent: 'center',
+						padding: 30,
+						backgroundColor: getColor('white'),
 						width: '100%',
 					}}
 				>
+					<Button size="large" onClick={selectProvider}>
+						select {formatName(user)}
+					</Button>
+				</div>
+			)}
+
+			{/* Show unselect provider button */}
+			{detailedView && status === Status.Open && ownItem && selected && (
+				<div
+					style={{
+						backgroundColor: getColor('blue'),
+						padding: 30,
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+						textAlign: 'center',
+					}}
+				>
 					<Typography variant="body-bold-16" color="white">
-						You selected {formatFrom(reply.from, profile?.username)} to make a
-						deal
+						You selected {formatName(user)} to make a deal.
 					</Typography>
 					<Typography variant="small-light-12" color="white">
-						Waiting for {formatFrom(reply.from, profile?.username)} to respond
+						Waiting for {formatName(user)} to respond
 					</Typography>
-					<Button size="large" variant="action" onClick={selectProvider}>
-						unselect {formatFrom(reply.from, profile?.username)}
+					<Button style={{ marginTop: 30 }} size="large">
+						unselect {formatName(user)}
 					</Button>
+				</div>
+			)}
+
+			{/* Show fund deal button*/}
+			{detailedView && status === Status.Open && !ownItem && (
+				<div
+					style={{
+						backgroundColor: getColor('blue'),
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+						textAlign: 'center',
+						padding: 30,
+					}}
+				>
+					<Typography variant="body-bold-16" color="white">
+						You were selected to make a deal. Do you accept?
+					</Typography>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							marginTop: 44,
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+						<IconButton variant="cancel" style={{ marginRight: 15 }} />
+						<IconButton variant="confirmAction" />
+					</div>
 				</div>
 			)}
 		</>
@@ -435,39 +477,28 @@ export const MarketplaceItem = () => {
 				: 'Item not found...'
 
 		return (
-			<div
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					flexDirection: 'column',
-					textAlign: 'left',
-					width: '100%',
-				}}
-			>
-				<div style={{ maxWidth: 1000, width: '100%', textAlign: 'left' }}>
-					<div
+			<Container>
+				<div
+					style={{
+						flexGrow: 1,
+						marginLeft: 40,
+						marginRight: 40,
+						width: '100%',
+					}}
+				>
+					<h2
 						style={{
-							flexGrow: 1,
-							marginLeft: 40,
-							marginRight: 40,
-							width: '100%',
+							fontFamily: 'Montserrat',
+							fontStyle: 'normal',
+							fontWeight: 700,
+							fontSize: 28,
+							color: '#333333',
 						}}
 					>
-						<h2
-							style={{
-								fontFamily: 'Montserrat',
-								fontStyle: 'normal',
-								fontWeight: 700,
-								fontSize: 28,
-								color: '#333333',
-							}}
-						>
-							{text}
-						</h2>
-					</div>
+						{text}
+					</h2>
 				</div>
-			</div>
+			</Container>
 		)
 	}
 
@@ -484,169 +515,148 @@ export const MarketplaceItem = () => {
 	const { status } = chainItem.item
 
 	return (
-		<>
+		<Container>
 			<div
 				style={{
 					display: 'flex',
-					alignItems: 'center',
+					alignItems: 'stretch',
 					justifyContent: 'center',
 					flexDirection: 'column',
 					textAlign: 'left',
 				}}
 			>
-				<Container>
-					<Typography
-						variant="header-28"
-						color="grey4"
-						style={{
-							marginLeft: 40,
-							marginRight: 40,
-						}}
-					>
-						{name ?? 'Loading...'}
-					</Typography>
-				</Container>
-				<Container>
-					<div
-						style={{
-							backgroundColor: '#FAFAFA',
-							boxShadow: '0px 1px 0px #DFDFDF',
-							position: 'relative',
-							padding: 30,
-							marginLeft: 10,
-							marginRight: 10,
-						}}
-					>
-						<div style={{ position: 'absolute', right: 15, top: 15 }}>
-							<IconButton
-								variant="close"
-								onClick={() => navigate(`/marketplace/${id}`)}
-							/>
-						</div>
-						<RequestItem
-							detail
-							title={item.metadata.description}
-							date={new Date(item.timestamp * 1000)}
-							repliesCount={0}
-							amount={0}
-							user={{
-								name: item.owner.substring(0, 10),
-								reputation: item.seekerRep.toNumber(),
-							}}
+				<Typography
+					variant="header-28"
+					color="grey4"
+					style={{
+						marginLeft: 40,
+						marginRight: 40,
+					}}
+				>
+					{name ?? 'Loading...'}
+				</Typography>
+				<div
+					style={{
+						backgroundColor: '#FAFAFA',
+						borderBottom: '1px dashed #DFDFDF',
+						position: 'relative',
+						padding: 30,
+						marginLeft: 10,
+						marginRight: 10,
+					}}
+				>
+					<div style={{ position: 'absolute', right: 15, top: 15 }}>
+						<IconButton
+							variant="close"
+							onClick={() => navigate(`/marketplace/${id}`)}
 						/>
-						{selectedProvider.data && (
-							<SelectedProvider
-								{...selectedProvider}
-								data={selectedProvider.data}
-							/>
-						)}
-
-						{provider === address && status === Status.Open && (
-							<FundDeal
-								marketplace={id}
-								item={itemId}
-								data={selectedProvider.data}
-							/>
-						)}
-
-						{chainItem.item.seekerAddress === address &&
-							status === Status.Funded && (
-								<PayoutItem marketplace={id} item={itemId} />
-							)}
-
-						<p>
-							Status: {Statuses[status]} (
-							{formatFrom(chainItem.item.providerAddress)})
-						</p>
 					</div>
-					<div
-						style={{
-							backgroundColor: '#FAFAFA',
-							boxShadow: '0px 1px 0px #DFDFDF',
-							borderTop: '1px dashed #DFDFDF',
-							position: 'relative',
-							marginLeft: 10,
-							marginRight: 10,
+					<RequestItem
+						detail
+						title={item.metadata.description}
+						date={new Date(item.timestamp * 1000)}
+						repliesCount={0}
+						amount={0}
+						user={{
+							name: item.owner.substring(0, 10),
+							reputation: item.seekerRep.toNumber(),
 						}}
-					>
-						<div
-							style={{
-								padding: 30,
-							}}
-						>
-							{replies.length ? (
-								<>
-									{replies.map((reply) => (
-										<div
-											key={reply.signature}
-											style={{ width: '100%', marginBottom: 25 }}
-										>
-											<Reply
-												reply={reply}
-												ownItem={item.owner === address}
-												canSelectProvider={
-													status === Status.Open && item.owner === address
-												}
-												marketplace={id}
-												item={itemId}
-											/>
-										</div>
-									))}
-								</>
-							) : (
-								!isReplying && (
-									<div
-										style={{
-											textAlign: 'center',
-											fontFamily: 'Montserrat',
-											fontStyle: 'normal',
-											fontWeight: 300,
-											fontSize: 12,
-											color: '#ACACAC',
-										}}
-									>
-										No replies yet.
-									</div>
-								)
-							)}
-							{status === Status.Open &&
-								item.owner !== address &&
-								isReplying && (
-									<ReplyForm
-										item={item}
+					/>
+					{selectedProvider.data && (
+						<SelectedProvider
+							{...selectedProvider}
+							data={selectedProvider.data}
+						/>
+					)}
+
+					{provider === address && status === Status.Open && (
+						<FundDeal
+							marketplace={id}
+							item={itemId}
+							data={selectedProvider.data}
+						/>
+					)}
+
+					{chainItem.item.seekerAddress === address &&
+						status === Status.Funded && (
+							<PayoutItem marketplace={id} item={itemId} />
+						)}
+
+					<p>
+						Status: {Statuses[status]} (
+						{formatFrom(chainItem.item.providerAddress)})
+					</p>
+				</div>
+				<div
+					style={{
+						backgroundColor: getColor('white'),
+						boxShadow: '0px 1px 0px #DFDFDF',
+						borderTop: '1px dashed #DFDFDF',
+						position: 'relative',
+						marginLeft: 10,
+						marginRight: 10,
+					}}
+				>
+					<>
+						{replies.length ? (
+							<>
+								{replies.map((reply) => (
+									<Reply
+										reply={reply}
+										key={reply.signature}
+										ownItem={item.owner === address}
 										marketplace={id}
-										decimals={decimals}
-										onCancel={() => setIsReplying(false)}
+										item={itemId}
+										status={status}
 									/>
-								)}
-						</div>
-						{status === Status.Open && item.owner !== address && !isReplying && (
-							<div
-								style={{
-									position: 'absolute',
-									bottom: -13,
-									right: 46,
-								}}
-							>
-								<IconButton
-									variant="reply"
-									onClick={() => {
-										setIsReplying(true)
-									}}
+								))}
+							</>
+						) : (
+							!isReplying && (
+								<Typography variant="small-light-12" color="grey2-light-text">
+									No replies yet.
+								</Typography>
+							)
+						)}
+						{status === Status.Open && item.owner !== address && isReplying && (
+							<div style={{ marginLeft: 30, marginRight: 0 }}>
+								<ReplyForm
+									item={item}
+									marketplace={id}
+									decimals={decimals}
+									onCancel={() => setIsReplying(false)}
 								/>
 							</div>
 						)}
-					</div>
-				</Container>
+					</>
+					{status === Status.Open && item.owner !== address && !isReplying && (
+						<div
+							style={{
+								position: 'absolute',
+								bottom: -30,
+								right: 46,
+							}}
+						>
+							<IconButton
+								variant="reply"
+								onClick={() => {
+									setIsReplying(true)
+								}}
+							/>
+						</div>
+					)}
+				</div>
 
 				{status === Status.Open && item.owner === address && (
-					<div style={{ marginTop: 58 }}>
+					<div
+						style={{ marginTop: 58, display: 'flex', justifyContent: 'center' }}
+					>
 						<Button variant="danger" onClick={cancel} disabled={!canCancel}>
 							cancel this request
 						</Button>
 					</div>
 				)}
 			</div>
-		</>
+		</Container>
 	)
 }
