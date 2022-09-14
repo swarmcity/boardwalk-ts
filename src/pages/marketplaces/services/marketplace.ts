@@ -1,7 +1,11 @@
-import { BigNumber, BigNumberish, Contract } from 'ethers'
+import { BigNumber, BigNumberish, Contract, Signer } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { useProvider } from 'wagmi'
-import { JsonRpcBatchProvider, JsonRpcProvider } from '@ethersproject/providers'
+import {
+	JsonRpcBatchProvider,
+	JsonRpcProvider,
+	Provider,
+} from '@ethersproject/providers'
 
 // ABIs
 import marketplaceAbi from '../../../abis/marketplace.json'
@@ -26,10 +30,17 @@ export type MarketplaceItem = {
 	status: Status
 }
 
+export const getMarketplaceContract = (
+	address: string,
+	signerOrProvider?: Signer | Provider
+) => {
+	return new Contract(address, marketplaceAbi, signerOrProvider)
+}
+
 export const useMarketplaceContract = (address: string) => {
 	const provider = useProvider()
 	return useMemo(
-		() => new Contract(address, marketplaceAbi, provider),
+		() => getMarketplaceContract(address, provider),
 		[address, provider]
 	)
 }
@@ -101,20 +112,21 @@ export const useMarketplaceName = (address: string) => {
 	return name
 }
 
-export const useMarketplaceTokenContract = (address: string) => {
-	const [token, setToken] = useState<Contract>()
+export const getMarketplaceTokenContract = async (
+	marketplace: string,
+	signerOrProvider?: Signer | Provider
+) => {
+	const contract = getMarketplaceContract(marketplace)
+	return new Contract(await contract.token(), erc20Abi, signerOrProvider)
+}
 
-	// Get the marketplace contract
+export const useMarketplaceTokenContract = (marketplace: string) => {
+	const [token, setToken] = useState<Contract>()
 	const provider = useProvider()
-	const contract = useMarketplaceContract(address)
 
 	useEffect(() => {
-		// eslint-disable-next-line @typescript-eslint/no-extra-semi
-		;(async () => {
-			const token = new Contract(await contract.token(), erc20Abi, provider)
-			setToken(token)
-		})()
-	}, [contract])
+		getMarketplaceTokenContract(marketplace, provider).then(setToken)
+	}, [marketplace, provider])
 
 	return token
 }
