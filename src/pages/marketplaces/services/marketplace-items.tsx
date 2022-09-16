@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Waku, WakuMessage } from 'js-waku'
+import { WakuMessage } from 'js-waku'
 import { BigNumber, Contract, Event } from 'ethers'
 import { useProvider } from 'wagmi'
 import { Interface } from 'ethers/lib/utils'
 
 // Types
 import type { Signer } from 'ethers'
+import type { WakuLight } from 'js-waku/lib/interfaces'
 import type { UpdateTime } from '../../../lib/blockchain'
 
 // Protos
@@ -68,7 +69,7 @@ export const getItemTopic = (address: string) => {
 }
 
 export const createItem = async (
-	waku: Waku,
+	waku: WakuLight,
 	marketplace: string,
 	{ price, description }: CreateItem,
 	signer: Signer
@@ -91,7 +92,7 @@ export const createItem = async (
 		getItemTopic(marketplace)
 	)
 
-	await waku.relay.send(message)
+	await waku.lightPush.push(message)
 
 	// Convert the price to bigint
 	const amount = numberToBigInt(price, decimals)
@@ -116,25 +117,23 @@ const decodeWakuMessage = async (
 	}
 }
 
-const decodeWakuMessages = (messages: WakuMessage[]): Promise<WakuItem>[] => {
-	return messages.flatMap((message) =>
-		message.payload
-			? [decodeWakuMessage(message as WakuMessageWithPayload)]
-			: []
-	)
-}
-
 export const useGetWakuItems = (marketplace: string) => {
 	const [items, setItems] = useState<WakuItem[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
-	const callback = (messages: WakuMessage[]) => {
-		// eslint-disable-next-line @typescript-eslint/no-extra-semi
-		;(async () => {
-			const decoded = await Promise.all(decodeWakuMessages(messages))
-			setItems((items) => [...items, ...decoded])
-			setLastUpdate(Date.now())
-		})()
+	const callback = async (msg: Promise<WakuMessage | undefined>) => {
+		const message = await msg
+		if (!message?.payload) {
+			return
+		}
+
+		const decoded = await decodeWakuMessage(message as WakuMessageWithPayload)
+		if (decoded) {
+			return
+		}
+
+		setItems((items) => [...items, decoded])
+		setLastUpdate(Date.now())
 	}
 
 	const topic = getItemTopic(marketplace)

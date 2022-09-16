@@ -2,7 +2,7 @@ import { arrayify, hexlify } from '@ethersproject/bytes'
 import { getAddress } from '@ethersproject/address'
 
 // Types
-import type { Waku } from 'js-waku'
+import type { WakuLight } from 'js-waku/lib/interfaces'
 import type { Signer } from 'ethers'
 
 // Protos
@@ -67,7 +67,7 @@ const toArray = <Condition extends boolean>(
 }
 
 export const createSelectProvider = async (
-	waku: Waku,
+	waku: WakuLight,
 	signer: Signer,
 	data: CreateSelectProvider
 ) => {

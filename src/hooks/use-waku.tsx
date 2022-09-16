@@ -1,6 +1,8 @@
 import { multiaddr } from '@multiformats/multiaddr'
-import { waitForRemotePeer, Waku, Protocols } from 'js-waku'
-import { createWaku, CreateOptions } from 'js-waku/lib/create_waku'
+import { Protocols } from 'js-waku'
+import { CreateOptions, createLightNode } from 'js-waku/lib/create_waku'
+import { WakuLight } from 'js-waku/lib/interfaces'
+import { waitForRemotePeer } from 'js-waku/lib/wait_for_remote_peer'
 import {
 	createContext,
 	ReactNode,
@@ -13,7 +15,7 @@ import {
 const DEFAULT_SETTINGS: CreateOptions = {}
 
 export const WakuContext = createContext<{
-	waku?: Waku
+	waku?: WakuLight
 	availableProtocols: Set<Protocols>
 	addAvailableProtocols: (protocols: Protocols[]) => void
 } | null>(null)
@@ -25,7 +27,7 @@ export const WakuProvider = ({
 	children: ReactNode
 	settings?: CreateOptions
 }) => {
-	const [waku, setWaku] = useState<Waku>()
+	const [waku, setWaku] = useState<WakuLight>()
 	const [availableProtocols, setAvailableProtocols] = useState<Set<Protocols>>(
 		new Set()
 	)
@@ -36,7 +38,7 @@ export const WakuProvider = ({
 	useEffect(() => {
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
-			const waku = await createWaku(settings || DEFAULT_SETTINGS)
+			const waku = await createLightNode(settings || DEFAULT_SETTINGS)
 			setWaku(waku)
 
 			await waku.start()
@@ -77,7 +79,7 @@ export const useWaku = (protocols?: Protocols[]) => {
 		}
 
 		if (!protocols) {
-			protocols = [Protocols.Relay]
+			protocols = [Protocols.LightPush]
 		}
 
 		// If all protocols are available, we're good

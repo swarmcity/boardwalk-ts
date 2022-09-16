@@ -9,7 +9,7 @@ import type {
 	TypedDataDomain,
 	TypedDataField,
 } from '@ethersproject/abstract-signer'
-import type { Waku } from 'js-waku'
+import type { WakuLight } from 'js-waku/lib/interfaces'
 import type { BigNumber, Signer } from 'ethers'
 
 // Protos
@@ -54,7 +54,7 @@ export const getItemTopic = (marketplace: string, item: string) => {
 }
 
 export const createReply = async (
-	waku: Waku,
+	waku: WakuLight,
 	marketplace: string,
 	item: BigNumber,
 	{ text }: CreateReply,
@@ -87,7 +87,7 @@ export const createReply = async (
 		getItemTopic(marketplace, item.toString())
 	)
 
-	await waku.relay.send(message)
+	await waku.lightPush.push(message)
 }
 
 type WakuMessageWithPayload = WakuMessage & { get payload(): Uint8Array }
@@ -127,26 +127,23 @@ const decodeWakuReply = async (
 	}
 }
 
-const decodeWakuReplies = (
-	messages: WakuMessage[]
-): Promise<ItemReplyClean | false>[] => {
-	return messages.flatMap((message) =>
-		message.payload ? decodeWakuReply(message as WakuMessageWithPayload) : []
-	)
-}
-
 export const useItemReplies = (marketplace: string, item: bigint) => {
 	const [replies, setReplies] = useState<ItemReplyClean[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
-	const callback = (messages: WakuMessage[]) => {
-		// eslint-disable-next-line @typescript-eslint/no-extra-semi
-		;(async () => {
-			const decoded = await Promise.all(decodeWakuReplies(messages))
-			const filtered = decoded.filter(Boolean) as ItemReplyClean[]
-			setReplies((replies) => [...replies, ...filtered])
-			setLastUpdate(Date.now())
-		})()
+	const callback = async (msg: Promise<WakuMessage | undefined>) => {
+		const message = await msg
+		if (!message?.payload) {
+			return
+		}
+
+		const decoded = await decodeWakuReply(message as WakuMessageWithPayload)
+		if (!decoded) {
+			return
+		}
+
+		setReplies((replies) => [...replies, decoded])
+		setLastUpdate(Date.now())
 	}
 
 	const topic = getItemTopic(marketplace, item.toString())

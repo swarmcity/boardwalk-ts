@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { WakuMessage, PageDirection, Protocols } from 'js-waku'
 
 // Types
-import type { Waku } from 'js-waku'
+import type { WakuLight } from 'js-waku/lib/interfaces'
 import type { DependencyList } from 'react'
 import type { QueryOptions } from 'js-waku/lib/waku_store'
 import type { Signer } from 'ethers'
@@ -13,11 +13,19 @@ import { useWaku } from '../hooks/use-waku'
 // Custom types
 export type WakuMessageWithPayload = WakuMessage & { get payload(): Uint8Array }
 
-export const useWakuStoreQuery = (
-	_callback: QueryOptions['callback'],
+export const useWakuStore = <
+	Message,
+	Fn extends (
+		contentTopics: string[],
+		callback: (message: Message) => Promise<void | boolean> | boolean | void,
+		options?: QueryOptions
+	) => Promise<unknown>
+>(
+	fn: (waku: WakuLight) => Fn,
+	_callback: (message: Message) => Promise<void | boolean> | boolean | void,
 	getTopic: () => string,
 	dependencies: DependencyList,
-	options: Omit<QueryOptions, 'callback'> = {}
+	options: QueryOptions = {}
 ) => {
 	const { waku, waiting } = useWaku([Protocols.Store])
 	const [loading, setLoading] = useState(true)
@@ -32,12 +40,11 @@ export const useWakuStoreQuery = (
 		setLoading(true)
 
 		// Early abort if the effect was replaced
-		const callback = (messages: WakuMessage[]) => {
-			return cancelled ? true : _callback?.(messages)
+		const callback = (message: Message) => {
+			return cancelled ? true : _callback?.(message)
 		}
 
-		waku.store
-			.queryHistory([getTopic()], { callback, ...options })
+		fn(waku)([getTopic()], callback, options)
 			.catch((error) => !cancelled && setError(error))
 			.finally(() => !cancelled && setLoading(false))
 
@@ -49,8 +56,40 @@ export const useWakuStoreQuery = (
 	return { waiting, loading, error }
 }
 
+export const useWakuStoreQuery = (
+	callback: (
+		message: Promise<WakuMessage | undefined>
+	) => Promise<void | boolean> | boolean | void,
+	getTopic: () => string,
+	dependencies: DependencyList,
+	options: QueryOptions = {}
+) => {
+	return useWakuStore(
+		(waku: WakuLight) => waku.store.queryCallbackOnPromise,
+		callback,
+		getTopic,
+		dependencies,
+		options
+	)
+}
+
+export const useWakuStoreQueryOrdered = (
+	callback: (message: WakuMessage) => Promise<void | boolean> | boolean | void,
+	getTopic: () => string,
+	dependencies: DependencyList,
+	options: QueryOptions = {}
+) => {
+	return useWakuStore(
+		(waku: WakuLight) => waku.store.queryOrderedCallback,
+		callback,
+		getTopic,
+		dependencies,
+		options
+	)
+}
+
 export const postWakuMessage = async (
-	waku: Waku,
+	waku: WakuLight,
 	topic: string,
 	payload: Uint8Array
 ) => {
@@ -58,7 +97,7 @@ export const postWakuMessage = async (
 	const message = await WakuMessage.fromBytes(payload, topic)
 
 	// Send the message
-	await waku.relay.send(message)
+	await waku.lightPush.push(message)
 
 	// Return message
 	return message
@@ -76,19 +115,17 @@ export const useLatestTopicData = <Data>(
 	const [data, setData] = useState<Data>()
 	const [payload, setPayload] = useState<Uint8Array>()
 
-	const callback = (messages: WakuMessage[]) => {
-		for (const message of messages) {
-			const data = decodeMessage(message as WakuMessageWithPayload)
-			if (data) {
-				setData(data)
-				setPayload(message.payload)
-				setLastUpdate(Date.now())
-				return true
-			}
+	const callback = (message: WakuMessage) => {
+		const data = decodeMessage(message as WakuMessageWithPayload)
+		if (data) {
+			setData(data)
+			setPayload(message.payload)
+			setLastUpdate(Date.now())
+			return true
 		}
 	}
 
-	const state = useWakuStoreQuery(callback, () => topic, [topic], {
+	const state = useWakuStoreQueryOrdered(callback, () => topic, [topic], {
 		pageDirection: PageDirection.BACKWARD,
 		pageSize: 1,
 	})

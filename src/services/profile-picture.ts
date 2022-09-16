@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 // Types
-import type { Waku } from 'js-waku'
+import type { WakuLight } from 'js-waku/lib/interfaces'
 
 // Protos
 import { ProfilePicture } from '../protos/profile-picture'
@@ -28,7 +28,7 @@ export const getProfilePictureTopic = (hash: string) => {
 }
 
 export const createProfilePicture = async (
-	waku: Waku,
+	waku: WakuLight,
 	{ dataUri }: CreateProfilePicture
 ) => {
 	const blob = await (await fetch(dataUri)).blob()
