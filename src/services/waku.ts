@@ -65,7 +65,7 @@ export const useWakuStoreQuery = (
 	options: QueryOptions = {}
 ) => {
 	return useWakuStore(
-		(waku: WakuLight) => waku.store.queryCallbackOnPromise,
+		(waku: WakuLight) => waku.store.queryCallbackOnPromise.bind(waku.store),
 		callback,
 		getTopic,
 		dependencies,
@@ -80,7 +80,7 @@ export const useWakuStoreQueryOrdered = (
 	options: QueryOptions = {}
 ) => {
 	return useWakuStore(
-		(waku: WakuLight) => waku.store.queryOrderedCallback,
+		(waku: WakuLight) => waku.store.queryOrderedCallback.bind(waku.store),
 		callback,
 		getTopic,
 		dependencies,
