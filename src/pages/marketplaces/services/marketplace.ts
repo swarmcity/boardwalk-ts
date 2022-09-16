@@ -116,7 +116,7 @@ export const getMarketplaceTokenContract = async (
 	marketplace: string,
 	signerOrProvider?: Signer | Provider
 ) => {
-	const contract = getMarketplaceContract(marketplace)
+	const contract = getMarketplaceContract(marketplace, signerOrProvider)
 	return new Contract(await contract.token(), erc20Abi, signerOrProvider)
 }
 
