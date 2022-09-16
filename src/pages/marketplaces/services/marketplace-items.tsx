@@ -128,7 +128,7 @@ export const useGetWakuItems = (marketplace: string) => {
 		}
 
 		const decoded = await decodeWakuMessage(message as WakuMessageWithPayload)
-		if (decoded) {
+		if (!decoded) {
 			return
 		}
 
