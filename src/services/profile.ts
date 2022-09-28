@@ -8,7 +8,7 @@ import { setStore, useStore } from '../store'
 // Types
 import { Protocols, Waku } from 'js-waku'
 import type { Signer } from 'ethers'
-import type { Profile } from '../types/profile'
+import type { Profile } from '../types'
 
 // Protos
 import { Profile as ProfileProto } from '../protos/Profile'

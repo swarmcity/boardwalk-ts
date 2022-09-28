@@ -43,6 +43,8 @@ import { Typography } from '../../ui/typography'
 import { getColor } from '../../ui/colors'
 import { Reply as ReplyUI } from '../../ui/components/reply'
 import { formatName } from '../../ui/utils'
+import { formatMoney } from './marketplace'
+import { Reply, User } from '../../ui/types'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -160,18 +162,22 @@ const ReplyForm = ({
 	)
 }
 
-const Reply = ({
-	reply,
-	ownItem,
-	marketplace,
-	item,
+const ReplyContainer = ({
+	reply: replyItem,
+	isMyReply,
+	isMyRequest,
+	marketplaceId,
+	itemId,
 	status,
+	setSelectedReply,
 }: {
 	reply: ItemReplyClean
-	ownItem: boolean
-	marketplace: string
-	item: bigint
+	isMyReply: boolean
+	isMyRequest: boolean
+	marketplaceId: string
+	itemId: bigint
 	status: Status
+	setSelectedReply: (reply: Reply | undefined) => void
 }) => {
 	const { waku, waiting } = useWaku()
 
@@ -180,16 +186,15 @@ const Reply = ({
 	const { chain } = useNetwork()
 
 	// Marketplace
-	const name = useMarketplaceName(marketplace)
+	const name = useMarketplaceName(marketplaceId)
 
 	// Profile
-	const { profile } = useProfile(reply.from)
+	const { profile } = useProfile(replyItem.from)
 	const avatar = useProfilePictureURL(profile?.pictureHash)
 
 	// State
 	const [loading, setLoading] = useState(false)
 	const [selected, setSelected] = useState(false)
-	const [detailedView, setDetailedView] = useState(false)
 
 	const selectProvider = async () => {
 		if (!waku || !connector || !chain?.id || !name) {
@@ -200,12 +205,12 @@ const Reply = ({
 
 		await createSelectProvider(waku, connector, {
 			marketplace: {
-				address: marketplace,
+				address: marketplaceId,
 				chainId: BigInt(chain.id),
 				name,
 			},
-			provider: reply.from,
-			item,
+			provider: replyItem.from,
+			item: itemId,
 		})
 
 		setSelected(true)
@@ -213,123 +218,134 @@ const Reply = ({
 	}
 	if (loading || waiting) return <span>Loading...</span>
 
-	const user = {
+	const user: User = {
 		name: profile?.username,
-		address: reply.from,
-		reputation: 0,
+		address: replyItem.from,
+		reputation: 0n,
 		avatar,
 	}
 
+	const reply: Reply = {
+		text: replyItem.text,
+		date: new Date(),
+		amount: 0,
+		isMyReply,
+		user,
+	}
+
 	return (
-		<>
-			{status === Status.Open && ownItem && detailedView && (
-				<div
-					style={{
-						backgroundColor: getColor('white'),
-						borderRadius: '50%',
-						width: 37,
-						height: 37,
-						boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						cursor: 'pointer',
-						marginLeft: 30,
-						marginTop: 30,
-						marginBottom: 20,
-					}}
-				>
-					<IconButton
-						variant="select"
-						onClick={() => setDetailedView(false)}
-						style={{ transform: 'rotate(180deg)' }}
-					/>
-				</div>
-			)}
-
-			<ReplyUI
-				title={reply.text}
-				date={new Date()}
-				amount={0}
-				isMyReply={ownItem}
-				onSelectClick={() => setDetailedView(true)}
-				selected={detailedView}
-				showSelectBtn={status === Status.Open && ownItem}
-				user={user}
-			/>
-
-			{/* Show select provider button */}
-			{detailedView && status === Status.Open && ownItem && !selected && (
-				<div
-					style={{
-						padding: 30,
-						backgroundColor: getColor('white'),
-						width: '100%',
-					}}
-				>
-					<Button size="large" onClick={selectProvider}>
-						select {formatName(user)}
-					</Button>
-				</div>
-			)}
-
-			{/* Show unselect provider button */}
-			{detailedView && status === Status.Open && ownItem && selected && (
-				<div
-					style={{
-						backgroundColor: getColor('blue'),
-						padding: 30,
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'center',
-						textAlign: 'center',
-					}}
-				>
-					<Typography variant="body-bold-16" color="white">
-						You selected {formatName(user)} to make a deal.
-					</Typography>
-					<Typography variant="small-light-12" color="white">
-						Waiting for {formatName(user)} to respond
-					</Typography>
-					<Button style={{ marginTop: 30 }} size="large">
-						unselect {formatName(user)}
-					</Button>
-				</div>
-			)}
-
-			{/* Show fund deal button*/}
-			{detailedView && status === Status.Open && !ownItem && (
-				<div
-					style={{
-						backgroundColor: getColor('blue'),
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'center',
-						textAlign: 'center',
-						padding: 30,
-					}}
-				>
-					<Typography variant="body-bold-16" color="white">
-						You were selected to make a deal. Do you accept?
-					</Typography>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							marginTop: 44,
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<IconButton variant="cancel" style={{ marginRight: 15 }} />
-						<IconButton variant="confirmAction" />
-					</div>
-				</div>
-			)}
-		</>
+		<ReplyUI
+			reply={reply}
+			onSelectClick={() => setSelectedReply(reply)}
+			showSelectBtn={status === Status.Open && isMyRequest}
+		/>
 	)
+
+	// return (
+	// 	<>
+	// 		{status === Status.Open && ownItem && selectedReply && (
+	// 			<div
+	// 				style={{
+	// 					backgroundColor: getColor('white'),
+	// 					borderRadius: '50%',
+	// 					width: 37,
+	// 					height: 37,
+	// 					boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
+	// 					display: 'flex',
+	// 					alignItems: 'center',
+	// 					justifyContent: 'center',
+	// 					cursor: 'pointer',
+	// 					marginLeft: 30,
+	// 					marginTop: 30,
+	// 					marginBottom: 20,
+	// 				}}
+	// 			>
+	// 				<IconButton
+	// 					variant="select"
+	// 					onClick={() => setSelectedReply(undefined)}
+	// 					style={{ transform: 'rotate(180deg)' }}
+	// 				/>
+	// 			</div>
+	// 		)}
+
+	// 		<ReplyUI
+	// 			onSelectClick={() => setSelectedReply(thisReply)}
+	// 			showSelectBtn={status === Status.Open && ownItem}
+	// 			{...thisReply}
+	// 		/>
+
+	// 		{/* Show select provider button */}
+	// 		{selectedReply && status === Status.Open && ownItem && !selected && (
+	// 			<div
+	// 				style={{
+	// 					padding: 30,
+	// 					backgroundColor: getColor('white'),
+	// 					width: '100%',
+	// 				}}
+	// 			>
+	// 				<Button size="large" onClick={selectProvider}>
+	// 					select {formatName(user)}
+	// 				</Button>
+	// 			</div>
+	// 		)}
+
+	// 		{/* Show unselect provider button */}
+	// 		{selectedReply && status === Status.Open && ownItem && selected && (
+	// 			<div
+	// 				style={{
+	// 					backgroundColor: getColor('blue'),
+	// 					padding: 30,
+	// 					display: 'flex',
+	// 					flexDirection: 'column',
+	// 					alignItems: 'center',
+	// 					justifyContent: 'center',
+	// 					textAlign: 'center',
+	// 				}}
+	// 			>
+	// 				<Typography variant="body-bold-16" color="white">
+	// 					You selected {formatName(user)} to make a deal.
+	// 				</Typography>
+	// 				<Typography variant="small-light-12" color="white">
+	// 					Waiting for {formatName(user)} to respond
+	// 				</Typography>
+	// 				<Button style={{ marginTop: 30 }} size="large">
+	// 					unselect {formatName(user)}
+	// 				</Button>
+	// 			</div>
+	// 		)}
+
+	// 		{/* Show fund deal button*/}
+	// 		{selectedReply && status === Status.Open && !ownItem && (
+	// 			<div
+	// 				style={{
+	// 					backgroundColor: getColor('blue'),
+	// 					display: 'flex',
+	// 					flexDirection: 'column',
+	// 					alignItems: 'center',
+	// 					justifyContent: 'center',
+	// 					textAlign: 'center',
+	// 					padding: 30,
+	// 				}}
+	// 			>
+	// 				<Typography variant="body-bold-16" color="white">
+	// 					You were selected to make a deal. Do you accept?
+	// 				</Typography>
+	// 				<div
+	// 					style={{
+	// 						display: 'flex',
+	// 						flexDirection: 'row',
+	// 						marginTop: 44,
+	// 						justifyContent: 'center',
+	// 						alignItems: 'center',
+	// 					}}
+	// 				>
+	// 					<IconButton variant="cancel" style={{ marginRight: 15 }} />
+	// 					<IconButton variant="confirmAction" />
+	// 				</div>
+	// 			</div>
+	// 		)}
+	// 	</>
+	// )
 }
 
 const SelectedProvider = ({
@@ -431,27 +447,57 @@ const FundDeal = ({
 	}
 
 	return (
-		<div>
-			<p>You're the provider!</p>
-			<button onClick={fund} disabled={loading || success || !canFund}>
-				{success ? 'Success!' : 'Fund the deal'}
-			</button>
-			{JSON.stringify(error)}
-		</div>
+		<>
+			{/* Show fund deal button*/}
+			<div
+				style={{
+					backgroundColor: getColor('blue'),
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					justifyContent: 'center',
+					textAlign: 'center',
+					padding: 30,
+				}}
+			>
+				<Typography variant="body-bold-16" color="white">
+					You were selected to make a deal. Do you accept?
+				</Typography>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						marginTop: 44,
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
+					<IconButton variant="cancel" style={{ marginRight: 15 }} />
+					<IconButton variant="confirmAction" onClick={fund} />
+				</div>
+			</div>
+		</>
 	)
 }
+// <div>
+// 	<p>You're the provider!</p>
+// 	<button onClick={fund} disabled={loading || success || !canFund}>
+// 		{success ? 'Success!' : 'Fund the deal'}
+// 	</button>
+// 	{JSON.stringify(error)}
+// </div>
 
 export const MarketplaceItem = () => {
 	const { id, item: itemIdString } = useParams<{ id: string; item: string }>()
 	if (!id || !itemIdString) {
-		throw new Error('no id or item')
+		throw new Error('no marketplace ID or request item ID')
 	}
 
 	const itemId = BigInt(itemIdString)
+	const name = useMarketplaceName(id)
 
-	const { address } = useAccount()
+	const { address, connector } = useAccount()
 	const { decimals } = useMarketplaceTokenDecimals(id)
-	const { connector } = useAccount()
 	const navigate = useNavigate()
 	const { replies } = useItemReplies(id, itemId)
 	const selectedProvider = useSelectProvider(id, itemId)
@@ -462,13 +508,73 @@ export const MarketplaceItem = () => {
 
 	const chainItem = useMarketplaceItem(id, itemId)
 	const [isReplying, setIsReplying] = useState<boolean>(false)
-	const name = useMarketplaceName(id)
 
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(id)
 	const item = useMemo(() => {
 		return items.find(({ id }) => id.eq(itemId))
 	}, [lastUpdate])
+
+	const store = {
+		marketplace: {
+			id,
+			name,
+			decimals,
+		},
+		request: {
+			id: itemId,
+			price: item?.price,
+			description: item?.metadata.description,
+			date: item?.timestamp ? new Date(item?.timestamp) : new Date(),
+			status: item?.status,
+			fee: item?.fee,
+			myReply: replies.find((r) => r.from === address),
+			replies: replies,
+			seeker: {
+				id: item?.owner,
+				reputation: item?.seekerRep,
+			},
+			provider: {
+				id: chainItem.item?.providerAddress,
+				reputation: chainItem.item?.providerRep,
+			},
+		},
+		user: {
+			id: address,
+		},
+	}
+	console.log(store)
+
+	const [selectedReply, setSelectedReply] = useState<Reply | undefined>()
+
+	const [selected, setSelected] = useState(false)
+	const [loading2, setLoading] = useState(false)
+
+	const { waku } = useWaku()
+
+	// Wagmi
+	const { chain } = useNetwork()
+
+	const selectProvider = async () => {
+		if (!waku || !connector || !chain?.id || !name || !selectedReply) {
+			return
+		}
+
+		setLoading(true)
+
+		await createSelectProvider(waku, connector, {
+			marketplace: {
+				address: id,
+				chainId: BigInt(chain.id),
+				name,
+			},
+			provider: selectedReply?.user.address,
+			item: itemId,
+		})
+
+		setSelected(true)
+		setLoading(false)
+	}
 
 	if (!item || !chainItem.item) {
 		const text =
@@ -553,26 +659,18 @@ export const MarketplaceItem = () => {
 					</div>
 					<RequestItem
 						detail
-						title={item.metadata.description}
-						date={new Date(item.timestamp * 1000)}
-						repliesCount={0}
-						amount={0}
+						title={store.request.description || ''}
+						date={store.request.date}
+						repliesCount={store.request.replies.length}
+						amount={formatMoney(store.request.price || 0n)}
 						user={{
-							name: item.owner.substring(0, 10),
-							reputation: item.seekerRep.toNumber(),
+							name: store.request.seeker.id || '',
+							reputation: store.request.seeker.reputation?.toNumber() || 0,
 						}}
 					/>
 					{selectedProvider.data && (
 						<SelectedProvider
 							{...selectedProvider}
-							data={selectedProvider.data}
-						/>
-					)}
-
-					{provider === address && status === Status.Open && (
-						<FundDeal
-							marketplace={id}
-							item={itemId}
 							data={selectedProvider.data}
 						/>
 					)}
@@ -598,16 +696,64 @@ export const MarketplaceItem = () => {
 					}}
 				>
 					<>
-						{replies.length ? (
+						{selectedReply ? (
 							<>
-								{replies.map((reply) => (
-									<Reply
-										reply={reply}
+								{status === Status.Open &&
+									selectedReply.isMyReply &&
+									!selectedProvider.data && (
+										<div
+											style={{
+												backgroundColor: getColor('white'),
+												borderRadius: '50%',
+												width: 37,
+												height: 37,
+												boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+												cursor: 'pointer',
+												marginLeft: 30,
+												marginTop: 30,
+											}}
+										>
+											<IconButton
+												variant="select"
+												onClick={() => setSelectedReply(undefined)}
+												style={{ transform: 'rotate(180deg)' }}
+											/>
+										</div>
+									)}
+
+								<ReplyUI selected reply={selectedReply} />
+								{/* Show select provider button */}
+								{status === Status.Open &&
+									selectedReply.isMyReply &&
+									!selectedProvider.data && (
+										<div
+											style={{
+												padding: 30,
+												backgroundColor: getColor('white'),
+												width: '100%',
+											}}
+										>
+											<Button size="large" onClick={selectProvider}>
+												select {formatName(selectedReply.user)}
+											</Button>
+										</div>
+									)}
+							</>
+						) : replies.length ? (
+							<>
+								{store.request.replies.map((reply) => (
+									<ReplyContainer
 										key={reply.signature}
-										ownItem={item.owner === address}
-										marketplace={id}
-										item={itemId}
+										reply={reply}
+										isMyRequest={store.request.seeker.id === store.user.id}
+										isMyReply={reply.from === store.user.id}
+										marketplaceId={id}
+										itemId={itemId}
 										status={status}
+										setSelectedReply={setSelectedReply}
 									/>
 								))}
 							</>
@@ -628,23 +774,34 @@ export const MarketplaceItem = () => {
 								/>
 							</div>
 						)}
-					</>
-					{status === Status.Open && item.owner !== address && !isReplying && (
-						<div
-							style={{
-								position: 'absolute',
-								bottom: -30,
-								right: 46,
-							}}
-						>
-							<IconButton
-								variant="reply"
-								onClick={() => {
-									setIsReplying(true)
-								}}
+
+						{provider === address && status === Status.Open && (
+							<FundDeal
+								marketplace={id}
+								item={itemId}
+								data={selectedProvider.data}
 							/>
-						</div>
-					)}
+						)}
+					</>
+					{status === Status.Open &&
+						item.owner !== address &&
+						!isReplying &&
+						!store.request.myReply && (
+							<div
+								style={{
+									position: 'absolute',
+									bottom: -30,
+									right: 46,
+								}}
+							>
+								<IconButton
+									variant="reply"
+									onClick={() => {
+										setIsReplying(true)
+									}}
+								/>
+							</div>
+						)}
 				</div>
 
 				{status === Status.Open && item.owner === address && (

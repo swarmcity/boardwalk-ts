@@ -5,39 +5,24 @@ import { getColor } from '../colors'
 import { Typography } from '../typography'
 import { formatName } from '../utils'
 
-interface User {
-	name?: string
-	address: string
-	reputation: number
-	avatar?: string
-}
+import type { User, Reply as ReplyType } from '../types'
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-	title: string
-	date: Date
-	amount: number
-	isMyReply?: boolean
+	reply: ReplyType
 	canOpen?: boolean
 	onSelectClick?: () => void
 	showSelectBtn?: boolean
-    selected?: boolean
-	tokenName?: string
+	selected?: boolean
 	onClickUser?: (user: User) => void
-	user: User
 }
 
 export function Reply({
-	title,
-	date,
-	amount,
-	user,
-	isMyReply,
+	reply,
 	style,
-	tokenName,
 	showSelectBtn,
 	selected,
 	onSelectClick,
-    onClickUser,
+	onClickUser,
 	...props
 }: Props) {
 	if (selected) {
@@ -62,18 +47,18 @@ export function Reply({
 						}}
 					>
 						<Typography variant="body-extra-light-18" color="grey4">
-							{title}
+							{reply.text}
 						</Typography>
 						<Typography
 							variant="small-bold-12"
 							color="grey4"
 							style={{ marginTop: 5 }}
 						>
-							for {amount} {tokenName ?? 'DAI'}
+							for {reply.amount} {reply.tokenName ?? 'DAI'}
 						</Typography>
 					</div>
 					<Typography variant="small-light-10" color="grey2-light-text">
-						{date.toLocaleString()}
+						{reply.date.toLocaleString()}
 					</Typography>
 					<div
 						style={{
@@ -90,16 +75,18 @@ export function Reply({
 								display: 'flex',
 								flexDirection: 'row',
 								alignItems: 'center',
-								cursor: isMyReply ? 'default' : 'pointer',
+								cursor: reply.isMyReply ? 'default' : 'pointer',
 							}}
 						>
-							<Avatar avatar={user.avatar} size={25} />
+							<Avatar avatar={reply.user.avatar} size={25} />
 							<Typography
 								variant="small-bold-12"
-								color={isMyReply ? 'grey4' : 'blue'}
+								color={reply.isMyReply ? 'grey4' : 'blue'}
 								style={{ marginLeft: 8 }}
 							>
-								{formatName(user)} • {user.reputation} SWT
+								<>
+									{formatName(reply.user)} • {reply.user.reputation} SWT
+								</>
 							</Typography>
 						</div>
 					</div>
@@ -129,7 +116,7 @@ export function Reply({
 					}}
 				>
 					<Typography variant="body-extra-light-18" color="grey4">
-						{title}
+						{reply.text}
 					</Typography>
 					<div
 						style={{
@@ -144,10 +131,7 @@ export function Reply({
 							cursor: 'pointer',
 						}}
 					>
-						<IconButton
-							variant="select"
-							onClick={onSelectClick}
-						/>
+						<IconButton variant="select" onClick={onSelectClick} />
 					</div>
 				</div>
 				<div
@@ -165,10 +149,10 @@ export function Reply({
 							display: 'flex',
 							flexDirection: 'row',
 							alignItems: 'center',
-							cursor: isMyReply ? 'default' : 'pointer',
+							cursor: reply.isMyReply ? 'default' : 'pointer',
 						}}
 					>
-						<Avatar avatar={user.avatar} size={25} />
+						<Avatar avatar={reply.user.avatar} size={25} />
 						<div
 							style={{
 								display: 'flex',
@@ -177,13 +161,15 @@ export function Reply({
 							}}
 						>
 							<Typography variant="small-light-10" color="grey2-light-text">
-								{date.toLocaleString()}
+								{reply.date.toLocaleString()}
 							</Typography>
 							<Typography
 								variant="small-bold-12"
-								color={isMyReply ? 'grey4' : 'blue'}
+								color={reply.isMyReply ? 'grey4' : 'blue'}
 							>
-								{formatName(user)} • {user.reputation} SWT
+								<>
+									{formatName(reply.user)} • {reply.user.reputation} SWT
+								</>
 							</Typography>
 						</div>
 					</div>
@@ -192,7 +178,7 @@ export function Reply({
 						color="grey4"
 						style={{ marginTop: 5 }}
 					>
-						for {amount} {tokenName ?? 'DAI'}
+						for {reply.amount} {reply.tokenName ?? 'DAI'}
 					</Typography>
 				</div>
 			</div>
@@ -218,14 +204,14 @@ export function Reply({
 				}}
 			>
 				<Typography variant="body-extra-light-18" color="grey4">
-					{title}
+					{reply.text}
 				</Typography>
 				<Typography
 					variant="small-bold-12"
 					color="grey4"
 					style={{ marginTop: 5 }}
 				>
-					for {amount} {tokenName ?? 'DAI'}
+					for {reply.amount} {reply.tokenName ?? 'DAI'}
 				</Typography>
 			</div>
 			<div
@@ -234,10 +220,10 @@ export function Reply({
 					flexDirection: 'row',
 					alignItems: 'center',
 					marginTop: 10,
-					cursor: isMyReply ? 'default' : 'pointer',
+					cursor: reply.isMyReply ? 'default' : 'pointer',
 				}}
 			>
-				<Avatar avatar={user.avatar} size={25} />
+				<Avatar avatar={reply.user.avatar} size={25} />
 				<div
 					style={{
 						display: 'flex',
@@ -246,13 +232,15 @@ export function Reply({
 					}}
 				>
 					<Typography variant="small-light-10" color="grey2-light-text">
-						{date.toLocaleString()}
+						{reply.date.toLocaleString()}
 					</Typography>
 					<Typography
 						variant="small-bold-12"
-						color={isMyReply ? 'grey4' : 'blue'}
+						color={reply.isMyReply ? 'grey4' : 'blue'}
 					>
-						{formatName(user)} • {user.reputation} SWT
+						<>
+							{formatName(reply.user)} • {reply.user.reputation} SWT
+						</>
 					</Typography>
 				</div>
 			</div>
