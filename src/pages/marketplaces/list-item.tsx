@@ -25,7 +25,7 @@ export const MarketplaceListItem = () => {
 	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
 	const navigate = useNavigate()
-	const fee = 0.5 // TODO: this should somehow be estimated, right?
+	const fee = 0.5 // TODO: this should be retrieved from the marketplace
 	const name = useMarketplaceName(id)
 
 	const submit = async (event: MouseEvent) => {
@@ -48,14 +48,14 @@ export const MarketplaceListItem = () => {
 
 	return (
 		<>
-			{confirmationReq && (
+			{confirmationReq && price && (
 				<ConfirmModal
 					cancel={{ onClick: () => setConfirmationReq(false) }}
 					confirm={{ onClick: submit, disabled: waiting }}
 				>
 					<div style={{ padding: 20 }}>
 						<Typography variant="header-35" style={{ marginBottom: 12 }}>
-							You are about to post this request for {price} DAI.
+							You are about to post this request for {price + fee} DAI.
 						</Typography>
 						<Typography>This cannot be undone.</Typography>
 						<br />

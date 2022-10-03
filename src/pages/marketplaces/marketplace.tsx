@@ -12,7 +12,6 @@ import {
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
-import { BigNumber } from 'ethers'
 
 // UI
 import { Container } from '../../ui/container'
@@ -24,6 +23,7 @@ import { useProfilePictureURL } from '../../services/profile-picture'
 
 // Lib
 import { formatFrom } from '../../lib/tools'
+import { formatMoney } from '../../ui/utils'
 
 type DisplayItemProps = {
 	marketplace: string
@@ -35,12 +35,6 @@ type DisplayItemsProps = {
 	marketplace: string
 	items: Item[]
 	decimals: number | undefined
-}
-
-export function formatMoney(amount: bigint | BigNumber, decimals = 18) {
-	const base =
-		typeof amount === 'bigint' ? Number(amount) : Number(amount.toBigInt())
-	return base / 10 ** decimals
 }
 
 const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {

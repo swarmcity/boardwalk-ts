@@ -8,9 +8,6 @@ import { getAddress } from '@ethersproject/address'
 // Hooks
 import { useWaku } from '../../hooks/use-waku'
 
-// Lib
-import { formatFrom } from '../../lib/tools'
-
 // Services
 import {
 	useMarketplaceItem,
@@ -49,9 +46,9 @@ import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
 import { getColor } from '../../ui/colors'
 import { Reply as ReplyUI } from '../../ui/components/reply'
-import { formatName } from '../../ui/utils'
-import { formatMoney } from './marketplace'
+import { formatName, formatMoney } from '../../ui/utils'
 import { Reply, User } from '../../ui/types'
+import { ErrorModal } from '../../ui/components/error-modal'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -78,6 +75,7 @@ const ReplyForm = ({
 }: ReplyFormProps) => {
 	const [text, setText] = useState('')
 	const [profile] = useStore.profile()
+	const [error, setError] = useState<Error | undefined>()
 
 	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
@@ -86,11 +84,22 @@ const ReplyForm = ({
 		event.preventDefault()
 
 		if (!waku || !connector) {
-			throw new Error('no waku or connector')
+			setError(new Error('no waku or connector'))
+			return
 		}
 
-		await createReply(waku, marketplace, item.id, { text }, connector)
-		setText('')
+		try {
+			await createReply(waku, marketplace, item.id, { text }, connector)
+			setText('')
+			// FIXME: this is not correct way of doing it, but better than nothing for now
+			location.reload()
+		} catch (e) {
+			setError(e as Error)
+		}
+	}
+
+	if (error) {
+		return <ErrorModal error={error} onClose={() => setError(undefined)} />
 	}
 
 	return (
@@ -173,18 +182,16 @@ const ReplyContainer = ({
 	reply: replyItem,
 	isMyReply,
 	isMyRequest,
-	marketplaceId,
-	requestId,
 	status,
 	setSelectedReply,
+	amount,
 }: {
 	reply: ItemReplyClean
 	isMyReply: boolean
 	isMyRequest: boolean
-	marketplaceId: string
-	requestId: bigint
 	status: Status
 	setSelectedReply: (reply: Reply | undefined) => void
+	amount: number
 }) => {
 	// Profile
 	const { profile } = useProfile(replyItem.from)
@@ -200,7 +207,7 @@ const ReplyContainer = ({
 	const reply: Reply = {
 		text: replyItem.text,
 		date: new Date(),
-		amount: 0,
+		amount,
 		isMyReply,
 		user,
 	}
@@ -222,7 +229,7 @@ const PayoutItem = ({
 }: {
 	marketplace: string
 	item: bigint
-	amount: bigint
+	amount: number
 	user: string
 }) => {
 	const { connector } = useAccount()
@@ -252,7 +259,13 @@ const PayoutItem = ({
 			setError(err as Error)
 		} finally {
 			setLoading(false)
+			// FIXME: this is not correct way of doing it, but better than nothing for now
+			location.reload()
 		}
+	}
+
+	if (error) {
+		return <ErrorModal error={error} onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -320,7 +333,6 @@ const PayoutItem = ({
 			>
 				payout
 			</Button>
-			{error && JSON.stringify(error) /** TODO: handle this better */}
 		</div>
 	)
 }
@@ -337,15 +349,14 @@ const FundDeal = ({
 	data?: SelectProvider
 	marketplace: string
 	item: bigint
-	amount: bigint
-	fee: bigint
+	amount: number
+	fee: number
 }) => {
 	const { connector } = useAccount()
 
 	// State
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<Error>()
-	const [success, setSuccess] = useState(false)
 	const [confirm, setConfirm] = useState(false)
 
 	// Fund function
@@ -356,18 +367,21 @@ const FundDeal = ({
 		}
 
 		setLoading(true)
-		setSuccess(false)
 
 		try {
 			await fundItem(connector, marketplace, item, data?.signature)
-			setSuccess(true)
 			setError(undefined)
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
 		} finally {
 			setLoading(false)
+			// FIXME: this is not correct way of doing it, but better than nothing for now
+			location.reload()
 		}
+	}
+	if (error) {
+		return <ErrorModal error={error} onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -386,7 +400,7 @@ const FundDeal = ({
 				cancel={{ onClick: () => setConfirm(false) }}
 			>
 				<Typography variant="header-35">
-					<>You're about to fund this deal with {amount} DAI.</>
+					<>You're about to fund this deal with {amount + fee} DAI.</>
 				</Typography>
 				<div style={{ paddingTop: 30 }}>
 					<Typography variant="small-light-12">
@@ -490,7 +504,7 @@ export const MarketplaceItem = () => {
 					? ({
 							text: selectedReplyItemClean.text,
 							date: new Date(),
-							amount: 0,
+							amount: formatMoney(item?.price || 0n),
 							isMyReply: address === selectedReplyItemClean.from,
 							user: { address: selectedReplyItemClean.from },
 					  } as Reply)
@@ -509,10 +523,8 @@ export const MarketplaceItem = () => {
 			id: address,
 		},
 	}
-	console.log(store)
 
-	const [selected, setSelected] = useState(false)
-	const [loading2, setLoading] = useState(false)
+	const [loadingSelectProvider, setLoadingSelectProvider] = useState(false)
 
 	const { waku } = useWaku()
 
@@ -524,7 +536,7 @@ export const MarketplaceItem = () => {
 			return
 		}
 
-		setLoading(true)
+		setLoadingSelectProvider(true)
 
 		await createSelectProvider(waku, connector, {
 			marketplace: {
@@ -536,8 +548,7 @@ export const MarketplaceItem = () => {
 			item: itemId,
 		})
 
-		setSelected(true)
-		setLoading(false)
+		setLoadingSelectProvider(false)
 	}
 
 	if (!item || !chainItem.item) {
@@ -636,7 +647,9 @@ export const MarketplaceItem = () => {
 					}}
 				>
 					<>
-						{store.request.selectedReply ? (
+						{store.request.selectedReply &&
+						(store.request.selectedReply?.user.address === store.user.id ||
+							store.request.seeker.id === store.user.id) ? (
 							<>
 								{status === Status.Open && !selectedProvider.data && (
 									<div
@@ -671,14 +684,19 @@ export const MarketplaceItem = () => {
 											width: '100%',
 										}}
 									>
-										<Button size="large" onClick={selectProvider}>
+										<Button
+											size="large"
+											onClick={selectProvider}
+											disabled={loadingSelectProvider}
+										>
 											select {formatName(store.request.selectedReply.user)}
 										</Button>
 									</div>
 								)}
 
 								{status === Status.Open &&
-									store.request.seeker.id === store.user.id && (
+									store.request.seeker.id === store.user.id &&
+									selectedProvider.data && (
 										<div
 											style={{
 												backgroundColor: getColor('blue'),
@@ -706,30 +724,36 @@ export const MarketplaceItem = () => {
 										</div>
 									)}
 							</>
-						) : replies.length ? (
-							<>
-								{store.request.replies.map((reply) => (
-									<ReplyContainer
-										key={reply.signature}
-										reply={reply}
-										isMyRequest={store.request.seeker.id === store.user.id}
-										isMyReply={reply.from === store.user.id}
-										marketplaceId={store.marketplace.id}
-										requestId={store.request.id}
-										status={status}
-										setSelectedReply={setSelectedReply}
-									/>
-								))}
-							</>
 						) : (
-							!isReplying && (
-								<div style={{ padding: 30, textAlign: 'center' }}>
-									<Typography variant="small-light-12" color="grey2-light-text">
-										No replies yet.
-									</Typography>
-								</div>
-							)
+							<>
+								{replies.length > 0 && (
+									<>
+										{store.request.replies.map((reply) => (
+											<ReplyContainer
+												key={reply.signature}
+												reply={reply}
+												isMyRequest={store.request.seeker.id === store.user.id}
+												isMyReply={reply.from === store.user.id}
+												amount={formatMoney(store.request.price ?? 0n)}
+												status={status}
+												setSelectedReply={setSelectedReply}
+											/>
+										))}
+									</>
+								)}
+								{replies.length === 0 && !isReplying && (
+									<div style={{ padding: 30, textAlign: 'center' }}>
+										<Typography
+											variant="small-light-12"
+											color="grey2-light-text"
+										>
+											No replies yet.
+										</Typography>
+									</div>
+								)}
+							</>
 						)}
+
 						{status === Status.Open && item.owner !== address && isReplying && (
 							<div style={{ marginLeft: 30, marginRight: 0, marginBottom: 30 }}>
 								<ReplyForm
@@ -746,8 +770,8 @@ export const MarketplaceItem = () => {
 								marketplace={id}
 								item={itemId}
 								data={selectedProvider.data}
-								amount={store.request.price?.toBigInt() ?? 0n}
-								fee={store.request.fee?.toBigInt() ?? 0n}
+								amount={formatMoney(store.request.price ?? 0n)}
+								fee={formatMoney(store.request.fee?.toBigInt() ?? 0n)}
 							/>
 						)}
 						{chainItem.item.seekerAddress === address &&
@@ -755,7 +779,7 @@ export const MarketplaceItem = () => {
 								<PayoutItem
 									marketplace={id}
 									item={itemId}
-									amount={store.request.price?.toBigInt() ?? 0n}
+									amount={formatMoney(store.request.price ?? 0n)}
 									user={store.request.seeker.id ?? 'unknown'}
 								/>
 							)}

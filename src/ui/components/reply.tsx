@@ -71,6 +71,9 @@ export function Reply({
 						}}
 					>
 						<div
+							onClick={() =>
+								!reply.isMyReply && onClickUser && onClickUser(reply.user)
+							}
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
