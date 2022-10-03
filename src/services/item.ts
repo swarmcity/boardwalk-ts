@@ -26,7 +26,8 @@ export const fundItem = async (
 	const amountToApprove = price.add(fee.div(2))
 
 	// Approve the tokens to be spent by the marketplace
-	await token.approve(marketplace, amountToApprove)
+	const approveTx = await token.approve(marketplace, amountToApprove)
+	await approveTx.wait()
 
 	// Fund the item
 	const { v, r, s } = splitSignature(signature)
