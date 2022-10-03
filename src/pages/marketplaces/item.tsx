@@ -36,7 +36,14 @@ import {
 	useSelectProvider,
 } from '../../services/select-provider'
 import { SelectProvider } from '../../protos/SelectProvider'
-import { Button, IconButton, Input, RequestItem } from '@swarm-city/ui-library'
+import {
+	Button,
+	ConfirmModal,
+	FullscreenLoading,
+	IconButton,
+	Input,
+	RequestItem,
+} from '@swarm-city/ui-library'
 import { useStore } from '../../store'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
@@ -348,24 +355,16 @@ const ReplyContainer = ({
 	// )
 }
 
-const SelectedProvider = ({
-	data,
-	lastUpdate,
-}: {
-	data: SelectProvider
-	lastUpdate: number
-}) => {
-	const provider = useMemo(() => hexlify(data.provider), [lastUpdate])
-	const { profile } = useProfile(hexlify(provider))
-	return <div>Provider selected: {formatFrom(provider, profile?.username)}</div>
-}
-
 const PayoutItem = ({
 	marketplace,
 	item,
+	amount,
+	user,
 }: {
 	marketplace: string
 	item: bigint
+	amount: bigint
+	user: string
 }) => {
 	const { connector } = useAccount()
 
@@ -373,6 +372,7 @@ const PayoutItem = ({
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<Error>()
 	const [success, setSuccess] = useState(false)
+	const [confirm, setConfirm] = useState(false)
 
 	// Payout function
 	const canPayout = connector
@@ -396,12 +396,72 @@ const PayoutItem = ({
 		}
 	}
 
+	if (loading) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">Payout is being processed.</Typography>
+			</FullscreenLoading>
+		)
+	}
+
+	if (confirm) {
+		return (
+			<ConfirmModal
+				variant="action"
+				confirm={{ onClick: payout }}
+				cancel={{ onClick: () => setConfirm(false) }}
+			>
+				<Typography variant="header-35">
+					<>
+						You're about to pay {amount} DAI to {user}.
+					</>
+				</Typography>
+				<div style={{ paddingTop: 30 }}>
+					<Typography variant="small-light-12">
+						This cannot be undone.
+					</Typography>
+				</div>
+			</ConfirmModal>
+		)
+	}
+
 	return (
-		<div>
-			<button onClick={payout} disabled={loading || success}>
-				{success ? 'Success!' : 'Payout the deal'}
-			</button>
-			{JSON.stringify(error)}
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				textAlign: 'center',
+				backgroundColor: getColor('green'),
+				padding: 30,
+			}}
+		>
+			<div style={{ position: 'relative', width: '100%' }}>
+				<div
+					style={{
+						position: 'absolute',
+						bottom: 0,
+						right: 46,
+					}}
+				>
+					<IconButton variant="chat" />
+				</div>
+			</div>
+			<Typography variant="body-bold-16" color="white">
+				You're in a deal!
+			</Typography>
+			<Button
+				style={{ marginTop: 30 }}
+				size="large"
+				variant="deal"
+				bg
+				disabled={loading || success}
+				onClick={() => setConfirm(true)}
+			>
+				payout
+			</Button>
+			{error && JSON.stringify(error) /** TODO: handle this better */}
 		</div>
 	)
 }
@@ -412,10 +472,14 @@ const FundDeal = ({
 	data,
 	marketplace,
 	item,
+	amount,
+	fee,
 }: {
 	data?: SelectProvider
 	marketplace: string
 	item: bigint
+	amount: bigint
+	fee: bigint
 }) => {
 	const { connector } = useAccount()
 
@@ -423,6 +487,7 @@ const FundDeal = ({
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<Error>()
 	const [success, setSuccess] = useState(false)
+	const [confirm, setConfirm] = useState(false)
 
 	// Fund function
 	const canFund = connector && data?.signature
@@ -444,6 +509,38 @@ const FundDeal = ({
 		} finally {
 			setLoading(false)
 		}
+	}
+
+	if (loading) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">Funding is being processed.</Typography>
+			</FullscreenLoading>
+		)
+	}
+
+	if (confirm) {
+		return (
+			<ConfirmModal
+				variant="action"
+				confirm={{ onClick: fund }}
+				cancel={{ onClick: () => setConfirm(false) }}
+			>
+				<Typography variant="header-35">
+					<>You're about to fund this deal with {amount} DAI.</>
+				</Typography>
+				<div style={{ paddingTop: 30 }}>
+					<Typography variant="small-light-12">
+						This cannot be undone.
+					</Typography>
+				</div>
+				<div>
+					<Typography variant="small-light-12">
+						<>{fee} DAI fee is included.</>
+					</Typography>
+				</div>
+			</ConfirmModal>
+		)
 	}
 
 	return (
@@ -473,19 +570,15 @@ const FundDeal = ({
 					}}
 				>
 					<IconButton variant="cancel" style={{ marginRight: 15 }} />
-					<IconButton variant="confirmAction" onClick={fund} />
+					<IconButton
+						variant="confirmAction"
+						onClick={() => setConfirm(true)}
+					/>
 				</div>
 			</div>
 		</>
 	)
 }
-// <div>
-// 	<p>You're the provider!</p>
-// 	<button onClick={fund} disabled={loading || success || !canFund}>
-// 		{success ? 'Success!' : 'Fund the deal'}
-// 	</button>
-// 	{JSON.stringify(error)}
-// </div>
 
 export const MarketplaceItem = () => {
 	const { id, item: itemIdString } = useParams<{ id: string; item: string }>()
@@ -526,7 +619,7 @@ export const MarketplaceItem = () => {
 			price: item?.price,
 			description: item?.metadata.description,
 			date: item?.timestamp ? new Date(item?.timestamp) : new Date(),
-			status: item?.status,
+			status: chainItem && chainItem.item && Statuses[chainItem.item?.status],
 			fee: item?.fee,
 			myReply: replies.find((r) => r.from === address),
 			replies: replies,
@@ -592,17 +685,9 @@ export const MarketplaceItem = () => {
 						width: '100%',
 					}}
 				>
-					<h2
-						style={{
-							fontFamily: 'Montserrat',
-							fontStyle: 'normal',
-							fontWeight: 700,
-							fontSize: 28,
-							color: '#333333',
-						}}
-					>
+					<Typography variant="header-28" color="grey4">
 						{text}
-					</h2>
+					</Typography>
 				</div>
 			</Container>
 		)
@@ -668,22 +753,6 @@ export const MarketplaceItem = () => {
 							reputation: store.request.seeker.reputation?.toNumber() || 0,
 						}}
 					/>
-					{selectedProvider.data && (
-						<SelectedProvider
-							{...selectedProvider}
-							data={selectedProvider.data}
-						/>
-					)}
-
-					{chainItem.item.seekerAddress === address &&
-						status === Status.Funded && (
-							<PayoutItem marketplace={id} item={itemId} />
-						)}
-
-					<p>
-						Status: {Statuses[status]} (
-						{formatFrom(chainItem.item.providerAddress)})
-					</p>
 				</div>
 				<div
 					style={{
@@ -780,8 +849,19 @@ export const MarketplaceItem = () => {
 								marketplace={id}
 								item={itemId}
 								data={selectedProvider.data}
+								amount={store.request.price?.toBigInt() ?? 0n}
+								fee={store.request.fee?.toBigInt() ?? 0n}
 							/>
 						)}
+						{chainItem.item.seekerAddress === address &&
+							status === Status.Funded && (
+								<PayoutItem
+									marketplace={id}
+									item={itemId}
+									amount={store.request.price?.toBigInt() ?? 0n}
+									user={store.request.seeker.id ?? 'unknown'}
+								/>
+							)}
 					</>
 					{status === Status.Open &&
 						item.owner !== address &&
@@ -811,6 +891,13 @@ export const MarketplaceItem = () => {
 						<Button variant="danger" onClick={cancel} disabled={!canCancel}>
 							cancel this request
 						</Button>
+					</div>
+				)}
+				{chainItem.item.seekerAddress === address && status === Status.Funded && (
+					<div
+						style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}
+					>
+						<Button>start conflict</Button>
 					</div>
 				)}
 			</div>
