@@ -11,7 +11,7 @@ import type { Signer } from 'ethers'
 import type { Profile } from '../types'
 
 // Protos
-import { Profile as ProfileProto } from '../protos/Profile'
+import { Profile as ProfileProto } from '../protos/profile'
 
 // Services
 import {

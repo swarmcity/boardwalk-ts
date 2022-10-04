@@ -9,7 +9,7 @@ import type { Signer } from 'ethers'
 import type { UpdateTime } from '../../../lib/blockchain'
 
 // Protos
-import { ItemMetadata } from '../../../protos/ItemMetadata'
+import { ItemMetadata } from '../../../protos/item-metadata'
 
 // ABIs
 import marketplaceAbi from '../../../abis/marketplace.json'

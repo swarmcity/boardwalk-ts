@@ -6,7 +6,7 @@ import type { Waku } from 'js-waku'
 import type { Signer } from 'ethers'
 
 // Protos
-import { SelectProvider } from '../protos/SelectProvider'
+import { SelectProvider } from '../protos/select-provider'
 
 // Services
 import {

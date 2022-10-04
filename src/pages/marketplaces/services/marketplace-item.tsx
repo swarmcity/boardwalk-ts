@@ -13,7 +13,7 @@ import type { Waku } from 'js-waku'
 import type { BigNumber, Signer } from 'ethers'
 
 // Protos
-import { ItemReply } from '../../../protos/ItemReply'
+import { ItemReply } from '../../../protos/item-reply'
 
 // Hooks
 import { useWakuStoreQuery } from '../../../services/waku'
