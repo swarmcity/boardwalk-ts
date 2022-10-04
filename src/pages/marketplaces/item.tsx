@@ -35,7 +35,7 @@ import {
 	createSelectProvider,
 	useSelectProvider,
 } from '../../services/select-provider'
-import { SelectProvider } from '../../protos/SelectProvider'
+import { SelectProvider } from '../../protos/select-provider'
 import {
 	Button,
 	IconButton,

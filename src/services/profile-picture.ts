@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import type { Waku } from 'js-waku'
 
 // Protos
-import { ProfilePicture } from '../protos/ProfilePicture'
+import { ProfilePicture } from '../protos/profile-picture'
 
 // Services
 import {
