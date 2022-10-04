@@ -8,9 +8,6 @@ import { getAddress } from '@ethersproject/address'
 // Hooks
 import { useWaku } from '../../hooks/use-waku'
 
-// Lib
-import { formatFrom } from '../../lib/tools'
-
 // Services
 import {
 	useMarketplaceItem,
@@ -38,15 +35,20 @@ import {
 import { SelectProvider } from '../../protos/SelectProvider'
 import {
 	Button,
+	ConfirmModal,
+	FullscreenLoading,
 	IconButton,
 	Input,
-	Reply as ReplyUI,
 	RequestItem,
 } from '@swarm-city/ui-library'
 import { useStore } from '../../store'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
 import { getColor } from '../../ui/colors'
+import { Reply as ReplyUI } from '../../ui/components/reply'
+import { formatName, formatMoney } from '../../ui/utils'
+import { Reply, User } from '../../ui/types'
+import { ErrorModal } from '../../ui/components/error-modal'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -73,6 +75,7 @@ const ReplyForm = ({
 }: ReplyFormProps) => {
 	const [text, setText] = useState('')
 	const [profile] = useStore.profile()
+	const [error, setError] = useState<Error | undefined>()
 
 	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
@@ -81,11 +84,22 @@ const ReplyForm = ({
 		event.preventDefault()
 
 		if (!waku || !connector) {
-			throw new Error('no waku or connector')
+			setError(new Error('no waku or connector'))
+			return
 		}
 
-		await createReply(waku, marketplace, item.id, { text }, connector)
-		setText('')
+		try {
+			await createReply(waku, marketplace, item.id, { text }, connector)
+			setText('')
+			// FIXME: this is not correct way of doing it, but better than nothing for now
+			location.reload()
+		} catch (e) {
+			setError(e as Error)
+		}
+	}
+
+	if (error) {
+		return <ErrorModal error={error} onClose={() => setError(undefined)} />
 	}
 
 	return (
@@ -164,150 +178,59 @@ const ReplyForm = ({
 	)
 }
 
-const Reply = ({
-	reply,
-	ownItem,
-	marketplace,
-	item,
-	canSelectProvider,
+const ReplyContainer = ({
+	reply: replyItem,
+	isMyReply,
+	isMyRequest,
+	status,
+	setSelectedReply,
+	amount,
 }: {
 	reply: ItemReplyClean
-	ownItem: boolean
-	marketplace: string
-	item: bigint
-	canSelectProvider: boolean
+	isMyReply: boolean
+	isMyRequest: boolean
+	status: Status
+	setSelectedReply: (reply: Reply | undefined) => void
+	amount: number
 }) => {
-	const { waku, waiting } = useWaku()
-
-	// Wagmi
-	const { connector } = useAccount()
-	const { chain } = useNetwork()
-
-	// Marketplace
-	const name = useMarketplaceName(marketplace)
-
 	// Profile
-	const { profile } = useProfile(reply.from)
+	const { profile } = useProfile(replyItem.from)
 	const avatar = useProfilePictureURL(profile?.pictureHash)
 
-	// State
-	const [loading, setLoading] = useState(false)
-	const [selected, setSelected] = useState(false)
-	const [showSelectBtn, setShowSelectBtn] = useState(false)
-
-	const selectProvider = async () => {
-		if (!waku || !connector || !chain?.id || !name) {
-			return
-		}
-
-		setLoading(true)
-
-		await createSelectProvider(waku, connector, {
-			marketplace: {
-				address: marketplace,
-				chainId: BigInt(chain.id),
-				name,
-			},
-			provider: reply.from,
-			item,
-		})
-
-		setSelected(true)
-		setLoading(false)
+	const user: User = {
+		name: profile?.username,
+		address: replyItem.from,
+		reputation: 0n,
+		avatar,
 	}
-	if (loading) return <span>Loading...</span>
+
+	const reply: Reply = {
+		text: replyItem.text,
+		date: new Date(),
+		amount,
+		isMyReply,
+		user,
+	}
 
 	return (
-		<>
-			{/* TODO: fix this in the component itself, this is very temporary */}
-			{canSelectProvider && !showSelectBtn && (
-				<div style={{ position: 'relative', width: '100%' }}>
-					<div style={{ position: 'absolute', right: 0, top: 5 }}>
-						<IconButton
-							variant="select"
-							style={{ backgroundColor: 'white', border: 'solid 1px black' }}
-							onClick={() => {
-								setShowSelectBtn(true)
-							}}
-						/>
-					</div>
-				</div>
-			)}
-			{canSelectProvider && showSelectBtn && !selected && (
-				<div style={{ position: 'relative', width: '100%' }}>
-					<IconButton
-						variant="select"
-						style={{
-							backgroundColor: 'white',
-							border: 'solid 1px black',
-							transform: 'rotate(180deg)',
-						}}
-						onClick={() => {
-							setShowSelectBtn(false)
-						}}
-					/>
-				</div>
-			)}
-			<ReplyUI
-				replyTitle={reply.text}
-				replyDate={new Date()}
-				replierName={formatFrom(reply.from, profile?.username)}
-				avatar={avatar}
-				replierRep={0}
-				replyAmt={0}
-				myReply={ownItem}
-				detail
-			/>
-			{showSelectBtn && !selected && (
-				<Button size="large" onClick={selectProvider} disabled={waiting}>
-					select {formatFrom(reply.from, profile?.username)}
-				</Button>
-			)}
-			{showSelectBtn && selected && (
-				<div
-					style={{
-						backgroundColor: getColor('blue'),
-						padding: 10,
-						display: 'flex',
-						flexDirection: 'column',
-						justifyContent: 'center',
-						width: '100%',
-					}}
-				>
-					<Typography variant="body-bold-16" color="white">
-						You selected {formatFrom(reply.from, profile?.username)} to make a
-						deal
-					</Typography>
-					<Typography variant="small-light-12" color="white">
-						Waiting for {formatFrom(reply.from, profile?.username)} to respond
-					</Typography>
-					<Button size="large" variant="action" onClick={selectProvider}>
-						unselect {formatFrom(reply.from, profile?.username)}
-					</Button>
-				</div>
-			)}
-		</>
+		<ReplyUI
+			reply={reply}
+			onSelectClick={() => setSelectedReply(reply)}
+			showSelectBtn={status === Status.Open && isMyRequest}
+		/>
 	)
-}
-
-const SelectedProvider = ({
-	data,
-	lastUpdate,
-}: {
-	data: SelectProvider
-	lastUpdate: number
-}) => {
-	const provider = useMemo(() => hexlify(data.provider), [lastUpdate])
-	const { profile } = useProfile(hexlify(provider))
-	return <div>Provider selected: {formatFrom(provider, profile?.username)}</div>
 }
 
 const PayoutItem = ({
 	marketplace,
 	item,
+	amount,
+	user,
 }: {
 	marketplace: string
 	item: bigint
+	amount: number
+	user: string
 }) => {
 	const { connector } = useAccount()
 
@@ -315,6 +238,7 @@ const PayoutItem = ({
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<Error>()
 	const [success, setSuccess] = useState(false)
+	const [confirm, setConfirm] = useState(false)
 
 	// Payout function
 	const canPayout = connector
@@ -335,15 +259,80 @@ const PayoutItem = ({
 			setError(err as Error)
 		} finally {
 			setLoading(false)
+			// FIXME: this is not correct way of doing it, but better than nothing for now
+			location.reload()
 		}
 	}
 
+	if (error) {
+		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+	}
+
+	if (loading) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">Payout is being processed.</Typography>
+			</FullscreenLoading>
+		)
+	}
+
+	if (confirm) {
+		return (
+			<ConfirmModal
+				variant="action"
+				confirm={{ onClick: payout }}
+				cancel={{ onClick: () => setConfirm(false) }}
+			>
+				<Typography variant="header-35">
+					<>
+						You're about to pay {amount} DAI to {user}.
+					</>
+				</Typography>
+				<div style={{ paddingTop: 30 }}>
+					<Typography variant="small-light-12">
+						This cannot be undone.
+					</Typography>
+				</div>
+			</ConfirmModal>
+		)
+	}
+
 	return (
-		<div>
-			<button onClick={payout} disabled={loading || success}>
-				{success ? 'Success!' : 'Payout the deal'}
-			</button>
-			{JSON.stringify(error)}
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				textAlign: 'center',
+				backgroundColor: getColor('green'),
+				padding: 30,
+			}}
+		>
+			<div style={{ position: 'relative', width: '100%' }}>
+				<div
+					style={{
+						position: 'absolute',
+						bottom: 0,
+						right: 46,
+					}}
+				>
+					<IconButton variant="chat" />
+				</div>
+			</div>
+			<Typography variant="body-bold-16" color="white">
+				You're in a deal!
+			</Typography>
+			<Button
+				style={{ marginTop: 30 }}
+				size="large"
+				variant="deal"
+				bg
+				disabled={loading || success}
+				onClick={() => setConfirm(true)}
+			>
+				payout
+			</Button>
 		</div>
 	)
 }
@@ -354,17 +343,21 @@ const FundDeal = ({
 	data,
 	marketplace,
 	item,
+	amount,
+	fee,
 }: {
 	data?: SelectProvider
 	marketplace: string
 	item: bigint
+	amount: number
+	fee: number
 }) => {
 	const { connector } = useAccount()
 
 	// State
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<Error>()
-	const [success, setSuccess] = useState(false)
+	const [confirm, setConfirm] = useState(false)
 
 	// Fund function
 	const canFund = connector && data?.signature
@@ -374,42 +367,103 @@ const FundDeal = ({
 		}
 
 		setLoading(true)
-		setSuccess(false)
 
 		try {
 			await fundItem(connector, marketplace, item, data?.signature)
-			setSuccess(true)
 			setError(undefined)
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
 		} finally {
 			setLoading(false)
+			// FIXME: this is not correct way of doing it, but better than nothing for now
+			location.reload()
 		}
+	}
+	if (error) {
+		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+	}
+
+	if (loading) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">Funding is being processed.</Typography>
+			</FullscreenLoading>
+		)
+	}
+
+	if (confirm) {
+		return (
+			<ConfirmModal
+				variant="action"
+				confirm={{ onClick: fund }}
+				cancel={{ onClick: () => setConfirm(false) }}
+			>
+				<Typography variant="header-35">
+					<>You're about to fund this deal with {amount + fee} DAI.</>
+				</Typography>
+				<div style={{ paddingTop: 30 }}>
+					<Typography variant="small-light-12">
+						This cannot be undone.
+					</Typography>
+				</div>
+				<div>
+					<Typography variant="small-light-12">
+						<>{fee} DAI fee is included.</>
+					</Typography>
+				</div>
+			</ConfirmModal>
+		)
 	}
 
 	return (
-		<div>
-			<p>You're the provider!</p>
-			<button onClick={fund} disabled={loading || success || !canFund}>
-				{success ? 'Success!' : 'Fund the deal'}
-			</button>
-			{JSON.stringify(error)}
-		</div>
+		<>
+			{/* Show fund deal button*/}
+			<div
+				style={{
+					backgroundColor: getColor('blue'),
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					justifyContent: 'center',
+					textAlign: 'center',
+					padding: 30,
+				}}
+			>
+				<Typography variant="body-bold-16" color="white">
+					You were selected to make a deal. Do you accept?
+				</Typography>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						marginTop: 44,
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
+					<IconButton variant="cancel" style={{ marginRight: 15 }} />
+					<IconButton
+						variant="confirmAction"
+						onClick={() => setConfirm(true)}
+					/>
+				</div>
+			</div>
+		</>
 	)
 }
 
 export const MarketplaceItem = () => {
 	const { id, item: itemIdString } = useParams<{ id: string; item: string }>()
 	if (!id || !itemIdString) {
-		throw new Error('no id or item')
+		throw new Error('no marketplace ID or request item ID')
 	}
 
 	const itemId = BigInt(itemIdString)
+	const name = useMarketplaceName(id)
 
-	const { address } = useAccount()
+	const { address, connector } = useAccount()
 	const { decimals } = useMarketplaceTokenDecimals(id)
-	const { connector } = useAccount()
 	const navigate = useNavigate()
 	const { replies } = useItemReplies(id, itemId)
 	const selectedProvider = useSelectProvider(id, itemId)
@@ -420,13 +474,82 @@ export const MarketplaceItem = () => {
 
 	const chainItem = useMarketplaceItem(id, itemId)
 	const [isReplying, setIsReplying] = useState<boolean>(false)
-	const name = useMarketplaceName(id)
 
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(id)
 	const item = useMemo(() => {
 		return items.find(({ id }) => id.eq(itemId))
 	}, [lastUpdate])
+
+	const [selectedReply, setSelectedReply] = useState<Reply | undefined>()
+
+	const selectedReplyItemClean = replies.find((r) => r.from === provider)
+	const store = {
+		marketplace: {
+			id,
+			name,
+			decimals,
+		},
+		request: {
+			id: itemId,
+			price: item?.price,
+			description: item?.metadata.description,
+			date: item?.timestamp ? new Date(item?.timestamp) : new Date(),
+			status: chainItem && chainItem.item && Statuses[chainItem.item?.status],
+			fee: item?.fee,
+			myReply: replies.find((r) => r.from === address),
+			selectedReply:
+				selectedReply ??
+				(selectedReplyItemClean !== undefined
+					? ({
+							text: selectedReplyItemClean.text,
+							date: new Date(),
+							amount: formatMoney(item?.price || 0n),
+							isMyReply: address === selectedReplyItemClean.from,
+							user: { address: selectedReplyItemClean.from },
+					  } as Reply)
+					: undefined),
+			replies: replies,
+			seeker: {
+				id: item?.owner,
+				reputation: item?.seekerRep,
+			},
+			provider: {
+				id: chainItem.item?.providerAddress,
+				reputation: chainItem.item?.providerRep,
+			},
+		},
+		user: {
+			id: address,
+		},
+	}
+
+	const [loadingSelectProvider, setLoadingSelectProvider] = useState(false)
+
+	const { waku } = useWaku()
+
+	// Wagmi
+	const { chain } = useNetwork()
+
+	const selectProvider = async () => {
+		if (!waku || !connector || !chain?.id || !name || !selectedReply) {
+			return
+		}
+
+		setLoadingSelectProvider(true)
+
+		await createSelectProvider(waku, connector, {
+			marketplace: {
+				address: id,
+				chainId: BigInt(chain.id),
+				name,
+			},
+			provider: selectedReply?.user.address,
+			item: itemId,
+		})
+
+		setLoadingSelectProvider(false)
+	}
 
 	if (!item || !chainItem.item) {
 		const text =
@@ -435,39 +558,20 @@ export const MarketplaceItem = () => {
 				: 'Item not found...'
 
 		return (
-			<div
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					flexDirection: 'column',
-					textAlign: 'left',
-					width: '100%',
-				}}
-			>
-				<div style={{ maxWidth: 1000, width: '100%', textAlign: 'left' }}>
-					<div
-						style={{
-							flexGrow: 1,
-							marginLeft: 40,
-							marginRight: 40,
-							width: '100%',
-						}}
-					>
-						<h2
-							style={{
-								fontFamily: 'Montserrat',
-								fontStyle: 'normal',
-								fontWeight: 700,
-								fontSize: 28,
-								color: '#333333',
-							}}
-						>
-							{text}
-						</h2>
-					</div>
+			<Container>
+				<div
+					style={{
+						flexGrow: 1,
+						marginLeft: 40,
+						marginRight: 40,
+						width: '100%',
+					}}
+				>
+					<Typography variant="header-28" color="grey4">
+						{text}
+					</Typography>
 				</div>
-			</div>
+			</Container>
 		)
 	}
 
@@ -484,61 +588,181 @@ export const MarketplaceItem = () => {
 	const { status } = chainItem.item
 
 	return (
-		<>
+		<Container>
 			<div
 				style={{
 					display: 'flex',
-					alignItems: 'center',
+					alignItems: 'stretch',
 					justifyContent: 'center',
 					flexDirection: 'column',
 					textAlign: 'left',
 				}}
 			>
-				<Container>
-					<Typography
-						variant="header-28"
-						color="grey4"
-						style={{
-							marginLeft: 40,
-							marginRight: 40,
-						}}
-					>
-						{name ?? 'Loading...'}
-					</Typography>
-				</Container>
-				<Container>
-					<div
-						style={{
-							backgroundColor: '#FAFAFA',
-							boxShadow: '0px 1px 0px #DFDFDF',
-							position: 'relative',
-							padding: 30,
-							marginLeft: 10,
-							marginRight: 10,
-						}}
-					>
-						<div style={{ position: 'absolute', right: 15, top: 15 }}>
-							<IconButton
-								variant="close"
-								onClick={() => navigate(`/marketplace/${id}`)}
-							/>
-						</div>
-						<RequestItem
-							detail
-							title={item.metadata.description}
-							date={new Date(item.timestamp * 1000)}
-							repliesCount={0}
-							amount={0}
-							user={{
-								name: item.owner.substring(0, 10),
-								reputation: item.seekerRep.toNumber(),
-							}}
+				<Typography
+					variant="header-28"
+					color="grey4"
+					style={{
+						marginLeft: 40,
+						marginRight: 40,
+					}}
+				>
+					{name ?? 'Loading...'}
+				</Typography>
+				<div
+					style={{
+						backgroundColor: '#FAFAFA',
+						borderBottom: '1px dashed #DFDFDF',
+						position: 'relative',
+						padding: 30,
+						marginLeft: 10,
+						marginRight: 10,
+					}}
+				>
+					<div style={{ position: 'absolute', right: 15, top: 15 }}>
+						<IconButton
+							variant="close"
+							onClick={() => navigate(`/marketplace/${id}`)}
 						/>
-						{selectedProvider.data && (
-							<SelectedProvider
-								{...selectedProvider}
-								data={selectedProvider.data}
-							/>
+					</div>
+					<RequestItem
+						detail
+						title={store.request.description || ''}
+						date={store.request.date}
+						repliesCount={store.request.replies.length}
+						amount={formatMoney(store.request.price || 0n)}
+						user={{
+							name: store.request.seeker.id || '',
+							reputation: store.request.seeker.reputation?.toNumber() || 0,
+						}}
+					/>
+				</div>
+				<div
+					style={{
+						backgroundColor: getColor('white'),
+						boxShadow: '0px 1px 0px #DFDFDF',
+						borderTop: '1px dashed #DFDFDF',
+						position: 'relative',
+						marginLeft: 10,
+						marginRight: 10,
+					}}
+				>
+					<>
+						{store.request.selectedReply &&
+						(store.request.selectedReply?.user.address === store.user.id ||
+							store.request.seeker.id === store.user.id) ? (
+							<>
+								{status === Status.Open && !selectedProvider.data && (
+									<div
+										style={{
+											backgroundColor: getColor('white'),
+											borderRadius: '50%',
+											width: 37,
+											height: 37,
+											boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											cursor: 'pointer',
+											marginLeft: 30,
+											marginTop: 30,
+										}}
+									>
+										<IconButton
+											variant="back"
+											onClick={() => setSelectedReply(undefined)}
+										/>
+									</div>
+								)}
+
+								<ReplyUI selected reply={store.request.selectedReply} />
+								{/* Show select provider button */}
+								{status === Status.Open && !selectedProvider.data && (
+									<div
+										style={{
+											padding: 30,
+											backgroundColor: getColor('white'),
+											width: '100%',
+										}}
+									>
+										<Button
+											size="large"
+											onClick={selectProvider}
+											disabled={loadingSelectProvider}
+										>
+											select {formatName(store.request.selectedReply.user)}
+										</Button>
+									</div>
+								)}
+
+								{status === Status.Open &&
+									store.request.seeker.id === store.user.id &&
+									selectedProvider.data && (
+										<div
+											style={{
+												backgroundColor: getColor('blue'),
+												padding: 30,
+												display: 'flex',
+												flexDirection: 'column',
+												alignItems: 'center',
+												justifyContent: 'center',
+												textAlign: 'center',
+											}}
+										>
+											<Typography variant="body-bold-16" color="white">
+												You selected{' '}
+												{formatName(store.request.selectedReply.user)} to make a
+												deal.
+											</Typography>
+											<Typography variant="small-light-12" color="white">
+												Waiting for{' '}
+												{formatName(store.request.selectedReply.user)} to
+												respond
+											</Typography>
+											<Button style={{ marginTop: 30 }} size="large">
+												unselect {formatName(store.request.selectedReply.user)}
+											</Button>
+										</div>
+									)}
+							</>
+						) : (
+							<>
+								{replies.length > 0 && (
+									<>
+										{store.request.replies.map((reply) => (
+											<ReplyContainer
+												key={reply.signature}
+												reply={reply}
+												isMyRequest={store.request.seeker.id === store.user.id}
+												isMyReply={reply.from === store.user.id}
+												amount={formatMoney(store.request.price ?? 0n)}
+												status={status}
+												setSelectedReply={setSelectedReply}
+											/>
+										))}
+									</>
+								)}
+								{replies.length === 0 && !isReplying && (
+									<div style={{ padding: 30, textAlign: 'center' }}>
+										<Typography
+											variant="small-light-12"
+											color="grey2-light-text"
+										>
+											No replies yet.
+										</Typography>
+									</div>
+								)}
+							</>
+						)}
+
+						{status === Status.Open && item.owner !== address && isReplying && (
+							<div style={{ marginLeft: 30, marginRight: 0, marginBottom: 30 }}>
+								<ReplyForm
+									item={item}
+									marketplace={id}
+									decimals={decimals}
+									onCancel={() => setIsReplying(false)}
+								/>
+							</div>
 						)}
 
 						{provider === address && status === Status.Open && (
@@ -546,85 +770,28 @@ export const MarketplaceItem = () => {
 								marketplace={id}
 								item={itemId}
 								data={selectedProvider.data}
+								amount={formatMoney(store.request.price ?? 0n)}
+								fee={formatMoney(store.request.fee?.toBigInt() ?? 0n)}
 							/>
 						)}
-
 						{chainItem.item.seekerAddress === address &&
 							status === Status.Funded && (
-								<PayoutItem marketplace={id} item={itemId} />
+								<PayoutItem
+									marketplace={id}
+									item={itemId}
+									amount={formatMoney(store.request.price ?? 0n)}
+									user={store.request.seeker.id ?? 'unknown'}
+								/>
 							)}
-
-						<p>
-							Status: {Statuses[status]} (
-							{formatFrom(chainItem.item.providerAddress)})
-						</p>
-					</div>
-					<div
-						style={{
-							backgroundColor: '#FAFAFA',
-							boxShadow: '0px 1px 0px #DFDFDF',
-							borderTop: '1px dashed #DFDFDF',
-							position: 'relative',
-							marginLeft: 10,
-							marginRight: 10,
-						}}
-					>
-						<div
-							style={{
-								padding: 30,
-							}}
-						>
-							{replies.length ? (
-								<>
-									{replies.map((reply) => (
-										<div
-											key={reply.signature}
-											style={{ width: '100%', marginBottom: 25 }}
-										>
-											<Reply
-												reply={reply}
-												ownItem={item.owner === address}
-												canSelectProvider={
-													status === Status.Open && item.owner === address
-												}
-												marketplace={id}
-												item={itemId}
-											/>
-										</div>
-									))}
-								</>
-							) : (
-								!isReplying && (
-									<div
-										style={{
-											textAlign: 'center',
-											fontFamily: 'Montserrat',
-											fontStyle: 'normal',
-											fontWeight: 300,
-											fontSize: 12,
-											color: '#ACACAC',
-										}}
-									>
-										No replies yet.
-									</div>
-								)
-							)}
-							{status === Status.Open &&
-								item.owner !== address &&
-								isReplying && (
-									<ReplyForm
-										item={item}
-										marketplace={id}
-										decimals={decimals}
-										onCancel={() => setIsReplying(false)}
-									/>
-								)}
-						</div>
-						{status === Status.Open && item.owner !== address && !isReplying && (
+					</>
+					{status === Status.Open &&
+						item.owner !== address &&
+						!isReplying &&
+						!store.request.myReply && (
 							<div
 								style={{
 									position: 'absolute',
-									bottom: -13,
+									bottom: -30,
 									right: 46,
 								}}
 							>
@@ -636,17 +803,25 @@ export const MarketplaceItem = () => {
 								/>
 							</div>
 						)}
-					</div>
-				</Container>
+				</div>
 
 				{status === Status.Open && item.owner === address && (
-					<div style={{ marginTop: 58 }}>
+					<div
+						style={{ marginTop: 58, display: 'flex', justifyContent: 'center' }}
+					>
 						<Button variant="danger" onClick={cancel} disabled={!canCancel}>
 							cancel this request
 						</Button>
 					</div>
 				)}
+				{chainItem.item.seekerAddress === address && status === Status.Funded && (
+					<div
+						style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}
+					>
+						<Button>start conflict</Button>
+					</div>
+				)}
 			</div>
-		</>
+		</Container>
 	)
 }

@@ -4,7 +4,7 @@ import createStore from 'teaful'
 import { readLocalStore, updateLocalStore } from './lib/store'
 
 // Types
-import type { Profile } from './types/profile'
+import type { Profile } from './types'
 
 type Store = {
 	profile: Partial<Profile> | undefined

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { IconButton, Input, ConfirmModal } from '@swarm-city/ui-library'
+import { BigNumber } from 'ethers'
 
 // Hooks
 import { useWaku } from '../../hooks/use-waku'
@@ -9,9 +10,13 @@ import { useWaku } from '../../hooks/use-waku'
 import type { MouseEvent } from 'react'
 import { createItem } from './services/marketplace-items'
 import { useAccount } from 'wagmi'
-import { useMarketplaceName } from './services/marketplace'
+import {
+	useMarketplaceConfig,
+	useMarketplaceName,
+} from './services/marketplace'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
+import { formatMoney } from '../../ui/utils'
 
 export const MarketplaceListItem = () => {
 	const { id } = useParams<string>()
@@ -25,8 +30,9 @@ export const MarketplaceListItem = () => {
 	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
 	const navigate = useNavigate()
-	const fee = 0.5 // TODO: this should somehow be estimated, right?
 	const name = useMarketplaceName(id)
+	const config = useMarketplaceConfig(id, ['fee'])
+	const fee = formatMoney(BigNumber.from(config?.fee) ?? 0n) // TODO: instead of defaulting to 0 the page should be in loading state
 
 	const submit = async (event: MouseEvent) => {
 		event.preventDefault()
@@ -48,14 +54,14 @@ export const MarketplaceListItem = () => {
 
 	return (
 		<>
-			{confirmationReq && (
+			{confirmationReq && price && (
 				<ConfirmModal
 					cancel={{ onClick: () => setConfirmationReq(false) }}
 					confirm={{ onClick: submit, disabled: waiting }}
 				>
 					<div style={{ padding: 20 }}>
 						<Typography variant="header-35" style={{ marginBottom: 12 }}>
-							You are about to post this request for {price} DAI.
+							You are about to post this request for {price + fee} DAI.
 						</Typography>
 						<Typography>This cannot be undone.</Typography>
 						<br />

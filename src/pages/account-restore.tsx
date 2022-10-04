@@ -14,7 +14,7 @@ import { MARKETPLACES } from '../routes'
 import { UserCreateStop } from '../components/modals/user-create-stop'
 
 // Types
-import type { Profile } from '../types/profile'
+import type { Profile } from '../types'
 import type { ChangeEvent } from 'react'
 
 export const AccountRestore = () => {
