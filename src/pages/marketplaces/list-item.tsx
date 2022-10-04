@@ -32,7 +32,7 @@ export const MarketplaceListItem = () => {
 	const navigate = useNavigate()
 	const name = useMarketplaceName(id)
 	const config = useMarketplaceConfig(id, ['fee'])
-	const fee = formatMoney(BigNumber.from(config?.fee) ?? 0n) // TODO: instead of defaulting to 0 the page should be in loading state
+	const fee = formatMoney(BigNumber.from(config?.fee ?? 0n)) // TODO: instead of defaulting to 0 the page should be in loading state
 
 	const submit = async (event: MouseEvent) => {
 		event.preventDefault()
