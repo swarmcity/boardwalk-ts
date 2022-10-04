@@ -511,16 +511,16 @@ export const MarketplaceItem = () => {
 					: undefined),
 			replies: replies,
 			seeker: {
-				id: item?.owner,
+				address: item?.owner,
 				reputation: item?.seekerRep,
 			},
 			provider: {
-				id: chainItem.item?.providerAddress,
+				address: chainItem.item?.providerAddress,
 				reputation: chainItem.item?.providerRep,
 			},
 		},
 		user: {
-			id: address,
+			address,
 		},
 	}
 
@@ -631,7 +631,7 @@ export const MarketplaceItem = () => {
 						repliesCount={store.request.replies.length}
 						amount={formatMoney(store.request.price || 0n)}
 						user={{
-							name: store.request.seeker.id || '',
+							name: store.request.seeker.address || '',
 							reputation: store.request.seeker.reputation?.toNumber() || 0,
 						}}
 					/>
@@ -647,80 +647,111 @@ export const MarketplaceItem = () => {
 					}}
 				>
 					<>
-						{store.request.selectedReply &&
-						(store.request.selectedReply?.user.address === store.user.id ||
-							store.request.seeker.id === store.user.id) ? (
+						{store.request.selectedReply ? (
 							<>
-								{status === Status.Open && !selectedProvider.data && (
-									<div
-										style={{
-											backgroundColor: getColor('white'),
-											borderRadius: '50%',
-											width: 37,
-											height: 37,
-											boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											cursor: 'pointer',
-											marginLeft: 30,
-											marginTop: 30,
-										}}
-									>
-										<IconButton
-											variant="back"
-											onClick={() => setSelectedReply(undefined)}
-										/>
-									</div>
-								)}
+								{(store.request.selectedReply?.user.address ===
+									store.user.address ||
+									store.request.seeker.address === store.user.address) && (
+									<>
+										{status === Status.Open && !selectedProvider.data && (
+											<div
+												style={{
+													backgroundColor: getColor('white'),
+													borderRadius: '50%',
+													width: 37,
+													height: 37,
+													boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													cursor: 'pointer',
+													marginLeft: 30,
+													marginTop: 30,
+												}}
+											>
+												<IconButton
+													variant="back"
+													onClick={() => setSelectedReply(undefined)}
+												/>
+											</div>
+										)}
 
-								<ReplyUI selected reply={store.request.selectedReply} />
-								{/* Show select provider button */}
-								{status === Status.Open && !selectedProvider.data && (
-									<div
-										style={{
-											padding: 30,
-											backgroundColor: getColor('white'),
-											width: '100%',
-										}}
-									>
-										<Button
-											size="large"
-											onClick={selectProvider}
-											disabled={loadingSelectProvider}
-										>
-											select {formatName(store.request.selectedReply.user)}
-										</Button>
-									</div>
-								)}
+										<ReplyUI selected reply={store.request.selectedReply} />
+										{/* Show select provider button */}
+										{status === Status.Open && !selectedProvider.data && (
+											<div
+												style={{
+													padding: 30,
+													backgroundColor: getColor('white'),
+													width: '100%',
+												}}
+											>
+												<Button
+													size="large"
+													onClick={selectProvider}
+													disabled={loadingSelectProvider}
+												>
+													select {formatName(store.request.selectedReply.user)}
+												</Button>
+											</div>
+										)}
 
-								{status === Status.Open &&
-									store.request.seeker.id === store.user.id &&
-									selectedProvider.data && (
-										<div
-											style={{
-												backgroundColor: getColor('blue'),
-												padding: 30,
-												display: 'flex',
-												flexDirection: 'column',
-												alignItems: 'center',
-												justifyContent: 'center',
-												textAlign: 'center',
-											}}
-										>
-											<Typography variant="body-bold-16" color="white">
-												You selected{' '}
-												{formatName(store.request.selectedReply.user)} to make a
-												deal.
-											</Typography>
-											<Typography variant="small-light-12" color="white">
-												Waiting for{' '}
-												{formatName(store.request.selectedReply.user)} to
-												respond
-											</Typography>
-											<Button style={{ marginTop: 30 }} size="large">
-												unselect {formatName(store.request.selectedReply.user)}
-											</Button>
+										{status === Status.Open &&
+											store.request.seeker.address === store.user.address &&
+											selectedProvider.data && (
+												<div
+													style={{
+														backgroundColor: getColor('blue'),
+														padding: 30,
+														display: 'flex',
+														flexDirection: 'column',
+														alignItems: 'center',
+														justifyContent: 'center',
+														textAlign: 'center',
+													}}
+												>
+													<Typography variant="body-bold-16" color="white">
+														You selected{' '}
+														{formatName(store.request.selectedReply.user)} to
+														make a deal.
+													</Typography>
+													<Typography variant="small-light-12" color="white">
+														Waiting for{' '}
+														{formatName(store.request.selectedReply.user)} to
+														respond
+													</Typography>
+													<Button style={{ marginTop: 30 }} size="large">
+														unselect{' '}
+														{formatName(store.request.selectedReply.user)}
+													</Button>
+												</div>
+											)}
+									</>
+								)}
+								{store.request.selectedReply?.user.address !==
+									store.user.address &&
+									store.request.seeker.address !== store.user.address && (
+										<div style={{ padding: 30, textAlign: 'center' }}>
+											{store.request.myReply && (
+												<>
+													<Typography variant="body-light-16">
+														{store.request.seeker.address} selected
+													</Typography>{' '}
+													<Typography variant="body-bold-16">
+														a different provider.
+													</Typography>
+												</>
+											)}
+											{!store.request.myReply && (
+												<>
+													<Typography variant="body-light-16">
+														{store.request.seeker.address} already selected
+													</Typography>{' '}
+													<Typography variant="body-bold-16">
+														a provider.
+													</Typography>
+												</>
+											)}
 										</div>
 									)}
 							</>
@@ -732,8 +763,10 @@ export const MarketplaceItem = () => {
 											<ReplyContainer
 												key={reply.signature}
 												reply={reply}
-												isMyRequest={store.request.seeker.id === store.user.id}
-												isMyReply={reply.from === store.user.id}
+												isMyRequest={
+													store.request.seeker.address === store.user.address
+												}
+												isMyReply={reply.from === store.user.address}
 												amount={formatMoney(store.request.price ?? 0n)}
 												status={status}
 												setSelectedReply={setSelectedReply}
@@ -780,7 +813,7 @@ export const MarketplaceItem = () => {
 									marketplace={id}
 									item={itemId}
 									amount={formatMoney(store.request.price ?? 0n)}
-									user={store.request.seeker.id ?? 'unknown'}
+									user={store.request.seeker.address ?? 'unknown'}
 								/>
 							)}
 					</>
