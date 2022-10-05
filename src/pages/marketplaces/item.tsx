@@ -50,6 +50,8 @@ import { formatName, formatMoney } from '../../ui/utils'
 import { Reply, User } from '../../ui/types'
 import { ErrorModal } from '../../ui/components/error-modal'
 import { InDeal } from '../../ui/components/in-deal'
+import { Avatar } from '../../ui/avatar'
+import { PaymentDetail } from '../../ui/components/payment-detail'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -630,7 +632,8 @@ export const MarketplaceItem = () => {
 					}}
 				>
 					{store.request.selectedReply &&
-						(isSelectedReplyMyReply || isMyRequest) && (
+						(isSelectedReplyMyReply || isMyRequest) &&
+						status !== Status.Done && (
 							<>
 								{showSelectProviderBtn && (
 									<div
@@ -707,6 +710,27 @@ export const MarketplaceItem = () => {
 									)}
 							</>
 						)}
+
+					{status === Status.Done && (isMyRequest || isSelectedReplyMyReply) && (
+						<div
+							style={{ padding: 30, display: 'flex', flexDirection: 'column' }}
+						>
+							<Typography variant="small-light-12">
+								{new Date().toLocaleDateString()}
+							</Typography>
+							<Typography variant="body-bold-16">
+								This deal has been completed.
+							</Typography>
+							<PaymentDetail
+								seeker={store.request.seeker as unknown as User}
+								provider={store.request.provider as unknown as User}
+								user={store.user as unknown as User}
+								marketplace={store.marketplace.name!}
+								amount={formatMoney(store.request.price ?? 0n)}
+								reputation={0}
+							/>
+						</div>
+					)}
 
 					{status !== Status.Open && !isSelectedReplyMyReply && !isMyRequest && (
 						<div style={{ padding: 30, textAlign: 'center' }}>
