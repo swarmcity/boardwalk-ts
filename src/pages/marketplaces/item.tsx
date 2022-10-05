@@ -756,6 +756,7 @@ export const MarketplaceItem = () => {
 
 					{status === Status.Open &&
 						!isSelectedReplyMyReply &&
+						!isMyRequest &&
 						replies.length > 0 && (
 							<>
 								{store.request.replies.map((reply) => (
