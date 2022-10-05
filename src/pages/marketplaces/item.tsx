@@ -511,16 +511,16 @@ export const MarketplaceItem = () => {
 					: undefined),
 			replies: replies,
 			seeker: {
-				id: item?.owner,
+				address: item?.owner,
 				reputation: item?.seekerRep,
 			},
 			provider: {
-				id: chainItem.item?.providerAddress,
+				address: chainItem.item?.providerAddress,
 				reputation: chainItem.item?.providerRep,
 			},
 		},
 		user: {
-			id: address,
+			address,
 		},
 	}
 
@@ -549,6 +549,7 @@ export const MarketplaceItem = () => {
 		})
 
 		setLoadingSelectProvider(false)
+		location.reload()
 	}
 
 	if (!item || !chainItem.item) {
@@ -586,6 +587,11 @@ export const MarketplaceItem = () => {
 	}
 
 	const { status } = chainItem.item
+
+	const isSelectedReplyMyReply =
+		store.request.selectedReply?.user.address === store.user.address
+	const isMyRequest = store.request.seeker.address === store.user.address
+	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
 
 	return (
 		<Container>
@@ -631,7 +637,7 @@ export const MarketplaceItem = () => {
 						repliesCount={store.request.replies.length}
 						amount={formatMoney(store.request.price || 0n)}
 						user={{
-							name: store.request.seeker.id || '',
+							name: store.request.seeker.address || '',
 							reputation: store.request.seeker.reputation?.toNumber() || 0,
 						}}
 					/>
@@ -646,12 +652,10 @@ export const MarketplaceItem = () => {
 						marginRight: 10,
 					}}
 				>
-					<>
-						{store.request.selectedReply &&
-						(store.request.selectedReply?.user.address === store.user.id ||
-							store.request.seeker.id === store.user.id) ? (
+					{store.request.selectedReply &&
+						(isSelectedReplyMyReply || isMyRequest) && (
 							<>
-								{status === Status.Open && !selectedProvider.data && (
+								{showSelectProviderBtn && (
 									<div
 										style={{
 											backgroundColor: getColor('white'),
@@ -675,8 +679,9 @@ export const MarketplaceItem = () => {
 								)}
 
 								<ReplyUI selected reply={store.request.selectedReply} />
+
 								{/* Show select provider button */}
-								{status === Status.Open && !selectedProvider.data && (
+								{showSelectProviderBtn && (
 									<div
 										style={{
 											padding: 30,
@@ -695,7 +700,7 @@ export const MarketplaceItem = () => {
 								)}
 
 								{status === Status.Open &&
-									store.request.seeker.id === store.user.id &&
+									isMyRequest &&
 									selectedProvider.data && (
 										<div
 											style={{
@@ -724,68 +729,90 @@ export const MarketplaceItem = () => {
 										</div>
 									)}
 							</>
-						) : (
+						)}
+
+					{status !== Status.Open && !isSelectedReplyMyReply && !isMyRequest && (
+						<div style={{ padding: 30, textAlign: 'center' }}>
+							{store.request.myReply && (
+								<>
+									<Typography variant="body-light-16">
+										{store.request.seeker.address} selected
+									</Typography>{' '}
+									<Typography variant="body-bold-16">
+										a different provider.
+									</Typography>
+								</>
+							)}
+							{!store.request.myReply && (
+								<>
+									<Typography variant="body-light-16">
+										{store.request.seeker.address} already selected
+									</Typography>{' '}
+									<Typography variant="body-bold-16">a provider.</Typography>
+								</>
+							)}
+						</div>
+					)}
+
+					{status === Status.Open &&
+						!isSelectedReplyMyReply &&
+						!isMyRequest &&
+						replies.length > 0 && (
 							<>
-								{replies.length > 0 && (
-									<>
-										{store.request.replies.map((reply) => (
-											<ReplyContainer
-												key={reply.signature}
-												reply={reply}
-												isMyRequest={store.request.seeker.id === store.user.id}
-												isMyReply={reply.from === store.user.id}
-												amount={formatMoney(store.request.price ?? 0n)}
-												status={status}
-												setSelectedReply={setSelectedReply}
-											/>
-										))}
-									</>
-								)}
-								{replies.length === 0 && !isReplying && (
-									<div style={{ padding: 30, textAlign: 'center' }}>
-										<Typography
-											variant="small-light-12"
-											color="grey2-light-text"
-										>
-											No replies yet.
-										</Typography>
-									</div>
-								)}
+								{store.request.replies.map((reply) => (
+									<ReplyContainer
+										key={reply.signature}
+										reply={reply}
+										isMyRequest={
+											store.request.seeker.address === store.user.address
+										}
+										isMyReply={reply.from === store.user.address}
+										amount={formatMoney(store.request.price ?? 0n)}
+										status={status}
+										setSelectedReply={setSelectedReply}
+									/>
+								))}
 							</>
 						)}
 
-						{status === Status.Open && item.owner !== address && isReplying && (
-							<div style={{ marginLeft: 30, marginRight: 0, marginBottom: 30 }}>
-								<ReplyForm
-									item={item}
-									marketplace={id}
-									decimals={decimals}
-									onCancel={() => setIsReplying(false)}
-								/>
-							</div>
-						)}
+					{!store.request.selectedReply && replies.length === 0 && !isReplying && (
+						<div style={{ padding: 30, textAlign: 'center' }}>
+							<Typography variant="small-light-12" color="grey2-light-text">
+								No replies yet.
+							</Typography>
+						</div>
+					)}
 
-						{provider === address && status === Status.Open && (
-							<FundDeal
+					{status === Status.Open && !isMyRequest && isReplying && (
+						<div style={{ marginLeft: 30, marginRight: 0, marginBottom: 30 }}>
+							<ReplyForm
+								item={item}
 								marketplace={id}
-								item={itemId}
-								data={selectedProvider.data}
-								amount={formatMoney(store.request.price ?? 0n)}
-								fee={formatMoney(store.request.fee?.toBigInt() ?? 0n)}
+								decimals={decimals}
+								onCancel={() => setIsReplying(false)}
 							/>
-						)}
-						{chainItem.item.seekerAddress === address &&
-							status === Status.Funded && (
-								<PayoutItem
-									marketplace={id}
-									item={itemId}
-									amount={formatMoney(store.request.price ?? 0n)}
-									user={store.request.seeker.id ?? 'unknown'}
-								/>
-							)}
-					</>
+						</div>
+					)}
+
+					{isSelectedReplyMyReply && status === Status.Open && (
+						<FundDeal
+							marketplace={id}
+							item={itemId}
+							data={selectedProvider.data}
+							amount={formatMoney(store.request.price ?? 0n)}
+							fee={formatMoney(store.request.fee?.toBigInt() ?? 0n)}
+						/>
+					)}
+					{isMyRequest && status === Status.Funded && (
+						<PayoutItem
+							marketplace={id}
+							item={itemId}
+							amount={formatMoney(store.request.price ?? 0n)}
+							user={store.request.seeker.address ?? 'unknown'}
+						/>
+					)}
 					{status === Status.Open &&
-						item.owner !== address &&
+						!isMyRequest &&
 						!isReplying &&
 						!store.request.myReply && (
 							<div
@@ -805,7 +832,7 @@ export const MarketplaceItem = () => {
 						)}
 				</div>
 
-				{status === Status.Open && item.owner === address && (
+				{isMyRequest && status === Status.Open && (
 					<div
 						style={{ marginTop: 58, display: 'flex', justifyContent: 'center' }}
 					>
@@ -814,7 +841,7 @@ export const MarketplaceItem = () => {
 						</Button>
 					</div>
 				)}
-				{chainItem.item.seekerAddress === address && status === Status.Funded && (
+				{isMyRequest && status === Status.Funded && (
 					<div
 						style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}
 					>

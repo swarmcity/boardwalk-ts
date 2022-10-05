@@ -188,6 +188,24 @@ export function Typography({
 					{children}
 				</span>
 			)
+
+		case 'body-light-16':
+			return (
+				<span
+					style={{
+						fontFamily: 'Montserrat',
+						fontStyle: 'normal',
+						fontWeight: 300,
+						fontSize: 16,
+						color,
+						textAlign,
+						...style,
+					}}
+					{...props}
+				>
+					{children}
+				</span>
+			)
 		case 'small-bold-12':
 			return (
 				<span
