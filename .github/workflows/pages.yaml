@@ -29,20 +29,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     env:
-      PUBLIC_URL: https://boardwalk.swarm.city
+      CNAME: boardwalk.swarm.city
+      NODE_VERSION: 18
 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      - name: Use Node.js 16
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
           cache: npm
-          node-version: 16
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install npm deps
         run: npm ci
@@ -50,7 +49,7 @@ jobs:
       - name: Build for gh-pages
         run: |
           npm run build
-          echo "boardwalk.swarm.city" > ./dist/CNAME
+          echo "{{ env.CNAME }}" > ./dist/CNAME
           cp ./dist/index.html ./dist/404.html
 
       - name: Setup Pages
