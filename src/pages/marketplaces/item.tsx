@@ -49,6 +49,7 @@ import { Reply as ReplyUI } from '../../ui/components/reply'
 import { formatName, formatMoney } from '../../ui/utils'
 import { Reply, User } from '../../ui/types'
 import { ErrorModal } from '../../ui/components/error-modal'
+import { InDeal } from '../../ui/components/in-deal'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -298,31 +299,7 @@ const PayoutItem = ({
 	}
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				justifyContent: 'center',
-				textAlign: 'center',
-				backgroundColor: getColor('green'),
-				padding: 30,
-			}}
-		>
-			<div style={{ position: 'relative', width: '100%' }}>
-				<div
-					style={{
-						position: 'absolute',
-						bottom: 0,
-						right: 46,
-					}}
-				>
-					<IconButton variant="chat" />
-				</div>
-			</div>
-			<Typography variant="body-bold-16" color="white">
-				You're in a deal!
-			</Typography>
+		<InDeal>
 			<Button
 				style={{ marginTop: 30 }}
 				size="large"
@@ -333,7 +310,7 @@ const PayoutItem = ({
 			>
 				payout
 			</Button>
-		</div>
+		</InDeal>
 	)
 }
 
@@ -811,6 +788,7 @@ export const MarketplaceItem = () => {
 							user={store.request.seeker.address ?? 'unknown'}
 						/>
 					)}
+					{isSelectedReplyMyReply && status === Status.Funded && <InDeal />}
 					{status === Status.Open &&
 						!isMyRequest &&
 						!isReplying &&
@@ -841,7 +819,7 @@ export const MarketplaceItem = () => {
 						</Button>
 					</div>
 				)}
-				{isMyRequest && status === Status.Funded && (
+				{(isMyRequest || isSelectedReplyMyReply) && status === Status.Funded && (
 					<div
 						style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}
 					>
