@@ -50,6 +50,7 @@ import { formatName, formatMoney } from '../../ui/utils'
 import { Reply, User } from '../../ui/types'
 import { ErrorModal } from '../../ui/components/error-modal'
 import { InDeal } from '../../ui/components/in-deal'
+import { PaymentDetail } from '../../ui/components/payment-detail'
 
 const Statuses = {
 	[Status.None]: 'None',
@@ -461,6 +462,24 @@ export const MarketplaceItem = () => {
 	const [selectedReply, setSelectedReply] = useState<Reply | undefined>()
 
 	const selectedReplyItemClean = replies.find((r) => r.from === provider)
+	const seeker: User | undefined = item?.owner
+		? {
+				address: item.owner,
+				reputation: item?.seekerRep.toBigInt() ?? 0n,
+		  }
+		: undefined
+	const providerUser: User | undefined = chainItem.item?.providerAddress
+		? {
+				address: chainItem.item.providerAddress,
+				reputation: chainItem.item?.providerRep ?? 0n,
+		  }
+		: undefined
+	const user: User | undefined = address
+		? {
+				address: address,
+				reputation: 0n,
+		  }
+		: undefined
 	const store = {
 		marketplace: {
 			id,
@@ -487,18 +506,10 @@ export const MarketplaceItem = () => {
 					  } as Reply)
 					: undefined),
 			replies: replies,
-			seeker: {
-				address: item?.owner,
-				reputation: item?.seekerRep,
-			},
-			provider: {
-				address: chainItem.item?.providerAddress,
-				reputation: chainItem.item?.providerRep,
-			},
+			seeker,
+			provider: providerUser,
 		},
-		user: {
-			address,
-		},
+		user,
 	}
 
 	const [loadingSelectProvider, setLoadingSelectProvider] = useState(false)
@@ -566,8 +577,8 @@ export const MarketplaceItem = () => {
 	const { status } = chainItem.item
 
 	const isSelectedReplyMyReply =
-		store.request.selectedReply?.user.address === store.user.address
-	const isMyRequest = store.request.seeker.address === store.user.address
+		store.request.selectedReply?.user.address === store.user?.address
+	const isMyRequest = store.request.seeker?.address === store.user?.address
 	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
 
 	return (
@@ -612,10 +623,10 @@ export const MarketplaceItem = () => {
 						title={store.request.description || ''}
 						date={store.request.date}
 						repliesCount={store.request.replies.length}
-						amount={formatMoney(store.request.price || 0n)}
+						amount={formatMoney(store.request.price ?? 0n)}
 						user={{
-							name: store.request.seeker.address || '',
-							reputation: store.request.seeker.reputation?.toNumber() || 0,
+							name: store.request.seeker?.address ?? '',
+							reputation: Number(store.request.seeker?.reputation ?? 0),
 						}}
 					/>
 				</div>
@@ -630,7 +641,8 @@ export const MarketplaceItem = () => {
 					}}
 				>
 					{store.request.selectedReply &&
-						(isSelectedReplyMyReply || isMyRequest) && (
+						(isSelectedReplyMyReply || isMyRequest) &&
+						status !== Status.Done && (
 							<>
 								{showSelectProviderBtn && (
 									<div
@@ -708,12 +720,50 @@ export const MarketplaceItem = () => {
 							</>
 						)}
 
-					{status !== Status.Open && !isSelectedReplyMyReply && !isMyRequest && (
+					{status === Status.Done &&
+						store.request.seeker &&
+						store.request.provider &&
+						store.user && (
+							<div
+								style={{
+									padding: 30,
+									display: 'flex',
+									flexDirection: 'column',
+								}}
+							>
+								<Typography variant="small-light-12" color="grey2-light-text">
+									{new Date().toLocaleDateString()}
+								</Typography>
+								<Typography
+									variant="body-bold-16"
+									style={{ marginBottom: 20, marginTop: 10 }}
+								>
+									This deal has been completed.
+								</Typography>
+								<PaymentDetail
+									seeker={store.request.seeker}
+									provider={store.request.provider}
+									user={store.user}
+									marketplace={store.marketplace.name ?? ''}
+									amount={formatMoney(store.request.price ?? 0n)}
+									reputation={0}
+								/>
+								<Typography
+									color="blue"
+									variant="small-bold-12"
+									style={{ marginTop: 40, textDecoration: 'underline' }}
+								>
+									see this on ethplorer
+								</Typography>
+							</div>
+						)}
+
+					{status === Status.Funded && !isSelectedReplyMyReply && !isMyRequest && (
 						<div style={{ padding: 30, textAlign: 'center' }}>
 							{store.request.myReply && (
 								<>
 									<Typography variant="body-light-16">
-										{store.request.seeker.address} selected
+										{store.request.seeker?.address} selected
 									</Typography>{' '}
 									<Typography variant="body-bold-16">
 										a different provider.
@@ -723,7 +773,7 @@ export const MarketplaceItem = () => {
 							{!store.request.myReply && (
 								<>
 									<Typography variant="body-light-16">
-										{store.request.seeker.address} already selected
+										{store.request.seeker?.address} already selected
 									</Typography>{' '}
 									<Typography variant="body-bold-16">a provider.</Typography>
 								</>
@@ -741,9 +791,9 @@ export const MarketplaceItem = () => {
 										key={reply.signature}
 										reply={reply}
 										isMyRequest={
-											store.request.seeker.address === store.user.address
+											store.request.seeker?.address === store.user?.address
 										}
-										isMyReply={reply.from === store.user.address}
+										isMyReply={reply.from === store.user?.address}
 										amount={formatMoney(store.request.price ?? 0n)}
 										status={status}
 										setSelectedReply={setSelectedReply}
@@ -785,7 +835,7 @@ export const MarketplaceItem = () => {
 							marketplace={id}
 							item={itemId}
 							amount={formatMoney(store.request.price ?? 0n)}
-							user={store.request.seeker.address ?? 'unknown'}
+							user={store.request.seeker?.address ?? 'unknown'}
 						/>
 					)}
 					{isSelectedReplyMyReply && status === Status.Funded && <InDeal />}
