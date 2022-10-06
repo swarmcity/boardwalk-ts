@@ -58,7 +58,7 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 			}
 		>
 			<MarketplaceListingItem
-				title={item.metadata.description}
+				title={item.status + ' - ' + item.metadata.description}
 				repliesCount={0}
 				date={new Date(item.timestamp * 1000)}
 				amount={formatMoney(item.price, decimals)}
@@ -76,16 +76,14 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
 	return (
 		<>
-			{items
-				.filter(({ status }) => status === Status.Open)
-				.map((item) => (
-					<DisplayItem
-						key={item.id.toString()}
-						marketplace={marketplace}
-						decimals={decimals}
-						item={item}
-					/>
-				))}
+			{items.map((item) => (
+				<DisplayItem
+					key={item.id.toString()}
+					marketplace={marketplace}
+					decimals={decimals}
+					item={item}
+				/>
+			))}
 		</>
 	)
 }
