@@ -21,17 +21,20 @@ export function PaymentDetail({
 	amount,
 	reputation,
 	marketplace,
+	...props
 }: Props) {
 	const isSeeker = seeker.address === user.address
 	const isProvider = provider.address === user.address
 
 	return (
-		<div>
+		<div {...props}>
 			<div
 				style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
 			>
-				<Avatar size={25} avatar={seeker.avatar} />
-				<div style={{ display: 'flex', flexDirection: 'column' }}>
+				<Avatar size={40} avatar={seeker.avatar} />
+				<div
+					style={{ display: 'flex', flexDirection: 'column', marginLeft: 18 }}
+				>
 					<Typography variant="small-light-12">
 						{isSeeker ? 'You' : formatName(seeker)} paid {amount} DAI to{' '}
 						{isProvider ? 'you' : formatName(provider)}.
@@ -43,17 +46,24 @@ export function PaymentDetail({
 				</div>
 			</div>
 			<div
-				style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					alignItems: 'center',
+					marginTop: 30,
+				}}
 			>
-				<Avatar size={25} avatar={provider.avatar} />
-				<div style={{ display: 'flex', flexDirection: 'column' }}>
+				<Avatar size={40} avatar={provider.avatar} />
+				<div
+					style={{ display: 'flex', flexDirection: 'column', marginLeft: 18 }}
+				>
 					<Typography variant="small-light-12">
-						{isProvider ? 'You' : formatName(provider)} received {amount} DAI from{' '}
-						{isSeeker ? 'you' : formatName(seeker)}.
+						{isProvider ? 'You' : formatName(provider)} received {amount} DAI
+						from {isSeeker ? 'you' : formatName(seeker)}.
 					</Typography>
 					<Typography variant="small-light-12">
-						{isProvider ? 'You' : formatName(provider)} gained {reputation} SWR on{' '}
-						{marketplace}.
+						{isProvider ? 'You' : formatName(provider)} gained {reputation} SWR
+						on {marketplace}.
 					</Typography>
 				</div>
 			</div>
