@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAccount } from 'wagmi'
-import { MarketplaceListingItem, IconButton } from '@swarm-city/ui-library'
+import { IconButton } from '@swarm-city/ui-library'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
@@ -16,6 +16,7 @@ import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 // UI
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
+import { MarketplaceListingItem } from '../../ui/components/marketplace-listing-item'
 
 // Services
 import { useProfile } from '../../services/profile'
@@ -35,6 +36,17 @@ type DisplayItemsProps = {
 	marketplace: string
 	items: Item[]
 	decimals: number | undefined
+}
+
+function getStatus(status: Status): 'done' | 'open' | 'cancelled' {
+	switch (status) {
+		case Status.Done:
+			return 'done'
+		case Status.Cancelled:
+			return 'cancelled'
+		default:
+			return 'open'
+	}
 }
 
 const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
@@ -58,14 +70,17 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 			}
 		>
 			<MarketplaceListingItem
-				title={item.status + ' - ' + item.metadata.description}
+				title={item.metadata.description}
 				repliesCount={0}
 				date={new Date(item.timestamp * 1000)}
 				amount={formatMoney(item.price, decimals)}
+				status={getStatus(item.status)}
+				onClickUser={() => {}}
+				isMyListing={item.owner === address}
 				user={{
-					name: formatFrom(item.owner, profile?.username),
-					reputation: item.seekerRep.toNumber(),
-					myself: item.owner === address,
+					address: item.owner,
+					name: profile?.username,
+					reputation: item.seekerRep.toBigInt(),
 					avatar,
 				}}
 			/>
