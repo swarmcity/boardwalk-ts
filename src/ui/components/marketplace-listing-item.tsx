@@ -1,26 +1,35 @@
-import { UserInfo } from '@swarm-city/ui-library'
 import type { HTMLAttributes } from 'react'
 import { Avatar } from '../avatar'
 import { User } from '../types'
 import { Typography } from '../typography'
 import { formatDate, formatName } from '../utils'
+import iconReplies from '../assets/icon-replies.svg?url'
 
 interface MarketplaceListingItemProps extends HTMLAttributes<HTMLDivElement> {
 	title: string
 	repliesCount: number
 	date: Date
 	amount: number
-	user: User
+	seeker: User
+	provider?: User
 	isMyListing?: boolean
 	onClickUser: (user: User) => void
-	status: 'open' | 'done' | 'cancelled'
+	status:
+		| 'none'
+		| 'open'
+		| 'funded'
+		| 'complete'
+		| 'disputed'
+		| 'resolved'
+		| 'cancelled'
 }
 export const MarketplaceListingItem = ({
 	title,
 	repliesCount,
 	date,
 	amount,
-	user,
+	seeker,
+	provider,
 	isMyListing,
 	onClickUser,
 	status,
@@ -41,9 +50,12 @@ export const MarketplaceListingItem = ({
 			>
 				{title}
 			</Typography>
-			<Typography variant="small-bold-12" color="grey4">
-				{repliesCount}
-			</Typography>
+			<div>
+				<Typography variant="small-bold-12" color="grey4">
+					{repliesCount.toFixed()}
+				</Typography>
+				<img src={iconReplies} style={{ maxHeight: 25, maxWidth: 25 }} />
+			</div>
 		</div>
 		<Typography variant="small-light-10" color="grey2-light-text">
 			{formatDate(date)}
@@ -58,9 +70,10 @@ export const MarketplaceListingItem = ({
 		>
 			<div
 				onClick={(e) => {
-					if (isMyListing && onClickUser) {
+					if (!isMyListing && onClickUser) {
 						e.stopPropagation()
-						onClickUser(user)
+						e.preventDefault()
+						onClickUser(seeker)
 					}
 				}}
 				style={{
@@ -70,7 +83,14 @@ export const MarketplaceListingItem = ({
 					cursor: isMyListing ? 'default' : 'pointer',
 				}}
 			>
-				<Avatar avatar={user.avatar} size={25} />
+				<Avatar avatar={seeker.avatar} size={25} style={{ zIndex: 1 }} />
+				{status !== 'open' && (
+					<Avatar
+						avatar={provider?.avatar}
+						size={25}
+						style={{ marginLeft: -10, zIndex: 0 }}
+					/>
+				)}
 				{status === 'open' && (
 					<Typography
 						variant="small-bold-12"
@@ -78,26 +98,17 @@ export const MarketplaceListingItem = ({
 						style={{ marginLeft: 8 }}
 					>
 						<>
-							{formatName(user)} • {user.reputation} SWT
+							{formatName(seeker)} • {seeker.reputation} SWT
 						</>
 					</Typography>
 				)}
-				{status === 'cancelled' && (
+				{status !== 'open' && (
 					<Typography
 						variant="small-bold-12"
 						color="grey4"
 						style={{ marginLeft: 8 }}
 					>
-						Deal canceled.
-					</Typography>
-				)}
-				{status === 'done' && (
-					<Typography
-						variant="small-bold-12"
-						color="grey4"
-						style={{ marginLeft: 8 }}
-					>
-						Deal complete.
+						Deal {status}.
 					</Typography>
 				)}
 			</div>

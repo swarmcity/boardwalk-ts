@@ -11,7 +11,7 @@ import {
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
-import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
+import { Item, useMarketplaceItems } from './services/marketplace-items'
 
 // UI
 import { Container } from '../../ui/container'
@@ -23,8 +23,8 @@ import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
 
 // Lib
-import { formatFrom } from '../../lib/tools'
 import { formatMoney } from '../../ui/utils'
+import { getStatus } from '../../types'
 
 type DisplayItemProps = {
 	marketplace: string
@@ -36,17 +36,6 @@ type DisplayItemsProps = {
 	marketplace: string
 	items: Item[]
 	decimals: number | undefined
-}
-
-function getStatus(status: Status): 'done' | 'open' | 'cancelled' {
-	switch (status) {
-		case Status.Done:
-			return 'done'
-		case Status.Cancelled:
-			return 'cancelled'
-		default:
-			return 'open'
-	}
 }
 
 const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
@@ -75,9 +64,9 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 				date={new Date(item.timestamp * 1000)}
 				amount={formatMoney(item.price, decimals)}
 				status={getStatus(item.status)}
-				onClickUser={() => {}}
+				onClickUser={() => navigate(`/user/${item.owner}`)}
 				isMyListing={item.owner === address}
-				user={{
+				seeker={{
 					address: item.owner,
 					name: profile?.username,
 					reputation: item.seekerRep.toBigInt(),

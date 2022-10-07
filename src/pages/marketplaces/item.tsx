@@ -52,16 +52,6 @@ import { ErrorModal } from '../../ui/components/error-modal'
 import { InDeal } from '../../ui/components/in-deal'
 import { PaymentDetail } from '../../ui/components/payment-detail'
 
-const Statuses = {
-	[Status.None]: 'None',
-	[Status.Open]: 'Open',
-	[Status.Funded]: 'Funded',
-	[Status.Done]: 'Done',
-	[Status.Disputed]: 'Disputed',
-	[Status.Resolved]: 'Resolved',
-	[Status.Cancelled]: 'Cancelled',
-}
-
 type ReplyFormProps = {
 	item: Item
 	marketplace: string
@@ -491,7 +481,7 @@ export const MarketplaceItem = () => {
 			price: item?.price,
 			description: item?.metadata.description,
 			date: item?.timestamp ? new Date(item?.timestamp) : new Date(),
-			status: chainItem && chainItem.item && Statuses[chainItem.item?.status],
+			status: chainItem.item?.status,
 			fee: item?.fee,
 			myReply: replies.find((r) => r.from === address),
 			selectedReply:
@@ -751,7 +741,10 @@ export const MarketplaceItem = () => {
 								<Typography
 									color="blue"
 									variant="small-bold-12"
-									style={{ marginTop: 40, textDecoration: 'underline' }}
+									style={{
+										marginTop: 40,
+										textDecoration: `2px underline dotted ${getColor('blue')}`,
+									}}
 								>
 									see this on ethplorer
 								</Typography>
