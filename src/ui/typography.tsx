@@ -17,6 +17,7 @@ interface Props extends HTMLAttributes<HTMLSpanElement> {
 		| 'body-light-16'
 		| 'small-bold-12'
 		| 'small-light-12'
+		| 'small-bold-10'
 		| 'small-light-10'
 	color?: Colors
 	textAlign?: 'center' | 'left' | 'right' | 'justify' | 'initial' | 'inherit'
@@ -247,6 +248,24 @@ export function Typography({
 						fontFamily: 'Montserrat',
 						fontStyle: 'normal',
 						fontWeight: 300,
+						fontSize: 10,
+						color,
+						textAlign,
+						...style,
+					}}
+					{...props}
+				>
+					{children}
+				</span>
+			)
+
+		case 'small-bold-10':
+			return (
+				<span
+					style={{
+						fontFamily: 'Montserrat',
+						fontStyle: 'normal',
+						fontWeight: 700,
 						fontSize: 10,
 						color,
 						textAlign,

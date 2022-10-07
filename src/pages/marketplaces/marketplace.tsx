@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAccount } from 'wagmi'
-import { MarketplaceListingItem, IconButton } from '@swarm-city/ui-library'
+import { IconButton } from '@swarm-city/ui-library'
 
 // Routes
 import { MARKETPLACE_ADD } from '../../routes'
@@ -11,19 +11,20 @@ import {
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
-import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
+import { Item, useMarketplaceItems } from './services/marketplace-items'
 
 // UI
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
+import { MarketplaceListingItem } from '../../ui/components/marketplace-listing-item'
 
 // Services
 import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
 
 // Lib
-import { formatFrom } from '../../lib/tools'
 import { formatMoney } from '../../ui/utils'
+import { getStatus } from '../../types'
 
 type DisplayItemProps = {
 	marketplace: string
@@ -62,10 +63,13 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 				repliesCount={0}
 				date={new Date(item.timestamp * 1000)}
 				amount={formatMoney(item.price, decimals)}
-				user={{
-					name: formatFrom(item.owner, profile?.username),
-					reputation: item.seekerRep.toNumber(),
-					myself: item.owner === address,
+				status={getStatus(item.status)}
+				onClickUser={() => navigate(`/user/${item.owner}`)}
+				isMyListing={item.owner === address}
+				seeker={{
+					address: item.owner,
+					name: profile?.username,
+					reputation: item.seekerRep.toBigInt(),
 					avatar,
 				}}
 			/>
@@ -76,16 +80,14 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
 	return (
 		<>
-			{items
-				.filter(({ status }) => status === Status.Open)
-				.map((item) => (
-					<DisplayItem
-						key={item.id.toString()}
-						marketplace={marketplace}
-						decimals={decimals}
-						item={item}
-					/>
-				))}
+			{items.map((item) => (
+				<DisplayItem
+					key={item.id.toString()}
+					marketplace={marketplace}
+					decimals={decimals}
+					item={item}
+				/>
+			))}
 		</>
 	)
 }
