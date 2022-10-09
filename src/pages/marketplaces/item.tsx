@@ -24,9 +24,6 @@ import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
 import { cancelItem, fundItem, payoutItem } from '../../services/item'
 
-// Assets
-import avatarDefault from '../../assets/imgs/avatar.svg?url'
-
 // Protos
 import {
 	createSelectProvider,
@@ -39,7 +36,6 @@ import {
 	FullscreenLoading,
 	IconButton,
 	Input,
-	RequestItem,
 } from '@swarm-city/ui-library'
 import { useStore } from '../../store'
 import { Container } from '../../ui/container'
@@ -51,6 +47,8 @@ import { Reply, User } from '../../ui/types'
 import { ErrorModal } from '../../ui/components/error-modal'
 import { InDeal } from '../../ui/components/in-deal'
 import { PaymentDetail } from '../../ui/components/payment-detail'
+import { Avatar } from '../../ui/avatar'
+import { Request } from '../../ui/components/request'
 
 type ReplyFormProps = {
 	item: Item
@@ -116,15 +114,12 @@ const ReplyForm = ({
 				}}
 			>
 				<div>
-					<img
+					<Avatar
+						size={40}
+						avatar={profile?.avatar}
 						style={{
-							width: 40,
-							height: 'auto',
-							borderRadius: '50%',
 							margin: '0 12px 0 0',
-							borderStyle: 'none',
 						}}
-						src={profile?.avatar ?? avatarDefault}
 					/>
 				</div>
 				<div
@@ -530,7 +525,7 @@ export const MarketplaceItem = () => {
 		location.reload()
 	}
 
-	if (!item || !chainItem.item) {
+	if (!item || !chainItem.item || !store.request.seeker) {
 		const text =
 			loading || waiting || chainItem.loading
 				? 'Loading...'
@@ -571,6 +566,8 @@ export const MarketplaceItem = () => {
 	const isMyRequest = store.request.seeker?.address === store.user?.address
 	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
 
+	console.log(store.request.status)
+
 	return (
 		<Container>
 			<div
@@ -608,16 +605,14 @@ export const MarketplaceItem = () => {
 							onClick={() => navigate(`/marketplace/${id}`)}
 						/>
 					</div>
-					<RequestItem
+					<Request
 						detail
 						title={store.request.description || ''}
 						date={store.request.date}
 						repliesCount={store.request.replies.length}
 						amount={formatMoney(store.request.price ?? 0n)}
-						user={{
-							name: store.request.seeker?.address ?? '',
-							reputation: Number(store.request.seeker?.reputation ?? 0),
-						}}
+						seeker={store.request.seeker}
+						onClickUser={(user) => navigate(`/user/${user.address}`)}
 					/>
 				</div>
 				<div

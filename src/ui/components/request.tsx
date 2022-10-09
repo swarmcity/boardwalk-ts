@@ -5,7 +5,7 @@ import { Typography } from '../typography'
 import { formatDate, formatName } from '../utils'
 import iconReplies from '../assets/icon-replies.svg?url'
 
-interface MarketplaceListingItemProps extends HTMLAttributes<HTMLDivElement> {
+interface RequestProps extends HTMLAttributes<HTMLDivElement> {
 	title: string
 	repliesCount: number
 	date: Date
@@ -13,8 +13,9 @@ interface MarketplaceListingItemProps extends HTMLAttributes<HTMLDivElement> {
 	seeker: User
 	provider?: User
 	isMyListing?: boolean
+	detail?: boolean
 	onClickUser: (user: User) => void
-	status:
+	status?:
 		| 'none'
 		| 'open'
 		| 'funded'
@@ -23,7 +24,7 @@ interface MarketplaceListingItemProps extends HTMLAttributes<HTMLDivElement> {
 		| 'resolved'
 		| 'cancelled'
 }
-export const MarketplaceListingItem = ({
+export const Request = ({
 	title,
 	repliesCount,
 	date,
@@ -32,8 +33,9 @@ export const MarketplaceListingItem = ({
 	provider,
 	isMyListing,
 	onClickUser,
+	detail,
 	status,
-}: MarketplaceListingItemProps) => (
+}: RequestProps) => (
 	<div>
 		<div
 			style={{
@@ -44,18 +46,20 @@ export const MarketplaceListingItem = ({
 			}}
 		>
 			<Typography
-				variant="body-extra-light-18"
+				variant={detail ? 'body-extra-light-20' : 'body-extra-light-18'}
 				color="grey4"
 				style={{ flexBasis: '75%', fontSize: 20, margin: 0 }}
 			>
 				{title}
 			</Typography>
-			<div>
-				<Typography variant="small-bold-12" color="grey4">
-					{repliesCount.toFixed()}
-				</Typography>
-				<img src={iconReplies} style={{ maxHeight: 25, maxWidth: 25 }} />
-			</div>
+			{!detail && (
+				<div>
+					<Typography variant="small-bold-12" color="grey4">
+						{repliesCount.toFixed()}
+					</Typography>
+					<img src={iconReplies} style={{ maxHeight: 25, maxWidth: 25 }} />
+				</div>
+			)}
 		</div>
 		<Typography variant="small-light-10" color="grey2-light-text">
 			{formatDate(date)}
@@ -70,9 +74,9 @@ export const MarketplaceListingItem = ({
 		>
 			<div
 				onClick={(e) => {
-					if (!isMyListing && onClickUser) {
-						e.stopPropagation()
-						e.preventDefault()
+					e.stopPropagation()
+					e.preventDefault()
+					if (!isMyListing && (status === 'open' || detail) && onClickUser) {
 						onClickUser(seeker)
 					}
 				}}
@@ -80,18 +84,25 @@ export const MarketplaceListingItem = ({
 					display: 'flex',
 					flexDirection: 'row',
 					alignItems: 'center',
-					cursor: isMyListing ? 'default' : 'pointer',
+					cursor:
+						isMyListing || (status !== 'open' && !detail)
+							? 'default'
+							: 'pointer',
 				}}
 			>
-				<Avatar avatar={seeker.avatar} size={25} style={{ zIndex: 1 }} />
-				{status !== 'open' && (
+				<Avatar
+					avatar={seeker.avatar}
+					size={detail ? 40 : 25}
+					style={{ zIndex: 1 }}
+				/>
+				{status !== 'open' && !detail && (
 					<Avatar
 						avatar={provider?.avatar}
 						size={25}
 						style={{ marginLeft: -10, zIndex: 0 }}
 					/>
 				)}
-				{status === 'open' && (
+				{(status === 'open' || detail) && (
 					<Typography
 						variant="small-bold-12"
 						color={isMyListing ? 'grey4' : 'blue'}
@@ -102,7 +113,7 @@ export const MarketplaceListingItem = ({
 						</>
 					</Typography>
 				)}
-				{status !== 'open' && (
+				{status !== 'open' && !detail && (
 					<Typography
 						variant="small-bold-12"
 						color="grey4"
