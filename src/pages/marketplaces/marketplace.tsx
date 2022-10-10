@@ -16,7 +16,7 @@ import { Item, useMarketplaceItems } from './services/marketplace-items'
 // UI
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
-import { MarketplaceListingItem } from '../../ui/components/marketplace-listing-item'
+import { Request } from '../../ui/components/request'
 
 // Services
 import { useProfile } from '../../services/profile'
@@ -58,7 +58,7 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 				navigate(`/marketplace/${marketplace}/item/${item.id.toString()}`)
 			}
 		>
-			<MarketplaceListingItem
+			<Request
 				title={item.metadata.description}
 				repliesCount={0}
 				date={new Date(item.timestamp * 1000)}

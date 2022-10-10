@@ -1,7 +1,6 @@
 import { IconButton } from '@swarm-city/ui-library'
 import { useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import avatarDefault from '../../assets/imgs/avatar.svg?url'
 import { bufferToHex } from '../../lib/tools'
 import { useProfile } from '../../services/profile'
 import { useProfilePicture } from '../../services/profile-picture'
@@ -47,12 +46,10 @@ export function User() {
 	)
 
 	const avatar = useMemo(() => {
-		if (!picture) {
-			return avatarDefault
+		if (picture) {
+			const blob = new Blob([picture.data], { type: picture?.type })
+			return URL.createObjectURL(blob)
 		}
-
-		const blob = new Blob([picture.data], { type: picture?.type })
-		return URL.createObjectURL(blob)
 	}, [picture])
 
 	if (waiting || loading)
@@ -102,7 +99,7 @@ export function User() {
 							<IconButton variant="close" onClick={() => navigate(-1)} />
 						</div>
 					</div>
-					<Avatar style={{ marginTop: 96 }} avatar={avatar ?? avatarDefault} />
+					<Avatar style={{ marginTop: 96 }} avatar={avatar} />
 					<Typography variant="body-bold-16" style={{ marginTop: 17 }}>
 						{profile?.username}
 					</Typography>
