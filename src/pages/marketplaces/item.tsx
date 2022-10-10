@@ -450,6 +450,7 @@ export const MarketplaceItem = () => {
 
 	const chainItem = useMarketplaceItem(id, itemId)
 	const [isReplying, setIsReplying] = useState<boolean>(false)
+	const [error, setError] = useState<Error | undefined>()
 
 	// TODO: Replace this with a function that only fetches the appropriate item
 	const { loading, waiting, items, lastUpdate } = useMarketplaceItems(id)
@@ -556,6 +557,8 @@ export const MarketplaceItem = () => {
 			location.reload()
 		} catch (error) {
 			console.error(error)
+			setError(error as Error)
+			setLoadingSelectProvider(false)
 		}
 	}
 
@@ -580,6 +583,20 @@ export const MarketplaceItem = () => {
 					</Typography>
 				</div>
 			</Container>
+		)
+	}
+
+	if (error) {
+		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+	}
+
+	if (loadingSelectProvider) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">
+					Provider selection is being processed.
+				</Typography>
+			</FullscreenLoading>
 		)
 	}
 
@@ -809,7 +826,8 @@ export const MarketplaceItem = () => {
 
 					{status === Status.Open &&
 						!isSelectedReplyMyReply &&
-						!isMyRequest &&
+						!selectedReply &&
+						(!selectedProvider.data || !isMyRequest) &&
 						replies.length > 0 && (
 							<>
 								{store.request.replies.map((reply) => (

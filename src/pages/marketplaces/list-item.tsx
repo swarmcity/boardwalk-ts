@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { IconButton, Input, ConfirmModal } from '@swarm-city/ui-library'
+import {
+	IconButton,
+	Input,
+	ConfirmModal,
+	FullscreenLoading,
+} from '@swarm-city/ui-library'
 import { BigNumber } from 'ethers'
 
 // Hooks
@@ -17,6 +22,7 @@ import {
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
 import { formatMoney } from '../../ui/utils'
+import { ErrorModal } from '../../ui/components/error-modal'
 
 export const MarketplaceListItem = () => {
 	const { id } = useParams<string>()
@@ -33,23 +39,45 @@ export const MarketplaceListItem = () => {
 	const name = useMarketplaceName(id)
 	const config = useMarketplaceConfig(id, ['fee'])
 	const fee = formatMoney(BigNumber.from(config?.fee ?? 0n)) // TODO: instead of defaulting to 0 the page should be in loading state
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<Error | undefined>(undefined)
 
 	const submit = async (event: MouseEvent) => {
-		event.preventDefault()
+		try {
+			event.preventDefault()
 
-		if (!waku || !connector) {
-			// TODO: Error message
-			return
+			if (!waku || !connector) {
+				throw new Error('No account found or waku connection.')
+			}
+
+			if (!description || !price) {
+				throw new Error('Description or price was not provided.')
+			}
+
+			const signer = await connector.getSigner()
+			setLoading(true)
+
+			await createItem(waku, id, { price, description }, signer)
+			setLoading(false)
+
+			navigate(`/marketplace/${id}`)
+		} catch (err) {
+			console.log(err)
+			setError(err as Error)
+			setLoading(false)
 		}
+	}
 
-		if (!description || !price) {
-			// TODO: Error message
-			return
-		}
+	if (error) {
+		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+	}
 
-		await createItem(waku, id, { price, description }, connector)
-
-		navigate(`/marketplace/${id}`)
+	if (loading) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">Request is being processed.</Typography>
+			</FullscreenLoading>
+		)
 	}
 
 	return (
