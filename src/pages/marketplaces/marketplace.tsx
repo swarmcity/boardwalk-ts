@@ -21,15 +21,11 @@ import { Request } from '../../ui/components/request'
 
 // Services
 import { useProfile } from '../../services/profile'
-import {
-	useProfilePicture,
-	useProfilePictureURL,
-} from '../../services/profile-picture'
+import { useProfilePictureURL } from '../../services/profile-picture'
 
 // Lib
 import { formatMoney } from '../../ui/utils'
 import { getStatus } from '../../types'
-import { bufferToHex } from '../../lib/tools'
 import { User } from '../../ui/types'
 
 type DisplayItemProps = {
@@ -55,19 +51,9 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 	const chainItem = useMarketplaceItem(marketplace, item.id.toBigInt())
 
 	const providerProfile = useProfile(chainItem.item?.providerAddress)
-	const providerPicture = useProfilePicture(
+	const providerAvatar = useProfilePictureURL(
 		providerProfile.profile?.pictureHash
-			? bufferToHex(providerProfile.profile.pictureHash)
-			: ''
 	)
-	const providerAvatar = useMemo(() => {
-		if (providerPicture.picture) {
-			const blob = new Blob([providerPicture.picture.data], {
-				type: providerPicture.picture?.type,
-			})
-			return URL.createObjectURL(blob)
-		}
-	}, [providerPicture.picture])
 	const provider: User | undefined = chainItem.item?.providerAddress
 		? {
 				address: chainItem.item.providerAddress,

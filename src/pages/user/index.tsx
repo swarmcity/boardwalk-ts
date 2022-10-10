@@ -1,9 +1,7 @@
 import { IconButton } from '@swarm-city/ui-library'
-import { useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { bufferToHex } from '../../lib/tools'
 import { useProfile } from '../../services/profile'
-import { useProfilePicture } from '../../services/profile-picture'
+import { useProfilePictureURL } from '../../services/profile-picture'
 import { Avatar } from '../../ui/avatar'
 import { getColor } from '../../ui/colors'
 import { Container } from '../../ui/container'
@@ -41,16 +39,7 @@ export function User() {
 	}
 	const { profile, waiting, loading } = useProfile(id)
 
-	const { picture } = useProfilePicture(
-		profile?.pictureHash ? bufferToHex(profile.pictureHash) : ''
-	)
-
-	const avatar = useMemo(() => {
-		if (picture) {
-			const blob = new Blob([picture.data], { type: picture?.type })
-			return URL.createObjectURL(blob)
-		}
-	}, [picture])
+	const avatar = useProfilePictureURL(profile?.pictureHash)
 
 	if (waiting || loading)
 		return (

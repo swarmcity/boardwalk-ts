@@ -21,10 +21,7 @@ import {
 } from './services/marketplace-item'
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { useProfile } from '../../services/profile'
-import {
-	useProfilePicture,
-	useProfilePictureURL,
-} from '../../services/profile-picture'
+import { useProfilePictureURL } from '../../services/profile-picture'
 import { cancelItem, fundItem, payoutItem } from '../../services/item'
 
 // Protos
@@ -52,7 +49,6 @@ import { InDeal } from '../../ui/components/in-deal'
 import { PaymentDetail } from '../../ui/components/payment-detail'
 import { Avatar } from '../../ui/avatar'
 import { Request } from '../../ui/components/request'
-import { bufferToHex } from '../../lib/tools'
 
 type ReplyFormProps = {
 	item: Item
@@ -452,19 +448,7 @@ export const MarketplaceItem = () => {
 
 	const selectedReplyItemClean = replies.find((r) => r.from === provider)
 	const seekerProfile = useProfile(item?.owner)
-	const seekerPicture = useProfilePicture(
-		seekerProfile.profile?.pictureHash
-			? bufferToHex(seekerProfile.profile.pictureHash)
-			: ''
-	)
-	const seekerAvatar = useMemo(() => {
-		if (seekerPicture.picture) {
-			const blob = new Blob([seekerPicture.picture.data], {
-				type: seekerPicture.picture?.type,
-			})
-			return URL.createObjectURL(blob)
-		}
-	}, [seekerPicture.picture])
+	const seekerAvatar = useProfilePictureURL(seekerProfile.profile?.pictureHash)
 	const seeker: User | undefined = item?.owner
 		? {
 				address: item.owner,
@@ -475,19 +459,9 @@ export const MarketplaceItem = () => {
 		: undefined
 
 	const providerProfile = useProfile(chainItem.item?.providerAddress)
-	const providerPicture = useProfilePicture(
+	const providerAvatar = useProfilePictureURL(
 		providerProfile.profile?.pictureHash
-			? bufferToHex(providerProfile.profile.pictureHash)
-			: ''
 	)
-	const providerAvatar = useMemo(() => {
-		if (providerPicture.picture) {
-			const blob = new Blob([providerPicture.picture.data], {
-				type: providerPicture.picture?.type,
-			})
-			return URL.createObjectURL(blob)
-		}
-	}, [providerPicture.picture])
 	const providerUser: User | undefined = chainItem.item?.providerAddress
 		? {
 				address: chainItem.item.providerAddress,
@@ -497,19 +471,7 @@ export const MarketplaceItem = () => {
 		  }
 		: undefined
 	const userProfile = useProfile(address)
-	const userPicture = useProfilePicture(
-		userProfile.profile?.pictureHash
-			? bufferToHex(userProfile.profile.pictureHash)
-			: ''
-	)
-	const userAvatar = useMemo(() => {
-		if (userPicture.picture) {
-			const blob = new Blob([userPicture.picture.data], {
-				type: userPicture.picture?.type,
-			})
-			return URL.createObjectURL(blob)
-		}
-	}, [userPicture.picture])
+	const userAvatar = useProfilePictureURL(userProfile.profile?.pictureHash)
 	const user: User | undefined = address
 		? {
 				address: address,
