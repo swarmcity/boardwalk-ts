@@ -88,6 +88,7 @@ const ReplyForm = ({
 			// FIXME: this is not correct way of doing it, but better than nothing for now
 			location.reload()
 		} catch (err) {
+			console.error(err)
 			setError(err as Error)
 			setLoading(false)
 		}
@@ -352,6 +353,7 @@ const FundDeal = ({
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
+			setLoading(false)
 		}
 	}
 	if (error) {
