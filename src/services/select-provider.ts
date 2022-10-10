@@ -68,10 +68,9 @@ const toArray = <Condition extends boolean>(
 
 export const createSelectProvider = async (
 	waku: Waku,
-	connector: { getSigner: () => Promise<Signer> },
+	signer: Signer,
 	data: CreateSelectProvider
 ) => {
-	const signer = await connector.getSigner()
 	const topic = getSelectProviderTopic(data.marketplace.address, data.item)
 
 	const formatMarketplace = <Condition extends boolean>(array: Condition) => ({

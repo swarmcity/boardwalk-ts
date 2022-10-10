@@ -71,11 +71,8 @@ export const createItem = async (
 	waku: Waku,
 	marketplace: string,
 	{ price, description }: CreateItem,
-	connector: { getSigner: () => Promise<Signer> }
+	signer: Signer
 ) => {
-	// Get signer
-	const signer = await connector.getSigner()
-
 	// Create the metadata
 	const metadata = ItemMetadata.encode({ description })
 	const hash = await crypto.subtle.digest('SHA-256', metadata)
