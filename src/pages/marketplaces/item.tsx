@@ -447,22 +447,37 @@ export const MarketplaceItem = () => {
 	const [selectedReply, setSelectedReply] = useState<Reply | undefined>()
 
 	const selectedReplyItemClean = replies.find((r) => r.from === provider)
+	const seekerProfile = useProfile(item?.owner)
+	const seekerAvatar = useProfilePictureURL(seekerProfile.profile?.pictureHash)
 	const seeker: User | undefined = item?.owner
 		? {
 				address: item.owner,
 				reputation: item?.seekerRep.toBigInt() ?? 0n,
+				name: seekerProfile.profile?.username,
+				avatar: seekerAvatar,
 		  }
 		: undefined
+
+	const providerProfile = useProfile(chainItem.item?.providerAddress)
+	const providerAvatar = useProfilePictureURL(
+		providerProfile.profile?.pictureHash
+	)
 	const providerUser: User | undefined = chainItem.item?.providerAddress
 		? {
 				address: chainItem.item.providerAddress,
 				reputation: chainItem.item?.providerRep ?? 0n,
+				name: providerProfile.profile?.username,
+				avatar: providerAvatar,
 		  }
 		: undefined
+	const userProfile = useProfile(address)
+	const userAvatar = useProfilePictureURL(userProfile.profile?.pictureHash)
 	const user: User | undefined = address
 		? {
 				address: address,
 				reputation: 0n,
+				name: userProfile.profile?.username,
+				avatar: userAvatar,
 		  }
 		: undefined
 	const store = {
@@ -749,7 +764,7 @@ export const MarketplaceItem = () => {
 							{store.request.myReply && (
 								<>
 									<Typography variant="body-light-16">
-										{store.request.seeker?.address} selected
+										{formatName(store.request.seeker)} selected
 									</Typography>{' '}
 									<Typography variant="body-bold-16">
 										a different provider.
@@ -759,7 +774,7 @@ export const MarketplaceItem = () => {
 							{!store.request.myReply && (
 								<>
 									<Typography variant="body-light-16">
-										{store.request.seeker?.address} already selected
+										{formatName(store.request.seeker)} already selected
 									</Typography>{' '}
 									<Typography variant="body-bold-16">a provider.</Typography>
 								</>

@@ -8,6 +8,7 @@ import { MARKETPLACE_ADD } from '../../routes'
 
 // Services
 import {
+	useMarketplaceItem,
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
@@ -25,6 +26,7 @@ import { useProfilePictureURL } from '../../services/profile-picture'
 // Lib
 import { formatMoney } from '../../ui/utils'
 import { getStatus } from '../../types'
+import { User } from '../../ui/types'
 
 type DisplayItemProps = {
 	marketplace: string
@@ -45,6 +47,21 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 	// Profile
 	const { profile } = useProfile(item.owner)
 	const avatar = useProfilePictureURL(profile?.pictureHash)
+
+	const chainItem = useMarketplaceItem(marketplace, item.id.toBigInt())
+
+	const providerProfile = useProfile(chainItem.item?.providerAddress)
+	const providerAvatar = useProfilePictureURL(
+		providerProfile.profile?.pictureHash
+	)
+	const provider: User | undefined = chainItem.item?.providerAddress
+		? {
+				address: chainItem.item.providerAddress,
+				reputation: chainItem.item?.providerRep ?? 0n,
+				name: providerProfile.profile?.username,
+				avatar: providerAvatar,
+		  }
+		: undefined
 
 	return (
 		<div
@@ -72,6 +89,7 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 					reputation: item.seekerRep.toBigInt(),
 					avatar,
 				}}
+				provider={provider}
 			/>
 		</div>
 	)
