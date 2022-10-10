@@ -566,8 +566,6 @@ export const MarketplaceItem = () => {
 	const isMyRequest = store.request.seeker?.address === store.user?.address
 	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
 
-	console.log(store.request.status)
-
 	return (
 		<Container>
 			<div
