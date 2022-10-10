@@ -66,6 +66,7 @@ const ReplyForm = ({
 	const [text, setText] = useState('')
 	const [profile] = useStore.profile()
 	const [error, setError] = useState<Error | undefined>()
+	const [loading, setLoading] = useState(false)
 
 	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
@@ -79,17 +80,29 @@ const ReplyForm = ({
 		}
 
 		try {
-			await createReply(waku, marketplace, item.id, { text }, connector)
+			const signer = await connector.getSigner()
+			setLoading(true)
+			await createReply(waku, marketplace, item.id, { text }, signer)
 			setText('')
+			setLoading(false)
 			// FIXME: this is not correct way of doing it, but better than nothing for now
 			location.reload()
-		} catch (e) {
-			setError(e as Error)
+		} catch (err) {
+			setError(err as Error)
+			setLoading(false)
 		}
 	}
 
 	if (error) {
 		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+	}
+
+	if (loading) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">Posting your reply.</Typography>
+			</FullscreenLoading>
+		)
 	}
 
 	return (
@@ -234,20 +247,20 @@ const PayoutItem = ({
 			return
 		}
 
-		setLoading(true)
 		setSuccess(false)
 
 		try {
-			await payoutItem(connector, marketplace, item)
+			const signer = await connector.getSigner()
+			setLoading(true)
+			await payoutItem(signer, marketplace, item)
 			setSuccess(true)
-			setError(undefined)
-		} catch (err) {
-			console.error(err)
-			setError(err as Error)
-		} finally {
 			setLoading(false)
 			// FIXME: this is not correct way of doing it, but better than nothing for now
 			location.reload()
+		} catch (err) {
+			console.error(err)
+			setError(err as Error)
+			setLoading(false)
 		}
 	}
 
@@ -329,18 +342,16 @@ const FundDeal = ({
 			return
 		}
 
-		setLoading(true)
-
 		try {
-			await fundItem(connector, marketplace, item, data?.signature)
-			setError(undefined)
-		} catch (err) {
-			console.error(err)
-			setError(err as Error)
-		} finally {
+			const signer = await connector.getSigner()
+			setLoading(true)
+			await fundItem(signer, marketplace, item, data?.signature)
 			setLoading(false)
 			// FIXME: this is not correct way of doing it, but better than nothing for now
 			location.reload()
+		} catch (err) {
+			console.error(err)
+			setError(err as Error)
 		}
 	}
 	if (error) {
@@ -520,24 +531,30 @@ export const MarketplaceItem = () => {
 	const { chain } = useNetwork()
 
 	const selectProvider = async () => {
-		if (!waku || !connector || !chain?.id || !name || !selectedReply) {
-			return
+		try {
+			if (!waku || !connector || !chain?.id || !name || !selectedReply) {
+				return
+			}
+
+			const signer = await connector.getSigner()
+
+			setLoadingSelectProvider(true)
+
+			await createSelectProvider(waku, signer, {
+				marketplace: {
+					address: id,
+					chainId: BigInt(chain.id),
+					name,
+				},
+				provider: selectedReply?.user.address,
+				item: itemId,
+			})
+
+			setLoadingSelectProvider(false)
+			location.reload()
+		} catch (error) {
+			console.error(error)
 		}
-
-		setLoadingSelectProvider(true)
-
-		await createSelectProvider(waku, connector, {
-			marketplace: {
-				address: id,
-				chainId: BigInt(chain.id),
-				name,
-			},
-			provider: selectedReply?.user.address,
-			item: itemId,
-		})
-
-		setLoadingSelectProvider(false)
-		location.reload()
 	}
 
 	if (!item || !chainItem.item || !store.request.seeker) {
@@ -566,12 +583,18 @@ export const MarketplaceItem = () => {
 
 	const canCancel = connector
 	const cancel = async () => {
-		if (!canCancel) {
-			throw new Error('no connector')
-		}
+		try {
+			if (!canCancel) {
+				throw new Error('no connector')
+			}
 
-		await cancelItem(connector, id, itemId)
-		navigate(`/marketplace/${id}`)
+			const signer = await connector.getSigner()
+
+			await cancelItem(signer, id, itemId)
+			navigate(`/marketplace/${id}`)
+		} catch (error) {
+			console.error()
+		}
 	}
 
 	const { status } = chainItem.item

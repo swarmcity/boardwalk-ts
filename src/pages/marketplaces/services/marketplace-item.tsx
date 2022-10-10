@@ -58,10 +58,9 @@ export const createReply = async (
 	marketplace: string,
 	item: BigNumber,
 	{ text }: CreateReply,
-	connector: { getSigner: () => Promise<Signer> }
+	signer: Signer
 ) => {
 	// Get signer
-	const signer = await connector.getSigner()
 	const from = await signer.getAddress()
 
 	if (!(signer instanceof Wallet)) {
