@@ -8,6 +8,7 @@ import { MARKETPLACE_ADD } from '../../routes'
 
 // Services
 import {
+	useMarketplaceItem,
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
 } from './services/marketplace'
@@ -20,11 +21,16 @@ import { Request } from '../../ui/components/request'
 
 // Services
 import { useProfile } from '../../services/profile'
-import { useProfilePictureURL } from '../../services/profile-picture'
+import {
+	useProfilePicture,
+	useProfilePictureURL,
+} from '../../services/profile-picture'
 
 // Lib
 import { formatMoney } from '../../ui/utils'
 import { getStatus } from '../../types'
+import { bufferToHex } from '../../lib/tools'
+import { User } from '../../ui/types'
 
 type DisplayItemProps = {
 	marketplace: string
@@ -45,6 +51,31 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 	// Profile
 	const { profile } = useProfile(item.owner)
 	const avatar = useProfilePictureURL(profile?.pictureHash)
+
+	const chainItem = useMarketplaceItem(marketplace, item.id.toBigInt())
+
+	const providerProfile = useProfile(chainItem.item?.providerAddress)
+	const providerPicture = useProfilePicture(
+		providerProfile.profile?.pictureHash
+			? bufferToHex(providerProfile.profile.pictureHash)
+			: ''
+	)
+	const providerAvatar = useMemo(() => {
+		if (providerPicture.picture) {
+			const blob = new Blob([providerPicture.picture.data], {
+				type: providerPicture.picture?.type,
+			})
+			return URL.createObjectURL(blob)
+		}
+	}, [providerPicture.picture])
+	const provider: User | undefined = chainItem.item?.providerAddress
+		? {
+				address: chainItem.item.providerAddress,
+				reputation: chainItem.item?.providerRep ?? 0n,
+				name: providerProfile.profile?.username,
+				avatar: providerAvatar,
+		  }
+		: undefined
 
 	return (
 		<div
@@ -72,6 +103,7 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 					reputation: item.seekerRep.toBigInt(),
 					avatar,
 				}}
+				provider={provider}
 			/>
 		</div>
 	)

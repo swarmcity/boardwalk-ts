@@ -48,8 +48,8 @@ const eip712Config: EIP712Config = {
 	},
 }
 
-export const getProfileTopic = (address: string) => {
-	return `/swarmcity/1/profile-${getAddress(address)}/proto`
+export const getProfileTopic = (address?: string) => {
+	return address ? `/swarmcity/1/profile-${getAddress(address)}/proto` : ''
 }
 
 export const createProfile = async (
@@ -84,7 +84,7 @@ const decodeMessage = (
 	)
 }
 
-export const useProfile = (address: string) => {
+export const useProfile = (address?: string) => {
 	const { data, ...state } = useLatestTopicData(
 		getProfileTopic(address),
 		decodeMessage

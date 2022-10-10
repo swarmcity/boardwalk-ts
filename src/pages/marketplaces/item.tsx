@@ -21,7 +21,10 @@ import {
 } from './services/marketplace-item'
 import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 import { useProfile } from '../../services/profile'
-import { useProfilePictureURL } from '../../services/profile-picture'
+import {
+	useProfilePicture,
+	useProfilePictureURL,
+} from '../../services/profile-picture'
 import { cancelItem, fundItem, payoutItem } from '../../services/item'
 
 // Protos
@@ -49,6 +52,7 @@ import { InDeal } from '../../ui/components/in-deal'
 import { PaymentDetail } from '../../ui/components/payment-detail'
 import { Avatar } from '../../ui/avatar'
 import { Request } from '../../ui/components/request'
+import { bufferToHex } from '../../lib/tools'
 
 type ReplyFormProps = {
 	item: Item
@@ -447,22 +451,71 @@ export const MarketplaceItem = () => {
 	const [selectedReply, setSelectedReply] = useState<Reply | undefined>()
 
 	const selectedReplyItemClean = replies.find((r) => r.from === provider)
+	const seekerProfile = useProfile(item?.owner)
+	const seekerPicture = useProfilePicture(
+		seekerProfile.profile?.pictureHash
+			? bufferToHex(seekerProfile.profile.pictureHash)
+			: ''
+	)
+	const seekerAvatar = useMemo(() => {
+		if (seekerPicture.picture) {
+			const blob = new Blob([seekerPicture.picture.data], {
+				type: seekerPicture.picture?.type,
+			})
+			return URL.createObjectURL(blob)
+		}
+	}, [seekerPicture.picture])
 	const seeker: User | undefined = item?.owner
 		? {
 				address: item.owner,
 				reputation: item?.seekerRep.toBigInt() ?? 0n,
+				name: seekerProfile.profile?.username,
+				avatar: seekerAvatar,
 		  }
 		: undefined
+
+	const providerProfile = useProfile(chainItem.item?.providerAddress)
+	const providerPicture = useProfilePicture(
+		providerProfile.profile?.pictureHash
+			? bufferToHex(providerProfile.profile.pictureHash)
+			: ''
+	)
+	const providerAvatar = useMemo(() => {
+		if (providerPicture.picture) {
+			const blob = new Blob([providerPicture.picture.data], {
+				type: providerPicture.picture?.type,
+			})
+			return URL.createObjectURL(blob)
+		}
+	}, [providerPicture.picture])
 	const providerUser: User | undefined = chainItem.item?.providerAddress
 		? {
 				address: chainItem.item.providerAddress,
 				reputation: chainItem.item?.providerRep ?? 0n,
+				name: providerProfile.profile?.username,
+				avatar: providerAvatar,
 		  }
 		: undefined
+	const userProfile = useProfile(address)
+	const userPicture = useProfilePicture(
+		userProfile.profile?.pictureHash
+			? bufferToHex(userProfile.profile.pictureHash)
+			: ''
+	)
+	const userAvatar = useMemo(() => {
+		if (userPicture.picture) {
+			const blob = new Blob([userPicture.picture.data], {
+				type: userPicture.picture?.type,
+			})
+			return URL.createObjectURL(blob)
+		}
+	}, [userPicture.picture])
 	const user: User | undefined = address
 		? {
 				address: address,
 				reputation: 0n,
+				name: userProfile.profile?.username,
+				avatar: userAvatar,
 		  }
 		: undefined
 	const store = {
@@ -749,7 +802,7 @@ export const MarketplaceItem = () => {
 							{store.request.myReply && (
 								<>
 									<Typography variant="body-light-16">
-										{store.request.seeker?.address} selected
+										{formatName(store.request.seeker)} selected
 									</Typography>{' '}
 									<Typography variant="body-bold-16">
 										a different provider.
@@ -759,7 +812,7 @@ export const MarketplaceItem = () => {
 							{!store.request.myReply && (
 								<>
 									<Typography variant="body-light-16">
-										{store.request.seeker?.address} already selected
+										{formatName(store.request.seeker)} already selected
 									</Typography>{' '}
 									<Typography variant="body-bold-16">a provider.</Typography>
 								</>
