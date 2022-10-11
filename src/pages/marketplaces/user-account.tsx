@@ -1,6 +1,6 @@
 import { useAccount, useBalance, useNetwork } from 'wagmi'
 import { Link, useNavigate } from 'react-router-dom'
-import type { HTMLAttributes, ReactNode } from 'react'
+import type { HTMLAttributes } from 'react'
 
 // Routes and store
 import { ACCOUNT_WALLET, LOGIN } from '../../routes'
@@ -8,9 +8,6 @@ import { useStore } from '../../store'
 
 // Components
 import { CreateAvatar } from '../../components/modals/create-avatar'
-
-// Assets
-import exit from '../../assets/imgs/exit.svg?url'
 
 // Services
 import { useSyncProfile } from '../../services/profile'
@@ -21,12 +18,10 @@ import { formatMoney, formatName } from '../../ui/utils'
 import { Plus } from '../../ui/icons/plus'
 import { getColor } from '../../ui/colors'
 
-interface Props extends HTMLAttributes<HTMLDivElement> {
-	rightAction?: ReactNode
-}
+type Props = HTMLAttributes<HTMLDivElement>
 
-export const UserAccount = ({ rightAction, style, ...props }: Props) => {
-	const [profile, setProfile] = useStore.profile()
+export const UserAccount = ({ children, style, ...props }: Props) => {
+	const [profile] = useStore.profile()
 	const navigate = useNavigate()
 
 	const { chain } = useNetwork()
@@ -105,17 +100,7 @@ export const UserAccount = ({ rightAction, style, ...props }: Props) => {
 						</div>
 					</div>
 				)}
-				{rightAction ? (
-					rightAction
-				) : (
-					<>
-						{profile && (
-							<div style={{ cursor: 'pointer' }} onClick={() => setProfile()}>
-								<img src={exit} />
-							</div>
-						)}
-					</>
-				)}
+				{children}
 			</div>
 		</Container>
 	)

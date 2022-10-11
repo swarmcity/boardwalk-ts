@@ -144,7 +144,7 @@ export const Marketplace = () => {
 		[lastUpdate]
 	)
 
-	const rightAction = (
+	const goBack = (
 		<div style={{ cursor: 'pointer' }} onClick={() => navigate(MARKETPLACES)}>
 			<Back size={18} />
 		</div>
@@ -153,7 +153,7 @@ export const Marketplace = () => {
 	if (waiting) {
 		return (
 			<>
-				<UserAccount rightAction={rightAction} />
+				<UserAccount>{goBack}</UserAccount>
 				<Container>
 					<Typography
 						variant="header-28"
@@ -172,7 +172,7 @@ export const Marketplace = () => {
 
 	return (
 		<>
-			<UserAccount rightAction={rightAction} />
+			<UserAccount>{goBack}</UserAccount>
 			<div style={{ position: 'fixed', right: 50, zIndex: 50, bottom: 60 }}>
 				<IconButton
 					variant="requestStart"
