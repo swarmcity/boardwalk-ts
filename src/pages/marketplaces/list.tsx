@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { MarketplaceItem, FullscreenLoading } from '@swarm-city/ui-library'
 
 // Routes and config
-import { MARKETPLACE } from '../../routes'
+import { HOME, MARKETPLACE } from '../../routes'
 
 // Services
 import {
@@ -11,6 +11,9 @@ import {
 } from './services/marketplace-list'
 import { useMarketplaceDealCount } from './services/marketplace'
 import { UserAccount } from './user-account'
+
+// Assets
+import exit from '../../assets/imgs/exit.svg?url'
 
 export const Item = ({ address, name }: MarketplaceListItem) => {
 	const navigate = useNavigate()
@@ -27,6 +30,7 @@ export const Item = ({ address, name }: MarketplaceListItem) => {
 
 export const MarketplaceList = () => {
 	const marketplaces = useMarketplaceListSync()
+	const navigate = useNavigate()
 
 	// TODO: Difference between loading and "empty marketplace"
 	if (!marketplaces) {
@@ -35,7 +39,11 @@ export const MarketplaceList = () => {
 
 	return (
 		<div>
-			<UserAccount />
+			<UserAccount>
+				<div style={{ cursor: 'pointer' }} onClick={() => navigate(HOME)}>
+					<img src={exit} />
+				</div>
+			</UserAccount>
 			{Object.values(marketplaces)
 				.filter(({ deleted }) => !deleted)
 				.map((marketplace) => (
