@@ -35,3 +35,8 @@ export interface Request {
 	seeker: User
 	provider?: User
 }
+
+export interface Icon {
+	fill?: string
+	size?: number
+}

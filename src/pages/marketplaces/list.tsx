@@ -10,6 +10,7 @@ import {
 	useMarketplaceListSync,
 } from './services/marketplace-list'
 import { useMarketplaceDealCount } from './services/marketplace'
+import { UserAccount } from './user-account'
 
 export const Item = ({ address, name }: MarketplaceListItem) => {
 	const navigate = useNavigate()
@@ -34,6 +35,7 @@ export const MarketplaceList = () => {
 
 	return (
 		<div>
+			<UserAccount />
 			{Object.values(marketplaces)
 				.filter(({ deleted }) => !deleted)
 				.map((marketplace) => (
