@@ -120,18 +120,19 @@ export const getMarketplaceTokenContract = async (
 	return new Contract(await contract.token(), erc20Abi, signerOrProvider)
 }
 
-export const useMarketplaceTokenContract = (marketplace: string) => {
-	const [token, setToken] = useState<Contract>()
+export const useMarketplaceTokenContract = (marketplace?: string) => {
+	const [token, setToken] = useState<Contract | undefined>()
 	const provider = useProvider()
 
 	useEffect(() => {
-		getMarketplaceTokenContract(marketplace, provider).then(setToken)
+		if (marketplace)
+			getMarketplaceTokenContract(marketplace, provider).then(setToken)
 	}, [marketplace, provider])
 
 	return token
 }
 
-export const useMarketplaceTokenDecimals = (address: string) => {
+export const useMarketplaceTokenDecimals = (address?: string) => {
 	const [loading, setLoading] = useState(true)
 	const [decimals, setDecimals] = useState<number | undefined>(undefined)
 
@@ -201,7 +202,7 @@ export const useMarketplaceDealCount = (marketplace: string) => {
 }
 
 export const useMarketplaceTokenName = (
-	address: string
+	address?: string
 ): string | undefined => {
 	const [name, setName] = useState<string | undefined>()
 
@@ -212,4 +213,19 @@ export const useMarketplaceTokenName = (
 	}, [token])
 
 	return name
+}
+
+export const useMarketplaceTokenBalanceOf = (
+	address?: string,
+	userAddress?: string
+): BigNumber | undefined => {
+	const [balance, setBalance] = useState<BigNumber | undefined>()
+
+	const token = useMarketplaceTokenContract(address)
+
+	useEffect(() => {
+		token?.balanceOf(userAddress).then(setBalance)
+	}, [token])
+
+	return balance
 }
