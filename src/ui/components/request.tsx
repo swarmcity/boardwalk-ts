@@ -95,9 +95,9 @@ export const Request = ({
 					size={detail ? 40 : 25}
 					style={{ zIndex: 1 }}
 				/>
-				{status !== 'open' && !detail && (
+				{status !== 'open' && !detail && provider && (
 					<Avatar
-						avatar={provider?.avatar}
+						avatar={provider.avatar}
 						size={25}
 						style={{ marginLeft: -10, zIndex: 0 }}
 					/>
