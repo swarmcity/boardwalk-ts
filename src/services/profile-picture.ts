@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { MessageV0 } from 'js-waku/lib/waku_message/version_0'
 
 // Types
 import type { WakuLight } from 'js-waku/lib/interfaces'
@@ -7,11 +8,7 @@ import type { WakuLight } from 'js-waku/lib/interfaces'
 import { ProfilePicture } from '../protos/profile-picture'
 
 // Services
-import {
-	postWakuMessage,
-	useLatestTopicData,
-	WakuMessageWithPayload,
-} from './waku'
+import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
 
 // Lib
 import { bufferToHex } from '../lib/tools'
@@ -46,7 +43,7 @@ export const createProfilePicture = async (
 }
 
 const decodeMessage = (
-	message: WakuMessageWithPayload
+	message: WithPayload<MessageV0>
 ): ProfilePicture | false => {
 	try {
 		return ProfilePicture.decode(message.payload)

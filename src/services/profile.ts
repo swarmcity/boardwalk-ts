@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { getAddress } from '@ethersproject/address'
+import { MessageV0 } from 'js-waku/lib/waku_message/version_0'
 
 // Store
 import { setStore, useStore } from '../store'
@@ -14,11 +15,7 @@ import type { Profile } from '../types'
 import { Profile as ProfileProto } from '../protos/profile'
 
 // Services
-import {
-	postWakuMessage,
-	useLatestTopicData,
-	WakuMessageWithPayload,
-} from './waku'
+import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
 import { createProfilePicture } from './profile-picture'
 
@@ -72,7 +69,7 @@ export const createProfile = async (
 }
 
 const decodeMessage = (
-	message: WakuMessageWithPayload
+	message: WithPayload<MessageV0>
 ): ProfileProto | false => {
 	return decodeSignedPayload(
 		eip712Config,

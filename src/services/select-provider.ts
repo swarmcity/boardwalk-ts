@@ -1,5 +1,6 @@
 import { arrayify, hexlify } from '@ethersproject/bytes'
 import { getAddress } from '@ethersproject/address'
+import { MessageV0 } from 'js-waku/lib/waku_message/version_0'
 
 // Types
 import type { WakuLight } from 'js-waku/lib/interfaces'
@@ -9,11 +10,7 @@ import type { Signer } from 'ethers'
 import { SelectProvider } from '../protos/select-provider'
 
 // Services
-import {
-	postWakuMessage,
-	useLatestTopicData,
-	WakuMessageWithPayload,
-} from './waku'
+import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
 
 type Marketplace = {
@@ -102,7 +99,7 @@ export const createSelectProvider = async (
 }
 
 const decodeMessage = (
-	message: WakuMessageWithPayload
+	message: WithPayload<MessageV0>
 ): SelectProvider | false => {
 	return decodeSignedPayload(
 		(decoded) =>
