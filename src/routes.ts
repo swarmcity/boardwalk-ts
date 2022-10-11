@@ -13,5 +13,7 @@ export const ACCOUNT_PUBLIC_WALLET = '/account-public-wallet'
 export const MARKETPLACES = '/marketplace'
 export const MARKETPLACE = (id: string) => `/marketplace/${id}`
 export const MARKETPLACE_ADD = (id: string) => `/marketplace/${id}/add`
+export const MARKETPLACE_ITEM = (id: string, item: number | string) =>
+	`/marketplace/${id}/item/${item}`
 
 export const USER = (id: string) => `/user/${id}`

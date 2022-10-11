@@ -50,6 +50,7 @@ import { InDeal } from '../../ui/components/in-deal'
 import { PaymentDetail } from '../../ui/components/payment-detail'
 import { Avatar } from '../../ui/avatar'
 import { Request } from '../../ui/components/request'
+import { UserAccount } from './user-account'
 
 type ReplyFormProps = {
 	item: Item
@@ -586,20 +587,23 @@ export const MarketplaceItem = () => {
 				: 'Item not found...'
 
 		return (
-			<Container>
-				<div
-					style={{
-						flexGrow: 1,
-						marginLeft: 40,
-						marginRight: 40,
-						width: '100%',
-					}}
-				>
-					<Typography variant="header-28" color="grey4">
-						{text}
-					</Typography>
-				</div>
-			</Container>
+			<>
+				<UserAccount rightAction={<div />} />
+				<Container>
+					<div
+						style={{
+							flexGrow: 1,
+							marginLeft: 40,
+							marginRight: 40,
+							width: '100%',
+						}}
+					>
+						<Typography variant="header-28" color="grey4">
+							{text}
+						</Typography>
+					</div>
+				</Container>
+			</>
 		)
 	}
 
@@ -641,306 +645,326 @@ export const MarketplaceItem = () => {
 	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
 
 	return (
-		<Container>
-			<div
-				style={{
-					display: 'flex',
-					alignItems: 'stretch',
-					justifyContent: 'center',
-					flexDirection: 'column',
-					textAlign: 'left',
-				}}
-			>
-				<Typography
-					variant="header-28"
-					color="grey4"
-					style={{
-						marginLeft: 40,
-						marginRight: 40,
-					}}
-				>
-					{name ?? 'Loading...'}
-				</Typography>
+		<>
+			<UserAccount rightAction={<div />} />
+			<Container>
 				<div
 					style={{
-						backgroundColor: '#FAFAFA',
-						borderBottom: '1px dashed #DFDFDF',
-						position: 'relative',
-						padding: 30,
-						marginLeft: 10,
-						marginRight: 10,
+						display: 'flex',
+						alignItems: 'stretch',
+						justifyContent: 'center',
+						flexDirection: 'column',
+						textAlign: 'left',
 					}}
 				>
-					<div style={{ position: 'absolute', right: 15, top: 15 }}>
-						<IconButton
-							variant="close"
-							onClick={() => navigate(`/marketplace/${id}`)}
+					<Typography
+						variant="header-28"
+						color="grey4"
+						style={{
+							marginLeft: 40,
+							marginRight: 40,
+						}}
+					>
+						{name ?? 'Loading...'}
+					</Typography>
+					<div
+						style={{
+							backgroundColor: '#FAFAFA',
+							borderBottom: '1px dashed #DFDFDF',
+							position: 'relative',
+							padding: 30,
+							marginLeft: 10,
+							marginRight: 10,
+						}}
+					>
+						<div style={{ position: 'absolute', right: 15, top: 15 }}>
+							<IconButton
+								variant="close"
+								onClick={() => navigate(`/marketplace/${id}`)}
+							/>
+						</div>
+						<Request
+							detail
+							title={store.request.description || ''}
+							date={store.request.date}
+							repliesCount={store.request.replies.length}
+							amount={formatMoney(store.request.price ?? 0n)}
+							seeker={store.request.seeker}
+							onClickUser={(user) => navigate(`/user/${user.address}`)}
+							tokenName={store.marketplace.tokenName}
 						/>
 					</div>
-					<Request
-						detail
-						title={store.request.description || ''}
-						date={store.request.date}
-						repliesCount={store.request.replies.length}
-						amount={formatMoney(store.request.price ?? 0n)}
-						seeker={store.request.seeker}
-						onClickUser={(user) => navigate(`/user/${user.address}`)}
-						tokenName={store.marketplace.tokenName}
-					/>
-				</div>
-				<div
-					style={{
-						backgroundColor: getColor('white'),
-						boxShadow: '0px 1px 0px #DFDFDF',
-						borderTop: '1px dashed #DFDFDF',
-						position: 'relative',
-						marginLeft: 10,
-						marginRight: 10,
-					}}
-				>
-					{store.request.selectedReply &&
-						(isSelectedReplyMyReply || isMyRequest) &&
-						status !== Status.Done && (
-							<>
-								{showSelectProviderBtn && (
-									<div
-										style={{
-											backgroundColor: getColor('white'),
-											borderRadius: '50%',
-											width: 37,
-											height: 37,
-											boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											cursor: 'pointer',
-											marginLeft: 30,
-											marginTop: 30,
-										}}
-									>
-										<IconButton
-											variant="back"
-											onClick={() => setSelectedReply(undefined)}
-										/>
-									</div>
-								)}
-
-								<ReplyUI selected reply={store.request.selectedReply} />
-
-								{/* Show select provider button */}
-								{showSelectProviderBtn && (
-									<div
-										style={{
-											padding: 30,
-											backgroundColor: getColor('white'),
-											width: '100%',
-										}}
-									>
-										<Button
-											size="large"
-											onClick={selectProvider}
-											disabled={loadingSelectProvider}
-										>
-											select {formatName(store.request.selectedReply.user)}
-										</Button>
-									</div>
-								)}
-
-								{status === Status.Open &&
-									isMyRequest &&
-									selectedProvider.data && (
+					<div
+						style={{
+							backgroundColor: getColor('white'),
+							boxShadow: '0px 1px 0px #DFDFDF',
+							borderTop: '1px dashed #DFDFDF',
+							position: 'relative',
+							marginLeft: 10,
+							marginRight: 10,
+						}}
+					>
+						{store.request.selectedReply &&
+							(isSelectedReplyMyReply || isMyRequest) &&
+							status !== Status.Done && (
+								<>
+									{showSelectProviderBtn && (
 										<div
 											style={{
-												backgroundColor: getColor('blue'),
-												padding: 30,
+												backgroundColor: getColor('white'),
+												borderRadius: '50%',
+												width: 37,
+												height: 37,
+												boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
 												display: 'flex',
-												flexDirection: 'column',
 												alignItems: 'center',
 												justifyContent: 'center',
-												textAlign: 'center',
+												cursor: 'pointer',
+												marginLeft: 30,
+												marginTop: 30,
 											}}
 										>
-											<Typography variant="body-bold-16" color="white">
-												You selected{' '}
-												{formatName(store.request.selectedReply.user)} to make a
-												deal.
-											</Typography>
-											<Typography variant="small-light-12" color="white">
-												Waiting for{' '}
-												{formatName(store.request.selectedReply.user)} to
-												respond
-											</Typography>
-											<Button style={{ marginTop: 30 }} size="large">
-												unselect {formatName(store.request.selectedReply.user)}
+											<IconButton
+												variant="back"
+												onClick={() => setSelectedReply(undefined)}
+											/>
+										</div>
+									)}
+
+									<ReplyUI selected reply={store.request.selectedReply} />
+
+									{/* Show select provider button */}
+									{showSelectProviderBtn && (
+										<div
+											style={{
+												padding: 30,
+												backgroundColor: getColor('white'),
+												width: '100%',
+											}}
+										>
+											<Button
+												size="large"
+												onClick={selectProvider}
+												disabled={loadingSelectProvider}
+											>
+												select {formatName(store.request.selectedReply.user)}
 											</Button>
 										</div>
 									)}
-							</>
-						)}
 
-					{status === Status.Done &&
-						store.request.seeker &&
-						store.request.provider &&
-						store.user && (
-							<div
-								style={{
-									padding: 30,
-									display: 'flex',
-									flexDirection: 'column',
-								}}
-							>
-								<Typography variant="small-light-12" color="grey2-light-text">
-									{new Date().toLocaleDateString()}
-								</Typography>
-								<Typography
-									variant="body-bold-16"
-									style={{ marginBottom: 20, marginTop: 10 }}
-								>
-									This deal has been completed.
-								</Typography>
-								<PaymentDetail
-									seeker={store.request.seeker}
-									provider={store.request.provider}
-									user={store.user}
-									marketplace={store.marketplace.name ?? ''}
-									amount={formatMoney(store.request.price ?? 0n)}
-									reputation={0}
-									tokenName={store.marketplace.tokenName}
-								/>
-								<Typography
-									color="blue"
-									variant="small-bold-12"
+									{status === Status.Open &&
+										isMyRequest &&
+										selectedProvider.data && (
+											<div
+												style={{
+													backgroundColor: getColor('blue'),
+													padding: 30,
+													display: 'flex',
+													flexDirection: 'column',
+													alignItems: 'center',
+													justifyContent: 'center',
+													textAlign: 'center',
+												}}
+											>
+												<Typography variant="body-bold-16" color="white">
+													You selected{' '}
+													{formatName(store.request.selectedReply.user)} to make
+													a deal.
+												</Typography>
+												<Typography variant="small-light-12" color="white">
+													Waiting for{' '}
+													{formatName(store.request.selectedReply.user)} to
+													respond
+												</Typography>
+												<Button style={{ marginTop: 30 }} size="large">
+													unselect{' '}
+													{formatName(store.request.selectedReply.user)}
+												</Button>
+											</div>
+										)}
+								</>
+							)}
+
+						{status === Status.Done &&
+							store.request.seeker &&
+							store.request.provider &&
+							store.user && (
+								<div
 									style={{
-										marginTop: 40,
-										textDecoration: `2px underline dotted ${getColor('blue')}`,
+										padding: 30,
+										display: 'flex',
+										flexDirection: 'column',
 									}}
 								>
-									see this on ethplorer
-								</Typography>
-							</div>
-						)}
-
-					{status === Status.Funded && !isSelectedReplyMyReply && !isMyRequest && (
-						<div style={{ padding: 30, textAlign: 'center' }}>
-							{store.request.myReply && (
-								<>
-									<Typography variant="body-light-16">
-										{formatName(store.request.seeker)} selected
-									</Typography>{' '}
-									<Typography variant="body-bold-16">
-										a different provider.
+									<Typography variant="small-light-12" color="grey2-light-text">
+										{new Date().toLocaleDateString()}
 									</Typography>
-								</>
-							)}
-							{!store.request.myReply && (
-								<>
-									<Typography variant="body-light-16">
-										{formatName(store.request.seeker)} already selected
-									</Typography>{' '}
-									<Typography variant="body-bold-16">a provider.</Typography>
-								</>
-							)}
-						</div>
-					)}
-
-					{status === Status.Open &&
-						!isSelectedReplyMyReply &&
-						!selectedReply &&
-						(!selectedProvider.data || !isMyRequest) &&
-						replies.length > 0 && (
-							<>
-								{store.request.replies.map((reply) => (
-									<ReplyContainer
-										key={reply.signature}
-										reply={reply}
-										isMyRequest={
-											store.request.seeker?.address === store.user?.address
-										}
-										isMyReply={reply.from === store.user?.address}
+									<Typography
+										variant="body-bold-16"
+										style={{ marginBottom: 20, marginTop: 10 }}
+									>
+										This deal has been completed.
+									</Typography>
+									<PaymentDetail
+										seeker={store.request.seeker}
+										provider={store.request.provider}
+										user={store.user}
+										marketplace={store.marketplace.name ?? ''}
 										amount={formatMoney(store.request.price ?? 0n)}
-										status={status}
-										setSelectedReply={setSelectedReply}
+										reputation={0}
 										tokenName={store.marketplace.tokenName}
 									/>
-								))}
-							</>
-						)}
+									<Typography
+										color="blue"
+										variant="small-bold-12"
+										style={{
+											marginTop: 40,
+											textDecoration: `2px underline dotted ${getColor(
+												'blue'
+											)}`,
+										}}
+									>
+										see this on ethplorer
+									</Typography>
+								</div>
+							)}
 
-					{!store.request.selectedReply && replies.length === 0 && !isReplying && (
-						<div style={{ padding: 30, textAlign: 'center' }}>
-							<Typography variant="small-light-12" color="grey2-light-text">
-								No replies yet.
-							</Typography>
-						</div>
-					)}
+						{status === Status.Funded &&
+							!isSelectedReplyMyReply &&
+							!isMyRequest && (
+								<div style={{ padding: 30, textAlign: 'center' }}>
+									{store.request.myReply && (
+										<>
+											<Typography variant="body-light-16">
+												{formatName(store.request.seeker)} selected
+											</Typography>{' '}
+											<Typography variant="body-bold-16">
+												a different provider.
+											</Typography>
+										</>
+									)}
+									{!store.request.myReply && (
+										<>
+											<Typography variant="body-light-16">
+												{formatName(store.request.seeker)} already selected
+											</Typography>{' '}
+											<Typography variant="body-bold-16">
+												a provider.
+											</Typography>
+										</>
+									)}
+								</div>
+							)}
 
-					{status === Status.Open && !isMyRequest && isReplying && (
-						<div style={{ marginLeft: 30, marginRight: 0, marginBottom: 30 }}>
-							<ReplyForm
-								item={item}
-								marketplace={id}
-								decimals={decimals}
-								onCancel={() => setIsReplying(false)}
-							/>
-						</div>
-					)}
+						{status === Status.Open &&
+							!isSelectedReplyMyReply &&
+							!selectedReply &&
+							(!selectedProvider.data || !isMyRequest) &&
+							replies.length > 0 && (
+								<>
+									{store.request.replies.map((reply) => (
+										<ReplyContainer
+											key={reply.signature}
+											reply={reply}
+											isMyRequest={
+												store.request.seeker?.address === store.user?.address
+											}
+											isMyReply={reply.from === store.user?.address}
+											amount={formatMoney(store.request.price ?? 0n)}
+											status={status}
+											setSelectedReply={setSelectedReply}
+											tokenName={store.marketplace.tokenName}
+										/>
+									))}
+								</>
+							)}
 
-					{isSelectedReplyMyReply && status === Status.Open && (
-						<FundDeal
-							marketplace={id}
-							item={itemId}
-							data={selectedProvider.data}
-							amount={formatMoney(store.request.price ?? 0n)}
-							fee={formatMoney(store.request.fee?.toBigInt() ?? 0n)}
-						/>
-					)}
-					{isMyRequest && status === Status.Funded && (
-						<PayoutItem
-							marketplace={id}
-							item={itemId}
-							amount={formatMoney(store.request.price ?? 0n)}
-							user={store.request.seeker}
-						/>
-					)}
-					{isSelectedReplyMyReply && status === Status.Funded && <InDeal />}
-					{status === Status.Open &&
-						!isMyRequest &&
-						!isReplying &&
-						!store.request.myReply && (
-							<div
-								style={{
-									position: 'absolute',
-									bottom: -30,
-									right: 46,
-								}}
-							>
-								<IconButton
-									variant="reply"
-									onClick={() => {
-										setIsReplying(true)
-									}}
+						{!store.request.selectedReply &&
+							replies.length === 0 &&
+							!isReplying && (
+								<div style={{ padding: 30, textAlign: 'center' }}>
+									<Typography variant="small-light-12" color="grey2-light-text">
+										No replies yet.
+									</Typography>
+								</div>
+							)}
+
+						{status === Status.Open && !isMyRequest && isReplying && (
+							<div style={{ marginLeft: 30, marginRight: 0, marginBottom: 30 }}>
+								<ReplyForm
+									item={item}
+									marketplace={id}
+									decimals={decimals}
+									onCancel={() => setIsReplying(false)}
 								/>
 							</div>
 						)}
-				</div>
 
-				{isMyRequest && status === Status.Open && (
-					<div
-						style={{ marginTop: 58, display: 'flex', justifyContent: 'center' }}
-					>
-						<Button variant="danger" onClick={cancel} disabled={!canCancel}>
-							cancel this request
-						</Button>
+						{isSelectedReplyMyReply && status === Status.Open && (
+							<FundDeal
+								marketplace={id}
+								item={itemId}
+								data={selectedProvider.data}
+								amount={formatMoney(store.request.price ?? 0n)}
+								fee={formatMoney(store.request.fee?.toBigInt() ?? 0n)}
+							/>
+						)}
+						{isMyRequest && status === Status.Funded && (
+							<PayoutItem
+								marketplace={id}
+								item={itemId}
+								amount={formatMoney(store.request.price ?? 0n)}
+								user={store.request.seeker}
+							/>
+						)}
+						{isSelectedReplyMyReply && status === Status.Funded && <InDeal />}
+						{status === Status.Open &&
+							!isMyRequest &&
+							!isReplying &&
+							!store.request.myReply && (
+								<div
+									style={{
+										position: 'absolute',
+										bottom: -30,
+										right: 46,
+									}}
+								>
+									<IconButton
+										variant="reply"
+										onClick={() => {
+											setIsReplying(true)
+										}}
+									/>
+								</div>
+							)}
 					</div>
-				)}
-				{(isMyRequest || isSelectedReplyMyReply) && status === Status.Funded && (
-					<div
-						style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}
-					>
-						<Button>start conflict</Button>
-					</div>
-				)}
-			</div>
-		</Container>
+
+					{isMyRequest && status === Status.Open && (
+						<div
+							style={{
+								marginTop: 58,
+								display: 'flex',
+								justifyContent: 'center',
+							}}
+						>
+							<Button variant="danger" onClick={cancel} disabled={!canCancel}>
+								cancel this request
+							</Button>
+						</div>
+					)}
+					{(isMyRequest || isSelectedReplyMyReply) && status === Status.Funded && (
+						<div
+							style={{
+								marginTop: 40,
+								display: 'flex',
+								justifyContent: 'center',
+							}}
+						>
+							<Button>start conflict</Button>
+						</div>
+					)}
+				</div>
+			</Container>
+		</>
 	)
 }

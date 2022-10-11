@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi'
 import { IconButton } from '@swarm-city/ui-library'
 
 // Routes
-import { MARKETPLACE_ADD } from '../../routes'
+import { MARKETPLACES, MARKETPLACE_ADD } from '../../routes'
 
 // Services
 import {
@@ -28,6 +28,8 @@ import { useProfilePictureURL } from '../../services/profile-picture'
 import { formatMoney } from '../../ui/utils'
 import { getStatus } from '../../types'
 import { User } from '../../ui/types'
+import { UserAccount } from './user-account'
+import { Back } from '../../ui/icons/back'
 
 type DisplayItemProps = {
 	marketplace: string
@@ -142,25 +144,35 @@ export const Marketplace = () => {
 		[lastUpdate]
 	)
 
+	const rightAction = (
+		<div style={{ cursor: 'pointer' }} onClick={() => navigate(MARKETPLACES)}>
+			<Back size={18} />
+		</div>
+	)
+
 	if (waiting) {
 		return (
-			<Container>
-				<Typography
-					variant="header-28"
-					color="grey4"
-					style={{
-						marginLeft: 40,
-						marginRight: 40,
-					}}
-				>
-					Connecting to waku...
-				</Typography>
-			</Container>
+			<>
+				<UserAccount rightAction={rightAction} />
+				<Container>
+					<Typography
+						variant="header-28"
+						color="grey4"
+						style={{
+							marginLeft: 40,
+							marginRight: 40,
+						}}
+					>
+						Connecting to waku...
+					</Typography>
+				</Container>
+			</>
 		)
 	}
 
 	return (
 		<>
+			<UserAccount rightAction={rightAction} />
 			<div style={{ position: 'fixed', right: 50, zIndex: 50, bottom: 60 }}>
 				<IconButton
 					variant="requestStart"
