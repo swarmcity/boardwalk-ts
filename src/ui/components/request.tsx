@@ -23,6 +23,7 @@ interface RequestProps extends HTMLAttributes<HTMLDivElement> {
 		| 'disputed'
 		| 'resolved'
 		| 'cancelled'
+	tokenName?: string
 }
 export const Request = ({
 	title,
@@ -35,6 +36,7 @@ export const Request = ({
 	onClickUser,
 	detail,
 	status,
+	tokenName,
 }: RequestProps) => (
 	<div>
 		<div
@@ -131,7 +133,7 @@ export const Request = ({
 				}}
 			>
 				<Typography variant="small-bold-10" color="yellow">
-					DAI
+					{tokenName ?? 'DAI'}
 				</Typography>
 				<Typography variant="header-24" color="yellow">
 					{amount}

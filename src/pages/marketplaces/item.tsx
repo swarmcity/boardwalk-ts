@@ -13,6 +13,7 @@ import {
 	useMarketplaceItem,
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
+	useMarketplaceTokenName,
 } from './services/marketplace'
 import {
 	createReply,
@@ -70,6 +71,7 @@ const ReplyForm = ({
 
 	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
+	const tokenName = useMarketplaceTokenName(marketplace)
 
 	const postReply = async (event: FormEvent<HTMLElement>) => {
 		event.preventDefault()
@@ -163,7 +165,7 @@ const ReplyForm = ({
 					>
 						{decimals === undefined
 							? 'Loading...'
-							: `for ${formatUnits(item.price, decimals)} DAI.`}
+							: `for ${formatUnits(item.price, decimals)} ${tokenName}.`}
 					</Typography>
 				</div>
 			</div>
@@ -186,6 +188,7 @@ const ReplyContainer = ({
 	status,
 	setSelectedReply,
 	amount,
+	tokenName,
 }: {
 	reply: ItemReplyClean
 	isMyReply: boolean
@@ -193,6 +196,7 @@ const ReplyContainer = ({
 	status: Status
 	setSelectedReply: (reply: Reply | undefined) => void
 	amount: number
+	tokenName?: string
 }) => {
 	// Profile
 	const { profile } = useProfile(replyItem.from)
@@ -211,6 +215,7 @@ const ReplyContainer = ({
 		amount,
 		isMyReply,
 		user,
+		tokenName,
 	}
 
 	return (
@@ -231,9 +236,10 @@ const PayoutItem = ({
 	marketplace: string
 	item: bigint
 	amount: number
-	user: string
+	user: User
 }) => {
 	const { connector } = useAccount()
+	const tokenName = useMarketplaceTokenName(marketplace)
 
 	// State
 	const [loading, setLoading] = useState(false)
@@ -286,7 +292,7 @@ const PayoutItem = ({
 			>
 				<Typography variant="header-35">
 					<>
-						You're about to pay {amount} DAI to {user}.
+						You're about to pay {amount} {tokenName} to {formatName(user)}.
 					</>
 				</Typography>
 				<div style={{ paddingTop: 30 }}>
@@ -330,6 +336,7 @@ const FundDeal = ({
 	fee: number
 }) => {
 	const { connector } = useAccount()
+	const tokenName = useMarketplaceTokenName(marketplace)
 
 	// State
 	const [loading, setLoading] = useState(false)
@@ -376,7 +383,9 @@ const FundDeal = ({
 				cancel={{ onClick: () => setConfirm(false) }}
 			>
 				<Typography variant="header-35">
-					<>You're about to fund this deal with {amount + fee} DAI.</>
+					<>
+						You're about to fund this deal with {amount + fee} {tokenName}.
+					</>
 				</Typography>
 				<div style={{ paddingTop: 30 }}>
 					<Typography variant="small-light-12">
@@ -385,7 +394,9 @@ const FundDeal = ({
 				</div>
 				<div>
 					<Typography variant="small-light-12">
-						<>{fee} DAI fee is included.</>
+						<>
+							{fee} {tokenName} fee is included.
+						</>
 					</Typography>
 				</div>
 			</ConfirmModal>
@@ -449,6 +460,7 @@ export const MarketplaceItem = () => {
 	}, [selectedProvider.lastUpdate])
 
 	const chainItem = useMarketplaceItem(id, itemId)
+	const tokenName = useMarketplaceTokenName(id)
 	const [isReplying, setIsReplying] = useState<boolean>(false)
 	const [error, setError] = useState<Error | undefined>()
 
@@ -502,6 +514,7 @@ export const MarketplaceItem = () => {
 			id,
 			name,
 			decimals,
+			tokenName,
 		},
 		request: {
 			id: itemId,
@@ -520,6 +533,7 @@ export const MarketplaceItem = () => {
 							amount: formatMoney(item?.price || 0n),
 							isMyReply: address === selectedReplyItemClean.from,
 							user: { address: selectedReplyItemClean.from },
+							tokenName,
 					  } as Reply)
 					: undefined),
 			replies: replies,
@@ -671,6 +685,7 @@ export const MarketplaceItem = () => {
 						amount={formatMoney(store.request.price ?? 0n)}
 						seeker={store.request.seeker}
 						onClickUser={(user) => navigate(`/user/${user.address}`)}
+						tokenName={store.marketplace.tokenName}
 					/>
 				</div>
 				<div
@@ -790,6 +805,7 @@ export const MarketplaceItem = () => {
 									marketplace={store.marketplace.name ?? ''}
 									amount={formatMoney(store.request.price ?? 0n)}
 									reputation={0}
+									tokenName={store.marketplace.tokenName}
 								/>
 								<Typography
 									color="blue"
@@ -844,6 +860,7 @@ export const MarketplaceItem = () => {
 										amount={formatMoney(store.request.price ?? 0n)}
 										status={status}
 										setSelectedReply={setSelectedReply}
+										tokenName={store.marketplace.tokenName}
 									/>
 								))}
 							</>
@@ -882,7 +899,7 @@ export const MarketplaceItem = () => {
 							marketplace={id}
 							item={itemId}
 							amount={formatMoney(store.request.price ?? 0n)}
-							user={store.request.seeker?.address ?? 'unknown'}
+							user={store.request.seeker}
 						/>
 					)}
 					{isSelectedReplyMyReply && status === Status.Funded && <InDeal />}

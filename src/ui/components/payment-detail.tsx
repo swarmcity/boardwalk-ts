@@ -12,6 +12,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 	amount: number
 	reputation: number
 	marketplace: string
+	tokenName?: string
 }
 
 export function PaymentDetail({
@@ -21,6 +22,7 @@ export function PaymentDetail({
 	amount,
 	reputation,
 	marketplace,
+	tokenName,
 	...props
 }: Props) {
 	const isSeeker = seeker.address === user.address
@@ -36,8 +38,8 @@ export function PaymentDetail({
 					style={{ display: 'flex', flexDirection: 'column', marginLeft: 18 }}
 				>
 					<Typography variant="small-light-12">
-						{isSeeker ? 'You' : formatName(seeker)} paid {amount} DAI to{' '}
-						{isProvider ? 'you' : formatName(provider)}.
+						{isSeeker ? 'You' : formatName(seeker)} paid {amount}{' '}
+						{tokenName ?? 'DAI'} to {isProvider ? 'you' : formatName(provider)}.
 					</Typography>
 					<Typography variant="small-light-12">
 						{isSeeker ? 'You' : formatName(seeker)} gained {reputation} SWR on{' '}
@@ -58,7 +60,8 @@ export function PaymentDetail({
 					style={{ display: 'flex', flexDirection: 'column', marginLeft: 18 }}
 				>
 					<Typography variant="small-light-12">
-						{isProvider ? 'You' : formatName(provider)} received {amount} DAI
+						{isProvider ? 'You' : formatName(provider)} received {amount}{' '}
+						{tokenName ?? 'DAI'}
 						from {isSeeker ? 'you' : formatName(seeker)}.
 					</Typography>
 					<Typography variant="small-light-12">
