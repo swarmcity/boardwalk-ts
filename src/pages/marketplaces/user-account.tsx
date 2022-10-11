@@ -9,9 +9,6 @@ import { useStore } from '../../store'
 // Components
 import { CreateAvatar } from '../../components/modals/create-avatar'
 
-// Lib
-import { formatBalance } from '../../lib/tools'
-
 // Assets
 import exit from '../../assets/imgs/exit.svg?url'
 
@@ -20,7 +17,7 @@ import { useSyncProfile } from '../../services/profile'
 import { Container } from '../../ui/container'
 import { Avatar } from '../../ui/avatar'
 import { Typography } from '../../ui/typography'
-import { formatName } from '../../ui/utils'
+import { formatMoney, formatName } from '../../ui/utils'
 import { Plus } from '../../ui/icons/plus'
 import { getColor } from '../../ui/colors'
 
@@ -99,7 +96,10 @@ export const UserAccount = ({ rightAction, style, ...props }: Props) => {
 							</Typography>
 							<Link to={ACCOUNT_WALLET}>
 								<Typography variant="header-22" color="yellow">
-									{balance ? formatBalance(balance) : `0.00 ${symbol}`}
+									{formatMoney(balance?.value ?? 0n, balance?.decimals).toFixed(
+										4
+									)}{' '}
+									{symbol}
 								</Typography>
 							</Link>
 						</div>
