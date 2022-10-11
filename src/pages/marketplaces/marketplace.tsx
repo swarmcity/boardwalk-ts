@@ -11,6 +11,7 @@ import {
 	useMarketplaceItem,
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
+	useMarketplaceTokenName,
 } from './services/marketplace'
 import { Item, useMarketplaceItems } from './services/marketplace-items'
 
@@ -43,6 +44,7 @@ type DisplayItemsProps = {
 const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 	const navigate = useNavigate()
 	const { address } = useAccount()
+	const tokenName = useMarketplaceTokenName(marketplace)
 
 	// Profile
 	const { profile } = useProfile(item.owner)
@@ -93,6 +95,7 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 					avatar,
 				}}
 				provider={provider}
+				tokenName={tokenName}
 			/>
 		</div>
 	)

@@ -18,6 +18,7 @@ import { useAccount } from 'wagmi'
 import {
 	useMarketplaceConfig,
 	useMarketplaceName,
+	useMarketplaceTokenName,
 } from './services/marketplace'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
@@ -37,7 +38,8 @@ export const MarketplaceListItem = () => {
 	const { connector } = useAccount()
 	const navigate = useNavigate()
 	const name = useMarketplaceName(id)
-	const config = useMarketplaceConfig(id, ['fee'])
+	const config = useMarketplaceConfig(id, ['fee', 'token'])
+	const tokenName = useMarketplaceTokenName(id)
 	const fee = formatMoney(BigNumber.from(config?.fee ?? 0n)) // TODO: instead of defaulting to 0 the page should be in loading state
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<Error | undefined>(undefined)
@@ -89,11 +91,11 @@ export const MarketplaceListItem = () => {
 				>
 					<div style={{ padding: 20 }}>
 						<Typography variant="header-35" style={{ marginBottom: 12 }}>
-							You are about to post this request for {price + fee} DAI.
+							You are about to post this request for {price + fee} {tokenName}.
 						</Typography>
 						<Typography>This cannot be undone.</Typography>
 						<br />
-						<Typography>0.5 DAI fee is included.</Typography>
+						<Typography>0.5 {tokenName} fee is included.</Typography>
 					</div>
 				</ConfirmModal>
 			)}
@@ -156,7 +158,7 @@ export const MarketplaceListItem = () => {
 										marginLeft: 10,
 									}}
 								>
-									DAI
+									{tokenName}
 								</Typography>
 							</div>
 							<div
@@ -170,7 +172,7 @@ export const MarketplaceListItem = () => {
 									marginTop: 7,
 								}}
 							>
-								+ {fee} DAI fee
+								+ {fee} {tokenName} fee
 							</div>
 						</div>
 						<div
@@ -198,7 +200,7 @@ export const MarketplaceListItem = () => {
 										color="grey4"
 										style={{ marginLeft: 12 }}
 									>
-										{price + fee} DAI
+										{price + fee} {tokenName}
 									</Typography>
 								</div>
 							) : null}

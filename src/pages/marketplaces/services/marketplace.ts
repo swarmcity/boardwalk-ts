@@ -199,3 +199,17 @@ export const useMarketplaceDealCount = (marketplace: string) => {
 
 	return count
 }
+
+export const useMarketplaceTokenName = (
+	address: string
+): string | undefined => {
+	const [name, setName] = useState<string | undefined>()
+
+	const token = useMarketplaceTokenContract(address)
+
+	useEffect(() => {
+		token?.name().then(setName)
+	}, [token])
+
+	return name
+}
