@@ -476,14 +476,17 @@ export const MarketplaceItem = () => {
 	const providerAvatar = useProfilePictureURL(
 		providerProfile.profile?.pictureHash
 	)
-	const providerUser: User | undefined = chainItem.item?.providerAddress
-		? {
-				address: chainItem.item.providerAddress,
-				reputation: chainItem.item?.providerRep ?? 0n,
-				name: providerProfile.profile?.username,
-				avatar: providerAvatar,
-		  }
-		: undefined
+	const providerUser: User | undefined =
+		chainItem.item?.providerAddress &&
+		chainItem.item.providerAddress !==
+			'0x0000000000000000000000000000000000000000'
+			? {
+					address: chainItem.item.providerAddress,
+					reputation: chainItem.item?.providerRep ?? 0n,
+					name: providerProfile.profile?.username,
+					avatar: providerAvatar,
+			  }
+			: undefined
 	const userProfile = useProfile(address)
 	const userAvatar = useProfilePictureURL(userProfile.profile?.pictureHash)
 	const user: User | undefined = address

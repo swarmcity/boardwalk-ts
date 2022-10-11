@@ -54,14 +54,17 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 	const providerAvatar = useProfilePictureURL(
 		providerProfile.profile?.pictureHash
 	)
-	const provider: User | undefined = chainItem.item?.providerAddress
-		? {
-				address: chainItem.item.providerAddress,
-				reputation: chainItem.item?.providerRep ?? 0n,
-				name: providerProfile.profile?.username,
-				avatar: providerAvatar,
-		  }
-		: undefined
+	const provider: User | undefined =
+		chainItem.item?.providerAddress &&
+		chainItem.item.providerAddress !==
+			'0x0000000000000000000000000000000000000000'
+			? {
+					address: chainItem.item.providerAddress,
+					reputation: chainItem.item?.providerRep ?? 0n,
+					name: providerProfile.profile?.username,
+					avatar: providerAvatar,
+			  }
+			: undefined
 
 	return (
 		<div
