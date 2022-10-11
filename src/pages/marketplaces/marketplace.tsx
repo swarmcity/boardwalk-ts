@@ -153,7 +153,7 @@ export const Marketplace = () => {
 	if (waiting) {
 		return (
 			<>
-				<UserAccount>{goBack}</UserAccount>
+				<UserAccount marketplaceId={id}>{goBack}</UserAccount>
 				<Container>
 					<Typography
 						variant="header-28"
@@ -172,7 +172,7 @@ export const Marketplace = () => {
 
 	return (
 		<>
-			<UserAccount>{goBack}</UserAccount>
+			<UserAccount marketplaceId={id}>{goBack}</UserAccount>
 			<div style={{ position: 'fixed', right: 50, zIndex: 50, bottom: 60 }}>
 				<IconButton
 					variant="requestStart"

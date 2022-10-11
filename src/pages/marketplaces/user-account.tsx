@@ -17,12 +17,31 @@ import { Typography } from '../../ui/typography'
 import { formatMoney, formatName } from '../../ui/utils'
 import { Plus } from '../../ui/icons/plus'
 import { getColor } from '../../ui/colors'
+import {
+	useMarketplaceTokenBalanceOf,
+	useMarketplaceTokenDecimals,
+	useMarketplaceTokenName,
+} from './services/marketplace'
 
-type Props = HTMLAttributes<HTMLDivElement>
+interface Props extends HTMLAttributes<HTMLDivElement> {
+	marketplaceId?: string
+}
 
-export const UserAccount = ({ children, style, ...props }: Props) => {
+export const UserAccount = ({
+	marketplaceId,
+	children,
+	style,
+	...props
+}: Props) => {
 	const [profile] = useStore.profile()
 	const navigate = useNavigate()
+
+	const tokenName = useMarketplaceTokenName(marketplaceId)
+	const tokenBalance = useMarketplaceTokenBalanceOf(
+		marketplaceId,
+		profile?.address
+	)
+	const tokenDecimals = useMarketplaceTokenDecimals(marketplaceId)
 
 	const { chain } = useNetwork()
 	const symbol = chain?.nativeCurrency?.symbol
@@ -32,6 +51,10 @@ export const UserAccount = ({ children, style, ...props }: Props) => {
 		addressOrName: address,
 		watch: true,
 	})
+
+	const userBalance = marketplaceId
+		? formatMoney(tokenBalance ?? 0n, tokenDecimals.decimals)
+		: formatMoney(balance?.value ?? 0n, balance?.decimals)
 
 	// Keep the profile in sync
 	useSyncProfile()
@@ -91,10 +114,7 @@ export const UserAccount = ({ children, style, ...props }: Props) => {
 							</Typography>
 							<Link to={ACCOUNT_WALLET}>
 								<Typography variant="header-22" color="yellow">
-									{formatMoney(balance?.value ?? 0n, balance?.decimals).toFixed(
-										4
-									)}{' '}
-									{symbol}
+									{userBalance.toFixed(4)} {tokenName ?? symbol}
 								</Typography>
 							</Link>
 						</div>

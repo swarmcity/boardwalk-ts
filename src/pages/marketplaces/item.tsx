@@ -588,7 +588,7 @@ export const MarketplaceItem = () => {
 
 		return (
 			<>
-				<UserAccount />
+				<UserAccount marketplaceId={id} />
 				<Container>
 					<div
 						style={{
@@ -646,7 +646,7 @@ export const MarketplaceItem = () => {
 
 	return (
 		<>
-			<UserAccount />
+			<UserAccount marketplaceId={id} />
 			<Container>
 				<div
 					style={{
