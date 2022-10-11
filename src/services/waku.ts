@@ -20,11 +20,16 @@ export type WithPayload<Msg extends Message> = Msg & {
 	get payload(): Uint8Array
 }
 
-export const useWakuStoreQuery = <Msg extends Message>(
+export const useWakuStore = <Msg extends Message, Callback>(
+	fn: (
+		waku: WakuLight
+	) => (
+		decoders: Decoder<Msg>[],
+		callback: (message: Callback) => Promise<void | boolean> | boolean | void,
+		options?: QueryOptions
+	) => Promise<void>,
 	decoders: Decoder<Msg>[],
-	_callback: (
-		message: Promise<Msg | undefined>
-	) => Promise<void | boolean> | boolean | void,
+	_callback: (message: Callback) => Promise<void | boolean> | boolean | void,
 	dependencies: DependencyList,
 	options: QueryOptions = {}
 ) => {
@@ -41,12 +46,11 @@ export const useWakuStoreQuery = <Msg extends Message>(
 		setLoading(true)
 
 		// Early abort if the effect was replaced
-		const callback = (message: Promise<Msg | undefined>) => {
+		const callback = (message: Callback) => {
 			return cancelled ? true : _callback?.(message)
 		}
 
-		waku.store
-			.queryCallbackOnPromise(decoders, callback, options)
+		fn(waku)(decoders, callback, options)
 			.catch((error) => !cancelled && setError(error))
 			.finally(() => !cancelled && setLoading(false))
 
@@ -58,40 +62,36 @@ export const useWakuStoreQuery = <Msg extends Message>(
 	return { waiting, loading, error }
 }
 
+export const useWakuStoreQuery = <Msg extends Message>(
+	decoders: Decoder<Msg>[],
+	_callback: (
+		message: Promise<Msg | undefined>
+	) => Promise<void | boolean> | boolean | void,
+	dependencies: DependencyList,
+	options: QueryOptions = {}
+) => {
+	return useWakuStore<Msg, Promise<Msg | undefined>>(
+		(waku: WakuLight) => waku.store.queryCallbackOnPromise.bind(waku.store),
+		decoders,
+		_callback,
+		dependencies,
+		options
+	)
+}
+
 export const useWakuStoreQueryOrdered = <Msg extends Message>(
 	decoders: Decoder<Msg>[],
 	_callback: (message: Msg) => Promise<void | boolean> | boolean | void,
 	dependencies: DependencyList,
 	options: QueryOptions = {}
 ) => {
-	const { waku, waiting } = useWaku([Protocols.Store])
-	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState<string>()
-
-	useEffect(() => {
-		if (!waku || waiting) {
-			return
-		}
-
-		let cancelled = false
-		setLoading(true)
-
-		// Early abort if the effect was replaced
-		const callback = (message: Msg) => {
-			return cancelled ? true : _callback?.(message)
-		}
-
-		waku.store
-			.queryOrderedCallback(decoders, callback, options)
-			.catch((error) => !cancelled && setError(error))
-			.finally(() => !cancelled && setLoading(false))
-
-		return () => {
-			cancelled = true
-		}
-	}, [waiting, ...dependencies])
-
-	return { waiting, loading, error }
+	return useWakuStore<Msg, Msg>(
+		(waku: WakuLight) => waku.store.queryOrderedCallback.bind(waku.store),
+		decoders,
+		_callback,
+		dependencies,
+		options
+	)
 }
 
 export const postWakuMessage = async (
