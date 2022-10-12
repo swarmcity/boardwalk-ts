@@ -37,6 +37,8 @@ export function Typography({
 		fontFamily: 'Montserrat',
 		fontStyle: 'normal',
 		fontWeight: 700,
+		margin: 0,
+		padding: 0,
 		color,
 		textAlign,
 		...style,
