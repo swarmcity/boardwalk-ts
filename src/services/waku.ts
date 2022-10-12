@@ -64,7 +64,7 @@ export const useWakuStore = <Msg extends Message, Callback>(
 
 export const useWakuStoreQuery = <Msg extends Message>(
 	decoders: Decoder<Msg>[],
-	_callback: (
+	callback: (
 		message: Promise<Msg | undefined>
 	) => Promise<void | boolean> | boolean | void,
 	dependencies: DependencyList,
@@ -73,7 +73,7 @@ export const useWakuStoreQuery = <Msg extends Message>(
 	return useWakuStore<Msg, Promise<Msg | undefined>>(
 		(waku: WakuLight) => waku.store.queryCallbackOnPromise.bind(waku.store),
 		decoders,
-		_callback,
+		callback,
 		dependencies,
 		options
 	)
@@ -81,14 +81,14 @@ export const useWakuStoreQuery = <Msg extends Message>(
 
 export const useWakuStoreQueryOrdered = <Msg extends Message>(
 	decoders: Decoder<Msg>[],
-	_callback: (message: Msg) => Promise<void | boolean> | boolean | void,
+	callback: (message: Msg) => Promise<void | boolean> | boolean | void,
 	dependencies: DependencyList,
 	options: QueryOptions = {}
 ) => {
 	return useWakuStore<Msg, Msg>(
 		(waku: WakuLight) => waku.store.queryOrderedCallback.bind(waku.store),
 		decoders,
-		_callback,
+		callback,
 		dependencies,
 		options
 	)
