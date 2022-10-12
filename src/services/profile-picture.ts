@@ -1,17 +1,14 @@
 import { useMemo } from 'react'
+import { MessageV0 } from 'js-waku/lib/waku_message/version_0'
 
 // Types
-import type { Waku } from 'js-waku'
+import type { WakuLight } from 'js-waku/lib/interfaces'
 
 // Protos
 import { ProfilePicture } from '../protos/profile-picture'
 
 // Services
-import {
-	postWakuMessage,
-	useLatestTopicData,
-	WakuMessageWithPayload,
-} from './waku'
+import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
 
 // Lib
 import { bufferToHex } from '../lib/tools'
@@ -28,7 +25,7 @@ export const getProfilePictureTopic = (hash: string) => {
 }
 
 export const createProfilePicture = async (
-	waku: Waku,
+	waku: WakuLight,
 	{ dataUri }: CreateProfilePicture
 ) => {
 	const blob = await (await fetch(dataUri)).blob()
@@ -46,7 +43,7 @@ export const createProfilePicture = async (
 }
 
 const decodeMessage = (
-	message: WakuMessageWithPayload
+	message: WithPayload<MessageV0>
 ): ProfilePicture | false => {
 	try {
 		return ProfilePicture.decode(message.payload)

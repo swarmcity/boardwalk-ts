@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Waku, WakuMessage } from 'js-waku'
+import {
+	DecoderV0,
+	EncoderV0,
+	MessageV0,
+} from 'js-waku/lib/waku_message/version_0'
 import { BigNumber, Contract, Event } from 'ethers'
 import { useProvider } from 'wagmi'
 import { Interface } from 'ethers/lib/utils'
 
 // Types
 import type { Signer } from 'ethers'
+import type { WakuLight } from 'js-waku/lib/interfaces'
 import type { UpdateTime } from '../../../lib/blockchain'
 
 // Protos
@@ -20,7 +25,7 @@ import { bufferToHex, numberToBigInt } from '../../../lib/tools'
 import { shouldUpdate } from '../../../lib/blockchain'
 
 // Services
-import { useWakuStoreQuery } from '../../../services/waku'
+import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
 
 // Status
 export enum Status {
@@ -61,21 +66,19 @@ type StatusChangeEvent = {
 
 export type Item = Omit<ChainItem, 'metadata'> & { metadata: ItemMetadata }
 
-type WakuMessageWithPayload = WakuMessage & { get payload(): Uint8Array }
-
 export const getItemTopic = (address: string) => {
 	return `/swarmcity/1/marketplace-items-${address}/proto`
 }
 
 export const createItem = async (
-	waku: Waku,
+	waku: WakuLight,
 	marketplace: string,
 	{ price, description }: CreateItem,
 	signer: Signer
 ) => {
 	// Create the metadata
-	const metadata = ItemMetadata.encode({ description })
-	const hash = await crypto.subtle.digest('SHA-256', metadata)
+	const payload = ItemMetadata.encode({ description })
+	const hash = await crypto.subtle.digest('SHA-256', payload)
 
 	// Get the marketplace contract
 	const contract = new Contract(marketplace, marketplaceAbi, signer)
@@ -86,12 +89,10 @@ export const createItem = async (
 	const decimals = await token.decimals()
 
 	// Post the metadata on Waku
-	const message = await WakuMessage.fromBytes(
-		metadata,
-		getItemTopic(marketplace)
+	await waku.lightPush.push(
+		new EncoderV0(getItemTopic(marketplace)),
+		new MessageV0({ payload })
 	)
-
-	await waku.relay.send(message)
 
 	// Convert the price to bigint
 	const amount = numberToBigInt(price, decimals)
@@ -107,7 +108,7 @@ export const createItem = async (
 }
 
 const decodeWakuMessage = async (
-	message: WakuMessageWithPayload
+	message: WithPayload<MessageV0>
 ): Promise<WakuItem> => {
 	const hash = await crypto.subtle.digest('SHA-256', message.payload)
 	return {
@@ -116,29 +117,27 @@ const decodeWakuMessage = async (
 	}
 }
 
-const decodeWakuMessages = (messages: WakuMessage[]): Promise<WakuItem>[] => {
-	return messages.flatMap((message) =>
-		message.payload
-			? [decodeWakuMessage(message as WakuMessageWithPayload)]
-			: []
-	)
-}
-
 export const useGetWakuItems = (marketplace: string) => {
 	const [items, setItems] = useState<WakuItem[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
-	const callback = (messages: WakuMessage[]) => {
-		// eslint-disable-next-line @typescript-eslint/no-extra-semi
-		;(async () => {
-			const decoded = await Promise.all(decodeWakuMessages(messages))
-			setItems((items) => [...items, ...decoded])
-			setLastUpdate(Date.now())
-		})()
+	const callback = async (msg: Promise<MessageV0 | undefined>) => {
+		const message = await msg
+		if (!message?.payload) {
+			return
+		}
+
+		const decoded = await decodeWakuMessage(message as WithPayload<MessageV0>)
+		if (!decoded) {
+			return
+		}
+
+		setItems((items) => [...items, decoded])
+		setLastUpdate(Date.now())
 	}
 
 	const topic = getItemTopic(marketplace)
-	const state = useWakuStoreQuery(callback, () => topic, [topic])
+	const state = useWakuStoreQuery([new DecoderV0(topic)], callback, [topic])
 
 	useEffect(() => (state.loading ? setItems([]) : undefined), [state.loading])
 

@@ -1,22 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Wallet } from 'ethers'
-import { WakuMessage, utils } from 'js-waku'
+import { utils } from 'js-waku'
 import { verifyTypedData } from '@ethersproject/wallet'
 import { getAddress } from '@ethersproject/address'
+import {
+	DecoderV0,
+	EncoderV0,
+	MessageV0,
+} from 'js-waku/lib/waku_message/version_0'
 
 // Types
 import type {
 	TypedDataDomain,
 	TypedDataField,
 } from '@ethersproject/abstract-signer'
-import type { Waku } from 'js-waku'
+import type { WakuLight } from 'js-waku/lib/interfaces'
 import type { BigNumber, Signer } from 'ethers'
 
 // Protos
 import { ItemReply } from '../../../protos/item-reply'
 
 // Hooks
-import { useWakuStoreQuery } from '../../../services/waku'
+import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
 
 export type CreateReply = {
 	text: string
@@ -54,7 +59,7 @@ export const getItemTopic = (marketplace: string, item: string) => {
 }
 
 export const createReply = async (
-	waku: Waku,
+	waku: WakuLight,
 	marketplace: string,
 	item: BigNumber,
 	{ text }: CreateReply,
@@ -75,22 +80,18 @@ export const createReply = async (
 	const signature = utils.hexToBytes(signatureHex)
 
 	// Create the metadata
-	const reply = ItemReply.encode({
+	const payload = ItemReply.encode({
 		...data,
 		from: utils.hexToBytes(from.substring(2).toLowerCase()),
 		signature,
 	})
 
 	// Post the metadata on Waku
-	const message = await WakuMessage.fromBytes(
-		reply,
-		getItemTopic(marketplace, item.toString())
+	await waku.lightPush.push(
+		new EncoderV0(getItemTopic(marketplace, item.toString())),
+		new MessageV0({ payload })
 	)
-
-	await waku.relay.send(message)
 }
-
-type WakuMessageWithPayload = WakuMessage & { get payload(): Uint8Array }
 
 const verifyReplySignature = (reply: ItemReply) => {
 	const from = getAddress('0x' + utils.bytesToHex(reply.from))
@@ -109,7 +110,7 @@ const verifyReplySignature = (reply: ItemReply) => {
 }
 
 const decodeWakuReply = async (
-	message: WakuMessageWithPayload
+	message: WithPayload<MessageV0>
 ): Promise<ItemReplyClean | false> => {
 	try {
 		const reply = ItemReply.decode(message.payload)
@@ -127,30 +128,27 @@ const decodeWakuReply = async (
 	}
 }
 
-const decodeWakuReplies = (
-	messages: WakuMessage[]
-): Promise<ItemReplyClean | false>[] => {
-	return messages.flatMap((message) =>
-		message.payload ? decodeWakuReply(message as WakuMessageWithPayload) : []
-	)
-}
-
 export const useItemReplies = (marketplace: string, item: bigint) => {
 	const [replies, setReplies] = useState<ItemReplyClean[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
-	const callback = (messages: WakuMessage[]) => {
-		// eslint-disable-next-line @typescript-eslint/no-extra-semi
-		;(async () => {
-			const decoded = await Promise.all(decodeWakuReplies(messages))
-			const filtered = decoded.filter(Boolean) as ItemReplyClean[]
-			setReplies((replies) => [...replies, ...filtered])
-			setLastUpdate(Date.now())
-		})()
+	const callback = async (msg: Promise<MessageV0 | undefined>) => {
+		const message = await msg
+		if (!message?.payload) {
+			return
+		}
+
+		const decoded = await decodeWakuReply(message as WithPayload<MessageV0>)
+		if (!decoded) {
+			return
+		}
+
+		setReplies((replies) => [...replies, decoded])
+		setLastUpdate(Date.now())
 	}
 
 	const topic = getItemTopic(marketplace, item.toString())
-	const state = useWakuStoreQuery(callback, () => topic, [topic])
+	const state = useWakuStoreQuery([new DecoderV0(topic)], callback, [topic])
 
 	useEffect(() => (state.loading ? setReplies([]) : undefined), [state.loading])
 

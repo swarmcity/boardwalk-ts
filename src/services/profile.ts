@@ -1,12 +1,13 @@
 import { useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { getAddress } from '@ethersproject/address'
+import { MessageV0 } from 'js-waku/lib/waku_message/version_0'
 
 // Store
 import { setStore, useStore } from '../store'
 
 // Types
-import { Protocols, Waku } from 'js-waku'
+import { Protocols } from 'js-waku'
 import type { Signer } from 'ethers'
 import type { Profile } from '../types'
 
@@ -14,16 +15,13 @@ import type { Profile } from '../types'
 import { Profile as ProfileProto } from '../protos/profile'
 
 // Services
-import {
-	postWakuMessage,
-	useLatestTopicData,
-	WakuMessageWithPayload,
-} from './waku'
+import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
 import { createProfilePicture } from './profile-picture'
 
 // Hooks
 import { useWaku } from '../hooks/use-waku'
+import { WakuLight } from 'js-waku/lib/interfaces'
 
 type CreateProfile = {
 	username: string
@@ -53,7 +51,7 @@ export const getProfileTopic = (address?: string) => {
 }
 
 export const createProfile = async (
-	waku: Waku,
+	waku: WakuLight,
 	connector: { getSigner: () => Promise<Signer> },
 	input: CreateProfile
 ) => {
@@ -71,7 +69,7 @@ export const createProfile = async (
 }
 
 const decodeMessage = (
-	message: WakuMessageWithPayload
+	message: WithPayload<MessageV0>
 ): ProfileProto | false => {
 	return decodeSignedPayload(
 		eip712Config,
@@ -92,7 +90,7 @@ export const useProfile = (address?: string) => {
 	return { ...state, profile: data }
 }
 
-const postPicture = async (waku: Waku, dataUri?: string) => {
+const postPicture = async (waku: WakuLight, dataUri?: string) => {
 	if (!dataUri) {
 		return
 	}
@@ -103,7 +101,7 @@ const postPicture = async (waku: Waku, dataUri?: string) => {
 
 // TODO: Fix teaful issues
 const updateProfile = async (
-	waku: Waku,
+	waku: WakuLight,
 	connector: { getSigner: () => Promise<Signer> },
 	profile: Profile
 ) => {
@@ -121,7 +119,7 @@ const updateProfile = async (
 }
 
 export const useSyncProfile = () => {
-	const { waku, waiting } = useWaku([Protocols.Relay])
+	const { waku, waiting } = useWaku([Protocols.LightPush])
 	const { address, connector } = useAccount()
 	const [profile] = useStore.profile()
 	const {
