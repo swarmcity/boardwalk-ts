@@ -310,7 +310,7 @@ const PayoutItem = ({
 			<Button
 				style={{ marginTop: 30 }}
 				size="large"
-				variant="deal"
+				color="green"
 				bg
 				disabled={loading || success}
 				onClick={() => setConfirm(true)}
@@ -947,7 +947,7 @@ export const MarketplaceItem = () => {
 								justifyContent: 'center',
 							}}
 						>
-							<Button variant="danger" onClick={cancel} disabled={!canCancel}>
+							<Button color="red" onClick={cancel} disabled={!canCancel}>
 								cancel this request
 							</Button>
 						</div>
