@@ -11,6 +11,7 @@ import { useStore } from '../../../store'
 // Types
 import type { FormEvent } from 'react'
 import { Avatar } from '../../../ui/avatar'
+import { IconButton, Input } from '@swarm-city/ui-library'
 
 type PasswordModalProps = {
 	show?: boolean
@@ -73,12 +74,14 @@ export const PasswordModal = ({
 				alignItems: 'center',
 				position: 'fixed',
 				zIndex: 100,
-				backdropFilter: 'blur(8px)',
+				backdropFilter: 'blur(10px)',
 			}}
 		>
 			<Avatar size={80} />
-			<form onSubmit={decrypt} style={{ marginTop: 50 }}>
-				<input
+			<form onSubmit={decrypt} style={{ marginTop: 40 }}>
+				<Input
+					id="password"
+					autoFocus
 					type="password"
 					placeholder="password?"
 					value={password}
@@ -95,12 +98,12 @@ export const PasswordModal = ({
 					marginTop: 80,
 				}}
 			>
-				<ButtonClose
-					variant="dark"
-					className="btn-img close"
-					onClick={onClose}
+				<IconButton variant="cancel" onClick={onClose} />
+				<IconButton
+					variant="confirmAction"
+					onClick={decrypt}
+					disabled={loading}
 				/>
-				<ButtonRoundArrow onClick={decrypt} disabled={loading} />
 			</div>
 		</div>
 	)

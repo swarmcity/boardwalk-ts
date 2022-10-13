@@ -1,34 +1,45 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 // Store and routes
 import { MARKETPLACES } from '../routes'
 
 // Assets
 import logo from '../assets/imgs/logo.svg?url'
+import { Container } from '../ui/container'
+import { Typography } from '../ui/typography'
+import { Button } from '@swarm-city/ui-library'
 
-export const Home = () => (
-	<>
-		<div className="welcome">
+export const Home = () => {
+	const navigate = useNavigate()
+	return (
+		<div>
 			<div className="bg-warning">
-				<main className="container">
+				<Container>
 					<div className="d-flex w-100">
 						<div>
-							<img src={logo} id="logo" className="mx-auto" />
-							<h1>
+							<img src={logo} id="logo" style={{ width: 80 }} />
+							<Typography color="grey5" variant="body-extra-light-20">
 								Welcome to
-								<br />
+							</Typography>
+							<br />
+							<Typography color="grey5" variant="header-35">
 								<span>swarm.</span>
 								<span>city</span>
-							</h1>
+							</Typography>
 						</div>
-						<Link className="btn btn-warning" to={MARKETPLACES}>
+						<Button
+							size="large"
+							bg
+							variant="action"
+							onClick={() => navigate(MARKETPLACES)}
+						>
 							enter here
-						</Link>
+						</Button>
 					</div>
-				</main>
+				</Container>
 			</div>
 			<nav className="bg-white links">
-				<div className="container">
+				<Container>
 					<span>
 						<a
 							href="https://swarm.city/"
@@ -49,10 +60,10 @@ export const Home = () => (
 							Support
 						</a>
 					</span>
-				</div>
+				</Container>
 			</nav>
 			<address className="bg-gray-lt">
-				<div className="container">
+				<Container>
 					<div className="p-1">
 						<b>Find Swarm City on</b>
 					</div>
@@ -106,8 +117,8 @@ export const Home = () => (
 							Youtube
 						</a>
 					</div>
-				</div>
+				</Container>
 			</address>
 		</div>
-	</>
-)
+	)
+}
