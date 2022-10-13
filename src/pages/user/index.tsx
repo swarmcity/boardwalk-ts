@@ -96,7 +96,7 @@ export function User() {
 						variant="small-bold-12"
 						color="blue"
 						style={{
-							borderBottom: `2px dashed ${getColor('blue')}`,
+							borderBottom: `2px dotted ${getColor('blue')}`,
 							marginTop: 9,
 						}}
 					>

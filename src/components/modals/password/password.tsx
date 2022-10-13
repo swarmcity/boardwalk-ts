@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Wallet } from 'ethers'
 
-// Components
-import { ButtonRoundArrow } from '../../button-round-arrow'
-import { ButtonClose } from '../../button-close'
-
 // Store
 import { useStore } from '../../../store'
 
