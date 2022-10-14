@@ -6,7 +6,7 @@ Every Episode is a development sprint. Each Episode consists of a set of Epics d
 
 After each sprint the dev team will show a functioning DApp demo in which the scenario described by the Episode is played out.
 
-Once an Episode is completed, devs are free to move on to the ensuing Episode.
+Once an episode is completed, devs are free to move on to the ensuing Episode.
 
 ## Glossary
 
