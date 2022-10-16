@@ -55,7 +55,7 @@ type ChainItem = {
 	price: BigNumber
 	fee: BigNumber
 	seekerRep: BigNumber
-	timestamp: number
+	timestamp: BigNumber
 	status: Status
 }
 

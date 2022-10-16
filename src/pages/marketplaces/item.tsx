@@ -521,7 +521,9 @@ export const MarketplaceItem = () => {
 			id: itemId,
 			price: item?.price,
 			description: item?.metadata.description,
-			date: item?.timestamp ? new Date(item?.timestamp) : new Date(),
+			date: item?.timestamp
+				? new Date(item.timestamp.toNumber() * 1000)
+				: new Date(),
 			status: chainItem.item?.status,
 			fee: item?.fee,
 			myReply: replies.find((r) => r.from === address),
