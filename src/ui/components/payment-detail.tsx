@@ -8,7 +8,7 @@ import { formatName } from '../utils'
 interface Props extends HTMLAttributes<HTMLDivElement> {
 	seeker: User
 	provider: User
-	user: User
+	user?: User
 	amount: number
 	reputation: number
 	marketplace: string
@@ -25,8 +25,8 @@ export function PaymentDetail({
 	tokenName,
 	...props
 }: Props) {
-	const isSeeker = seeker.address === user.address
-	const isProvider = provider.address === user.address
+	const isSeeker = seeker.address === user?.address
+	const isProvider = provider.address === user?.address
 
 	return (
 		<div {...props}>
