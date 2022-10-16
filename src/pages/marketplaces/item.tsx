@@ -533,7 +533,7 @@ export const MarketplaceItem = () => {
 							date: new Date(),
 							amount: formatMoney(item?.price || 0n),
 							isMyReply: address === selectedReplyItemClean.from,
-							user: { address: selectedReplyItemClean.from },
+							user: { address: selectedReplyItemClean.from, reputation: 0n },
 							tokenName,
 					  } as Reply)
 					: undefined),
