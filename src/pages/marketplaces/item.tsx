@@ -787,8 +787,7 @@ export const MarketplaceItem = () => {
 
 						{status === Status.Done &&
 							store.request.seeker &&
-							store.request.provider &&
-							store.user && (
+							store.request.provider && (
 								<div
 									style={{
 										padding: 30,
