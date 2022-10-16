@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PageDirection, Protocols } from 'js-waku'
+import { FilterCallback, FilterSubscriptionOpts } from 'js-waku/lib/waku_filter'
 import {
 	DecoderV0,
 	EncoderV0,
@@ -18,6 +19,42 @@ import { useWaku } from '../hooks/use-waku'
 // Custom types
 export type WithPayload<Msg extends Message> = Msg & {
 	get payload(): Uint8Array
+}
+
+export const useWakuFilter = <Msg extends Message>(
+	decoders: Decoder<Msg>[],
+	_callback: FilterCallback<Msg>,
+	dependencies: DependencyList,
+	options: FilterSubscriptionOpts = {}
+) => {
+	const { waku, waiting } = useWaku([Protocols.Store])
+	const [error, setError] = useState<string>()
+
+	useEffect(() => {
+		if (!waku || waiting) {
+			return
+		}
+
+		let cancelled = false
+
+		// Early abort if the effect was replaced
+		const callback = (message: Msg) => {
+			if (!cancelled) {
+				_callback?.(message)
+			}
+		}
+
+		const unsubscribe = waku.filter
+			.subscribe(decoders, callback, options)
+			.catch((error) => !cancelled && setError(error))
+
+		return () => {
+			cancelled = true
+			unsubscribe.then((fn) => fn && fn())
+		}
+	}, [waiting, ...dependencies])
+
+	return { waiting, error }
 }
 
 export const useWakuStore = <Msg extends Message, Callback>(
@@ -142,4 +179,10 @@ export const useLatestTopicData = <Data>(
 	)
 
 	return { ...state, lastUpdate, data, payload }
+}
+
+export const wrapFilterCallback = <Msg extends Message>(
+	callback: (message: Promise<Msg | undefined>) => Promise<void>
+) => {
+	return (message: Msg) => callback(Promise.resolve(message))
 }
