@@ -61,8 +61,7 @@ export function PaymentDetail({
 				>
 					<Typography variant="small-light-12">
 						{isProvider ? 'You' : formatName(provider)} received {amount}{' '}
-						{tokenName ?? 'DAI'}
-						from {isSeeker ? 'you' : formatName(seeker)}.
+						{tokenName ?? 'DAI'} from {isSeeker ? 'you' : formatName(seeker)}.
 					</Typography>
 					<Typography variant="small-light-12">
 						{isProvider ? 'You' : formatName(provider)} gained {reputation} SWR
