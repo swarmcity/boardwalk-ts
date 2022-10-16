@@ -17,11 +17,12 @@ import { cleanOutput } from '../../../lib/ethers'
 // Services
 import { Status } from './marketplace-items'
 import { useReputation } from '../../../services/reputation'
-import { useCache } from '../../../lib/cache'
+import { getCache, useCache } from '../../../lib/cache'
 
 // Cache
 const TOKEN_NAME_CACHE: Map<string, Promise<string> | undefined> = new Map()
 const CONTRACT_NAME_CACHE: Map<string, Promise<string> | undefined> = new Map()
+const CONTRACT_TOKEN_CACHE: Map<string, Promise<string> | undefined> = new Map()
 
 // Types
 export type MarketplaceItem = {
@@ -118,7 +119,17 @@ export const getMarketplaceTokenContract = async (
 	signerOrProvider?: Signer | Provider
 ) => {
 	const contract = getMarketplaceContract(marketplace, signerOrProvider)
-	return new Contract(await contract.token(), erc20Abi, signerOrProvider)
+	const token = await getCache(
+		CONTRACT_TOKEN_CACHE,
+		marketplace,
+		contract.token
+	)
+
+	if (!token) {
+		throw new Error('cache empty, should never happen')
+	}
+
+	return new Contract(token, erc20Abi, signerOrProvider)
 }
 
 export const useMarketplaceTokenContract = (marketplace?: string) => {
@@ -126,8 +137,9 @@ export const useMarketplaceTokenContract = (marketplace?: string) => {
 	const provider = useProvider()
 
 	useEffect(() => {
-		if (marketplace)
+		if (marketplace) {
 			getMarketplaceTokenContract(marketplace, provider).then(setToken)
+		}
 	}, [marketplace, provider])
 
 	return token
