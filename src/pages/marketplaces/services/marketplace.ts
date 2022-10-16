@@ -59,7 +59,7 @@ type MarketplaceConfig = {
 	seekerRep: string
 	payoutAddress: string
 	metadataHash: string
-	itemId: BigNumberish
+	itemId: BigNumber
 }
 
 export const useMarketplaceConfig = <Keys extends keyof MarketplaceConfig>(
@@ -202,8 +202,11 @@ export const useMarketplaceProviderReputation = (
 }
 
 export const useMarketplaceDealCount = (marketplace: string) => {
-	const itemId = useMarketplaceConfig(marketplace, ['itemId'])
-	return useMemo(() => BigNumber.from(itemId || 1).sub(1), [marketplace])
+	const config = useMarketplaceConfig(marketplace, ['itemId'])
+	return useMemo(
+		() => config?.itemId.sub(1) ?? BigNumber.from(0),
+		[config?.itemId]
+	)
 }
 
 export const useMarketplaceTokenName = (
