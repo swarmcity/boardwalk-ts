@@ -123,7 +123,8 @@ const decodeMessage = (
 export const useSelectProvider = (marketplace: string, itemId: bigint) => {
 	const { data, ...state } = useLatestTopicData(
 		getSelectProviderTopic(marketplace, itemId),
-		decodeMessage
+		decodeMessage,
+		true
 	)
 	return { ...state, data }
 }

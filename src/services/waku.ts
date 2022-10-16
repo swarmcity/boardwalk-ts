@@ -21,17 +21,26 @@ export type WithPayload<Msg extends Message> = Msg & {
 	get payload(): Uint8Array
 }
 
+export const wrapFilterCallback = <Msg extends Message>(
+	callback: (message: Promise<Msg | undefined>) => Promise<unknown>
+) => {
+	return (message: Msg) => {
+		callback(Promise.resolve(message))
+	}
+}
+
 export const useWakuFilter = <Msg extends Message>(
 	decoders: Decoder<Msg>[],
 	_callback: FilterCallback<Msg>,
 	dependencies: DependencyList,
-	options: FilterSubscriptionOpts = {}
+	options: FilterSubscriptionOpts = {},
+	enable = true
 ) => {
 	const { waku, waiting } = useWaku([Protocols.Store])
 	const [error, setError] = useState<string>()
 
 	useEffect(() => {
-		if (!waku || waiting) {
+		if (!waku || waiting || !enable) {
 			return
 		}
 
@@ -152,7 +161,8 @@ export const wrapSigner = (signer: Signer) => ({
 
 export const useLatestTopicData = <Data>(
 	topic: string,
-	decodeMessage: (message: WithPayload<MessageV0>) => Data | false
+	decodeMessage: (message: WithPayload<MessageV0>) => Data | false,
+	watch = false
 ) => {
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 	const [data, setData] = useState<Data>()
@@ -173,16 +183,12 @@ export const useLatestTopicData = <Data>(
 		}
 	}
 
-	const state = useWakuStoreQuery([new DecoderV0(topic)], callback, [topic], {
+	const decoders = [new DecoderV0(topic)]
+	const state = useWakuStoreQuery(decoders, callback, [topic], {
 		pageDirection: PageDirection.BACKWARD,
 		pageSize: 1,
 	})
+	useWakuFilter(decoders, wrapFilterCallback(callback), [topic], {}, watch)
 
 	return { ...state, lastUpdate, data, payload }
-}
-
-export const wrapFilterCallback = <Msg extends Message>(
-	callback: (message: Promise<Msg | undefined>) => Promise<void>
-) => {
-	return (message: Msg) => callback(Promise.resolve(message))
 }
