@@ -149,7 +149,6 @@ const decodeNewItemEvent = async (
 	iface: Interface
 ): Promise<ChainItem> => {
 	const { args } = iface.parseLog(event)
-	const { timestamp } = await event.getBlock()
 
 	return {
 		owner: args.owner,
@@ -158,7 +157,7 @@ const decodeNewItemEvent = async (
 		price: args.price,
 		fee: args.fee,
 		seekerRep: args.seekerRep,
-		timestamp,
+		timestamp: args.timestamp,
 		status: Status.Open,
 	}
 }
