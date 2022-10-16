@@ -6,8 +6,8 @@
 		"dev": "npm run protos && vite",
 		"build": "npm run protos && tsc && vite build",
 		"preview": "vite preview",
-		"lint": "eslint . --ext .ts,.tsx && prettier -c .",
-		"lint:fix": "eslint . --ext .ts,.tsx --fix && prettier -w .",
+		"lint": "eslint . --ext .ts,.tsx --ignore-pattern 'src/protos/*' && prettier -c .",
+		"lint:fix": "eslint . --ext .ts,.tsx --ignore-pattern 'src/protos/*' --fix && prettier -w .",
 		"protos": "protons ./src/protos/*.proto"
 	},
 	"dependencies": {
