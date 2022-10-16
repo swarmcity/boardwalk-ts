@@ -88,7 +88,8 @@ export function Reply({
 								style={{ marginLeft: 8 }}
 							>
 								<>
-									{formatName(reply.user)} • {reply.user.reputation} SWT
+									{formatName(reply.user)} • {reply.user.reputation.toString()}{' '}
+									SWR
 								</>
 							</Typography>
 						</div>
@@ -174,7 +175,8 @@ export function Reply({
 								color={reply.isMyReply ? 'grey4' : 'blue'}
 							>
 								<>
-									{formatName(reply.user)} • {reply.user.reputation} SWT
+									{formatName(reply.user)} • {reply.user.reputation.toString()}{' '}
+									SWR
 								</>
 							</Typography>
 						</div>
@@ -248,7 +250,7 @@ export function Reply({
 						color={reply.isMyReply ? 'grey4' : 'blue'}
 					>
 						<>
-							{formatName(reply.user)} • {reply.user.reputation} SWT
+							{formatName(reply.user)} • {reply.user.reputation.toString()} SWR
 						</>
 					</Typography>
 				</div>

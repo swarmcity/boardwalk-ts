@@ -111,7 +111,7 @@ export const Request = ({
 						style={{ marginLeft: 8 }}
 					>
 						<>
-							{formatName(seeker)} • {seeker.reputation} SWT
+							{formatName(seeker)} • {seeker.reputation.toString()} SWR
 						</>
 					</Typography>
 				)}

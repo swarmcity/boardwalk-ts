@@ -93,7 +93,7 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 				seeker={{
 					address: item.owner,
 					name: profile?.username,
-					reputation: item.seekerRep.toBigInt(),
+					reputation: item.seekerRep.toBigInt() ?? 0n,
 					avatar,
 				}}
 				provider={provider}
