@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Wallet } from 'ethers'
 import { utils } from 'js-waku'
 import { verifyTypedData } from '@ethersproject/wallet'
@@ -21,7 +21,12 @@ import type { BigNumber, Signer } from 'ethers'
 import { ItemReply } from '../../../protos/item-reply'
 
 // Hooks
-import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
+import {
+	useWakuFilter,
+	useWakuStoreQuery,
+	WithPayload,
+	wrapFilterCallback,
+} from '../../../services/waku'
 
 export type CreateReply = {
 	text: string
@@ -132,6 +137,9 @@ export const useItemReplies = (marketplace: string, item: bigint) => {
 	const [replies, setReplies] = useState<ItemReplyClean[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
+	const topic = getItemTopic(marketplace, item.toString())
+	const decoders = useMemo(() => [new DecoderV0(topic)], [topic])
+
 	const callback = async (msg: Promise<MessageV0 | undefined>) => {
 		const message = await msg
 		if (!message?.payload) {
@@ -147,8 +155,8 @@ export const useItemReplies = (marketplace: string, item: bigint) => {
 		setLastUpdate(Date.now())
 	}
 
-	const topic = getItemTopic(marketplace, item.toString())
-	const state = useWakuStoreQuery([new DecoderV0(topic)], callback, [topic])
+	const state = useWakuStoreQuery(decoders, callback, [topic])
+	useWakuFilter(decoders, wrapFilterCallback(callback), [topic])
 
 	useEffect(() => (state.loading ? setReplies([]) : undefined), [state.loading])
 
