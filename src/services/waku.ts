@@ -103,7 +103,7 @@ export const postWakuMessage = async (
 	const message = new MessageV0({ payload })
 
 	// Send the message
-	await waku.lightPush.push(new EncoderV0(topic), new MessageV0({ payload }))
+	await waku.lightPush.push(new EncoderV0(topic), message)
 
 	// Return message
 	return message
