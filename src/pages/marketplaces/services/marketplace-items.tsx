@@ -5,7 +5,7 @@ import {
 	MessageV0,
 } from 'js-waku/lib/waku_message/version_0'
 import { BigNumber, Contract, Event } from 'ethers'
-import { useProvider } from 'wagmi'
+import { useProvider, useWebSocketProvider } from 'wagmi'
 import { Interface } from 'ethers/lib/utils'
 
 // Types
@@ -188,9 +188,14 @@ export const useGetMarketplaceItems = (address: string) => {
 
 	// Wagmi
 	const provider = useProvider()
+	const wsProvider = useWebSocketProvider()
 	const contract = useMemo(
 		() => new Contract(address, marketplaceAbi, provider),
 		[provider, address]
+	)
+	const wsContract = useMemo(
+		() => new Contract(address, marketplaceAbi, wsProvider),
+		[wsProvider, address]
 	)
 
 	useEffect(() => {
@@ -209,11 +214,26 @@ export const useGetMarketplaceItems = (address: string) => {
 			}
 		}
 
+		// Real time event listener
+		const listener = (id: BigNumber, status: Status, event: Event) => {
+			const data = metadata[id.toString()]
+
+			if (shouldUpdate(event, data)) {
+				updateMetadata(id, data.metadata, status)
+				setItems(indexed)
+				setLastUpdate(Date.now())
+			}
+		}
+
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
 			const newItem = contract.interface.getEventTopic('NewItem')
 			const statusChange = contract.interface.getEventTopic('ItemStatusChange')
 
+			// Listen to logs in real time
+			wsContract.on('ItemStatusChange', listener)
+
+			// Fetch historical
 			const events = await contract.queryFilter(
 				{
 					address: contract.address,
@@ -258,6 +278,10 @@ export const useGetMarketplaceItems = (address: string) => {
 			setLoading(false)
 			setLastUpdate(Date.now())
 		})()
+
+		return () => {
+			wsContract.off('ItemStatusChange', listener)
+		}
 	}, [contract])
 
 	return { loading, items, lastUpdate }
@@ -270,9 +294,10 @@ export const useMarketplaceItems = (marketplace: string) => {
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
 	useEffect(() => {
+		const itemsCopy = { ...chainItems.items }
 		const items = wakuItems.items.flatMap((item) => {
-			const events = chainItems.items[item.hash] || []
-			delete chainItems.items[item.hash]
+			const events = itemsCopy[item.hash] || []
+			delete itemsCopy[item.hash]
 			return events.map((event) => ({ ...event, metadata: item.metadata }))
 		})
 		setItems(items)
