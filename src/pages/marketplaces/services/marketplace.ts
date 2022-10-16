@@ -17,6 +17,11 @@ import { cleanOutput } from '../../../lib/ethers'
 // Services
 import { Status } from './marketplace-items'
 import { useReputation } from '../../../services/reputation'
+import { useCache } from '../../../lib/cache'
+
+// Cache
+const TOKEN_NAME_CACHE: Map<string, Promise<string> | undefined> = new Map()
+const CONTRACT_NAME_CACHE: Map<string, Promise<string> | undefined> = new Map()
 
 // Types
 export type MarketplaceItem = {
@@ -102,14 +107,10 @@ export const useMarketplaceConfig = <Keys extends keyof MarketplaceConfig>(
 }
 
 export const useMarketplaceName = (address: string) => {
-	const [name, setName] = useState()
 	const contract = useMarketplaceContract(address)
-
-	useEffect(() => {
-		contract.name().then(setName)
-	}, [contract])
-
-	return name
+	return useCache(CONTRACT_NAME_CACHE, address, () => contract?.name(), [
+		contract,
+	])
 }
 
 export const getMarketplaceTokenContract = async (
@@ -204,15 +205,8 @@ export const useMarketplaceDealCount = (marketplace: string) => {
 export const useMarketplaceTokenName = (
 	address?: string
 ): string | undefined => {
-	const [name, setName] = useState<string | undefined>()
-
 	const token = useMarketplaceTokenContract(address)
-
-	useEffect(() => {
-		token?.name().then(setName)
-	}, [token])
-
-	return name
+	return useCache(TOKEN_NAME_CACHE, address, () => token?.name(), [token])
 }
 
 export const useMarketplaceTokenBalanceOf = (
@@ -220,7 +214,6 @@ export const useMarketplaceTokenBalanceOf = (
 	userAddress?: string
 ): BigNumber | undefined => {
 	const [balance, setBalance] = useState<BigNumber | undefined>()
-
 	const token = useMarketplaceTokenContract(address)
 
 	useEffect(() => {
