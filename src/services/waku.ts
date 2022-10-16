@@ -158,7 +158,12 @@ export const useLatestTopicData = <Data>(
 	const [data, setData] = useState<Data>()
 	const [payload, setPayload] = useState<Uint8Array>()
 
-	const callback = (message: MessageV0) => {
+	const callback = async (msg: Promise<MessageV0 | undefined>) => {
+		const message = await msg
+		if (!message) {
+			return
+		}
+
 		const data = decodeMessage(message as WithPayload<MessageV0>)
 		if (data) {
 			setData(data)
@@ -168,15 +173,10 @@ export const useLatestTopicData = <Data>(
 		}
 	}
 
-	const state = useWakuStoreQueryOrdered(
-		[new DecoderV0(topic)],
-		callback,
-		[topic],
-		{
-			pageDirection: PageDirection.BACKWARD,
-			pageSize: 1,
-		}
-	)
+	const state = useWakuStoreQuery([new DecoderV0(topic)], callback, [topic], {
+		pageDirection: PageDirection.BACKWARD,
+		pageSize: 1,
+	})
 
 	return { ...state, lastUpdate, data, payload }
 }
