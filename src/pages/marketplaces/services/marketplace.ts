@@ -59,6 +59,7 @@ type MarketplaceConfig = {
 	seekerRep: string
 	payoutAddress: string
 	metadataHash: string
+	itemId: BigNumberish
 }
 
 export const useMarketplaceConfig = <Keys extends keyof MarketplaceConfig>(
@@ -200,18 +201,9 @@ export const useMarketplaceProviderReputation = (
 	return useReputation(config?.providerRep, user)
 }
 
-// TODO: Replace this with a public function once new contracts are deployed
 export const useMarketplaceDealCount = (marketplace: string) => {
-	const provider = useProvider()
-	const [count, setCount] = useState<BigNumberish>()
-
-	useEffect(() => {
-		provider
-			.getStorageAt(marketplace, 9)
-			.then((count) => setCount(BigNumber.from(count).sub(1)))
-	}, [marketplace])
-
-	return count
+	const itemId = useMarketplaceConfig(marketplace, ['itemId'])
+	return useMemo(() => BigNumber.from(itemId || 1).sub(1), [marketplace])
 }
 
 export const useMarketplaceTokenName = (
