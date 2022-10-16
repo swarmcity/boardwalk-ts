@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, Contract, Signer } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
-import { useProvider } from 'wagmi'
+import { useProvider, useWebSocketProvider } from 'wagmi'
 import {
 	JsonRpcBatchProvider,
 	JsonRpcProvider,
@@ -169,18 +169,33 @@ export const useMarketplaceTokenDecimals = (address?: string) => {
 }
 
 export const useMarketplaceItem = (marketplace: string, itemId: bigint) => {
+	const wsProvider = useWebSocketProvider()
 	const contract = useMarketplaceContract(marketplace)
 	const [item, setItem] = useState<MarketplaceItem>()
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
+		if (!wsProvider) {
+			return
+		}
+
+		const wsContract = contract.connect(wsProvider)
+		const listener = (_: BigNumberish, status: Status) => {
+			setItem((item) => item && { ...item, status })
+		}
+
 		contract.items(itemId).then((item: Array<BigNumberish | string>) => {
 			setItem(cleanOutput(item))
 			setLastUpdate(Date.now())
 			setLoading(false)
+			wsContract.on('ItemStatusChange', listener)
 		})
-	}, [marketplace, itemId])
+
+		return () => {
+			wsContract.off('ItemStatusChange', listener)
+		}
+	}, [marketplace, itemId, wsProvider])
 
 	return { item, lastUpdate, loading }
 }
