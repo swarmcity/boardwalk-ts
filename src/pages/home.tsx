@@ -65,7 +65,7 @@ export const Home = () => {
 							display: 'flex',
 							flexDirection: 'column',
 							justifyContent: 'flex-start',
-							alignItems: 'flex-start'
+							alignItems: 'flex-start',
 						}}
 					>
 						<a
@@ -74,8 +74,13 @@ export const Home = () => {
 							target="_blank"
 							rel="noreferrer"
 						>
-							<Typography variant="small-bold-12" color="blue" style={{
-							borderBottom: `2px dotted ${getColor('blue')}`,}}>
+							<Typography
+								variant="small-bold-12"
+								color="blue"
+								style={{
+									borderBottom: `2px dotted ${getColor('blue')}`,
+								}}
+							>
 								What is Swarm City?
 							</Typography>
 						</a>
@@ -86,8 +91,13 @@ export const Home = () => {
 							rel="noreferrer"
 							style={{ marginTop: 17 }}
 						>
-							<Typography variant="small-bold-12" color="blue" style={{
-							borderBottom: `2px dotted ${getColor('blue')}`,}}>
+							<Typography
+								variant="small-bold-12"
+								color="blue"
+								style={{
+									borderBottom: `2px dotted ${getColor('blue')}`,
+								}}
+							>
 								Support
 							</Typography>
 						</a>
@@ -105,7 +115,7 @@ export const Home = () => {
 							display: 'flex',
 							flexDirection: 'column',
 							justifyContent: 'flex-start',
-							alignItems: 'flex-start'
+							alignItems: 'flex-start',
 						}}
 					>
 						<Typography variant="small-bold-12" color="grey4">

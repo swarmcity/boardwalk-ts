@@ -1,0 +1,27 @@
+.root {
+	margin: 0px;
+	padding-left: 40px;
+	padding-right: 40px;
+	padding-top: 15px;
+	padding-bottom: 19px;
+	border-bottom: 1px solid #dfdfdf;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	flex-grow: 1;
+}
+
+.wrapper {
+	max-width: 1000px;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.wrapperTitle {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}

@@ -43,6 +43,15 @@ export function Typography({
 		textAlign,
 		...style,
 	}
+	const bodyStyles = {
+		fontFamily: 'Montserrat',
+		fontStyle: 'normal',
+		margin: 0,
+		padding: 0,
+		color,
+		textAlign,
+		...style,
+	}
 	switch (variant) {
 		case 'header-56':
 			return (
@@ -161,13 +170,9 @@ export function Typography({
 			return (
 				<span
 					style={{
-						fontFamily: 'Montserrat',
-						fontStyle: 'normal',
 						fontWeight: 200,
 						fontSize: 18,
-						color,
-						textAlign,
-						...style,
+						...bodyStyles,
 					}}
 					{...props}
 				>
@@ -178,13 +183,9 @@ export function Typography({
 			return (
 				<span
 					style={{
-						fontFamily: 'Montserrat',
-						fontStyle: 'normal',
 						fontWeight: 700,
 						fontSize: 16,
-						color,
-						textAlign,
-						...style,
+						...bodyStyles,
 					}}
 					{...props}
 				>
@@ -196,13 +197,9 @@ export function Typography({
 			return (
 				<span
 					style={{
-						fontFamily: 'Montserrat',
-						fontStyle: 'normal',
 						fontWeight: 300,
 						fontSize: 16,
-						color,
-						textAlign,
-						...style,
+						...bodyStyles,
 					}}
 					{...props}
 				>
@@ -213,13 +210,9 @@ export function Typography({
 			return (
 				<span
 					style={{
-						fontFamily: 'Montserrat',
-						fontStyle: 'normal',
 						fontWeight: 700,
 						fontSize: 12,
-						color,
-						textAlign,
-						...style,
+						...bodyStyles,
 					}}
 					{...props}
 				>
@@ -230,13 +223,9 @@ export function Typography({
 			return (
 				<span
 					style={{
-						fontFamily: 'Montserrat',
-						fontStyle: 'normal',
 						fontWeight: 300,
 						fontSize: 12,
-						color,
-						textAlign,
-						...style,
+						...bodyStyles,
 					}}
 					{...props}
 				>
@@ -247,13 +236,9 @@ export function Typography({
 			return (
 				<span
 					style={{
-						fontFamily: 'Montserrat',
-						fontStyle: 'normal',
 						fontWeight: 300,
 						fontSize: 10,
-						color,
-						textAlign,
-						...style,
+						...bodyStyles,
 					}}
 					{...props}
 				>
@@ -265,13 +250,9 @@ export function Typography({
 			return (
 				<span
 					style={{
-						fontFamily: 'Montserrat',
-						fontStyle: 'normal',
 						fontWeight: 700,
 						fontSize: 10,
-						color,
-						textAlign,
-						...style,
+						...bodyStyles,
 					}}
 					{...props}
 				>
@@ -282,7 +263,7 @@ export function Typography({
 			return (
 				<span
 					style={{
-						...style,
+						...bodyStyles,
 					}}
 					{...props}
 				>

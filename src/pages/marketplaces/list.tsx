@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { MarketplaceItem, FullscreenLoading } from '@swarm-city/ui-library'
+import { FullscreenLoading } from '@swarm-city/ui-library'
 
 // Routes and config
 import { HOME, MARKETPLACE } from '../../routes'
@@ -11,6 +11,7 @@ import {
 } from './services/marketplace-list'
 import { useMarketplaceDealCount } from './services/marketplace'
 import { UserAccount } from './user-account'
+import { MarketplaceItem } from '../../ui/components/marketplace-item'
 
 // Assets
 import exit from '../../assets/imgs/exit.svg?url'
