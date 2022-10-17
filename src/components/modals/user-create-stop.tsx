@@ -11,7 +11,11 @@ import { Typography } from '../../ui/typography'
 import { MARKETPLACES } from '../../routes'
 import { useStore } from '../../store'
 
-export const UserCreateStop = () => {
+interface Props {
+	restoring?: boolean
+}
+
+export const UserCreateStop = ({ restoring }: Props) => {
 	const [shown, setShown] = useState<boolean>()
 	const [, setProfile] = useStore.profile()
 	const navigate = useNavigate()
@@ -51,7 +55,7 @@ export const UserCreateStop = () => {
 					}}
 				>
 					<Typography variant="header-35" color="white">
-						Stop creating user account?
+						Stop {restoring ? 'restoring' : 'creating'} user account?
 					</Typography>
 					<div
 						style={{
