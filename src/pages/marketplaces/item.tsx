@@ -820,9 +820,7 @@ export const MarketplaceItem = () => {
 										variant="small-bold-12"
 										style={{
 											marginTop: 40,
-											textDecoration: `2px underline dotted ${getColor(
-												'blue'
-											)}`,
+											borderBottom: `2px dotted ${getColor('blue')}`,
 										}}
 									>
 										see this on ethplorer
