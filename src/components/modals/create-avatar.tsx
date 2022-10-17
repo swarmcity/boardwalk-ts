@@ -1,8 +1,6 @@
 // Store
 import { useRef, useState } from 'react'
 import { setStore } from '../../store'
-import cancel from '../../assets/imgs/cancel.svg?url'
-import checkMarkBlue from '../../assets/imgs/checkMarkBlue.svg?url'
 import { blobToDataURL } from '../../lib/canvas'
 import { Cropper, CropperRef } from '../cropper'
 import { getColor } from '../../ui/colors'
@@ -86,7 +84,7 @@ export const CreateAvatar = ({ children }: Props) => {
 					<div style={{ marginTop: 55 }}>
 						<IconButton
 							variant="cancel"
-							style={{marginRight: 10}}
+							style={{ marginRight: 10 }}
 							onClick={(e) => {
 								e.stopPropagation()
 								setAvatar('')
@@ -111,7 +109,7 @@ export const CreateAvatar = ({ children }: Props) => {
 							}}
 						/>
 					</div>
-					<label style={{marginTop: 85}}>
+					<label style={{ marginTop: 85 }}>
 						<input
 							type="file"
 							onChange={onFileChange}
