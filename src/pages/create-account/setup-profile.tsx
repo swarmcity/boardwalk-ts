@@ -34,9 +34,7 @@ export const SetupProfile = () => {
 			}}
 		>
 			<Container>
-				<div className="close">
-					<UserCreateStop />
-				</div>
+				<UserCreateStop />
 				<main
 					style={{
 						marginTop: 130,
