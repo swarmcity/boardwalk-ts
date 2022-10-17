@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 // Components
 import { UserCreateStop } from '../../components/modals/user-create-stop'
-import { ButtonRoundArrow } from '../../components/button-round-arrow'
 
 // Assets
 import warningBlue from '../../assets/imgs/warningBlue.svg?url'
@@ -11,10 +10,15 @@ import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 // Store and routes
 import { MARKETPLACES } from '../../routes'
 import { useStore } from '../../store'
+import { Container } from '../../ui/container'
+import { Button, IconButton } from '@swarm-city/ui-library'
+import { Typography } from '../../ui/typography'
+import { getColor } from '../../ui/colors'
 
 export const Backup = () => {
 	const [showPrompt, setShowPrompt] = useState(true)
 	const [profile] = useStore.profile()
+	const navigate = useNavigate()
 	const blob = useMemo(
 		() =>
 			new Blob([JSON.stringify(profile)], {
@@ -40,63 +44,155 @@ export const Backup = () => {
 
 	if (showPrompt) {
 		return (
-			<div className="bg-gray-lt download-file">
-				<div className="close">
+			<div
+				style={{
+					width: '100vw',
+					minHeight: '100vh',
+					backgroundColor: getColor('grey1'),
+				}}
+			>
+				<Container>
 					<UserCreateStop />
-				</div>
-				<div className="container">
-					<main className="flex-space">
-						<header>
-							<h1>Back up your account</h1>
-						</header>
-						<div className="warning-box">
-							<img src={warningBlue} />
-							<div>
-								<p>
-									There are no central servers on which accounts are stored.{' '}
-									<br />
+					<main
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							marginLeft: 50,
+							marginRight: 50,
+							marginTop: 130,
+							textAlign: 'center',
+						}}
+					>
+						<Typography variant="header-35" color="grey2-light-text">
+							Make a backup.
+						</Typography>
+
+						<div
+							style={{
+								backgroundColor: getColor('white'),
+								marginTop: 77,
+							}}
+						>
+							<div style={{ position: 'relative', width: '100%' }}>
+								<div
+									style={{
+										position: 'absolute',
+										top: -25,
+										width: '100%',
+										display: 'flex',
+										flexDirection: 'row',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<img src={warningBlue} />
+								</div>
+							</div>
+							<div
+								style={{
+									backgroundColor: getColor('white'),
+									paddingLeft: 22,
+									paddingRight: 22,
+									paddingTop: 46,
+									paddingBottom: 34,
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									textAlign: 'center',
+								}}
+							>
+								<Typography variant="body-bold-16" color="grey4">
+									There are no central servers on which accounts are stored.
+								</Typography>
+								<Typography
+									variant="body-bold-16"
+									color="grey4"
+									style={{ marginTop: 20 }}
+								>
 									This means you are responsible for your own account at all
 									times.
-								</p>
+								</Typography>
 							</div>
 						</div>
-						<ButtonRoundArrow onClick={() => setShowPrompt(false)} />
+						<IconButton
+							variant="conflictNext"
+							onClick={() => setShowPrompt(false)}
+							style={{ marginTop: 50 }}
+						/>
 					</main>
-				</div>
+				</Container>
 			</div>
 		)
 	}
 
 	return (
-		<div className="bg-gray-lt download-success">
-			<div className="close">
+		<div
+			style={{
+				width: '100vw',
+				minHeight: '100vh',
+				backgroundColor: getColor('grey1'),
+			}}
+		>
+			<Container>
 				<UserCreateStop />
-			</div>
-			<div className="container">
-				<main className="flex-space">
-					<header>
-						<h1>Save the file in a safe location</h1>
-						<p>
-							A download should begin. Save the file somehwere safe. With this
-							file you will always be able to get access to the funds on your
-							wallet.
-						</p>
-						<p>
-							The private key of your account is encrypted with your password.
-						</p>
-					</header>
-					<div>
-						<a onClick={() => downloadFile()} className="link">
-							force download
-						</a>
-					</div>
-					<div className="btns">
-						<Link className="btn btn-light" to={MARKETPLACES}>
-							enter swarm.city
-						</Link>
-					</div>
+				<main
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						marginLeft: 50,
+						marginRight: 50,
+						marginTop: 130,
+						textAlign: 'center',
+					}}
+				>
+					<Typography
+						variant="header-35"
+						color="grey2-light-text"
+						style={{ marginTop: 118 }}
+					>
+						Save the file in a safe location.
+					</Typography>
+					<Typography
+						variant="small-light-12"
+						color="grey4"
+						style={{ marginTop: 40 }}
+					>
+						A download should begin. Save the file somehwere safe. With this
+						file you will always be able to get access to the funds on your
+						wallet.
+					</Typography>
+					<Typography
+						variant="small-light-12"
+						color="grey4"
+						style={{ marginTop: 20 }}
+					>
+						The private key of your account is encrypted with your password.
+					</Typography>
+
+					<Typography
+						variant="small-bold-12"
+						color="blue"
+						onClick={() => downloadFile()}
+						style={{
+							borderBottom: `2px dotted ${getColor('blue')}`,
+							marginTop: 50,
+						}}
+					>
+						force download
+					</Typography>
+					<Button
+						size="large"
+						color="blue-light"
+						bg
+						onClick={() => navigate(MARKETPLACES)}
+						style={{ marginTop: 90 }}
+					>
+						enter swarm.city
+					</Button>
 				</main>
-			</div>
+			</Container>
 		</div>
 	)
 }
