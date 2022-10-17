@@ -64,6 +64,8 @@ export const Home = () => {
 							paddingRight: 56,
 							display: 'flex',
 							flexDirection: 'column',
+							justifyContent: 'flex-start',
+							alignItems: 'flex-start'
 						}}
 					>
 						<a
@@ -102,6 +104,8 @@ export const Home = () => {
 							paddingRight: 48,
 							display: 'flex',
 							flexDirection: 'column',
+							justifyContent: 'flex-start',
+							alignItems: 'flex-start'
 						}}
 					>
 						<Typography variant="small-bold-12" color="grey4">
