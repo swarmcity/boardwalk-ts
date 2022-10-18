@@ -1,15 +1,15 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { IconButton, Input } from '@swarm-city/ui-library'
+
 import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 import { ACCOUNT_CREATED } from '../../routes'
-import { useNavigate } from 'react-router-dom'
 import { Wallet } from 'ethers'
 import { UserCreateStop } from '../../components/modals/user-create-stop'
 import { useStore } from '../../store'
-import { Input } from '../../components/input/input'
 import { getColor } from '../../ui/colors'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
-import { IconButton } from '@swarm-city/ui-library'
 
 export const ChoosePassword = () => {
 	const [showPrompt, setShowPrompt] = useState(true)

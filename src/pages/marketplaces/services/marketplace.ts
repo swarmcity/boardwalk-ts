@@ -245,15 +245,21 @@ export const useMarketplaceTokenBalanceOf = (
 	return balance
 }
 
+export const useToken = (tokenAddress?: string): Contract | undefined => {
+	const provider = useProvider()
+	const token = tokenAddress
+		? new Contract(tokenAddress, erc20Abi, provider)
+		: undefined
+
+	return token
+}
+
 export const useTokenBalanceOf = (
 	tokenAddress?: string,
 	userAddress?: string
 ): BigNumber | undefined => {
 	const [balance, setBalance] = useState<BigNumber | undefined>()
-	const provider = useProvider()
-	const token = tokenAddress
-		? new Contract(tokenAddress, erc20Abi, provider)
-		: undefined
+	const token = useToken(tokenAddress)
 
 	useEffect(() => {
 		token?.balanceOf(userAddress).then(setBalance)
@@ -263,10 +269,7 @@ export const useTokenBalanceOf = (
 }
 
 export const useTokenName = (tokenAddress?: string): string | undefined => {
-	const provider = useProvider()
-	const token = tokenAddress
-		? new Contract(tokenAddress, erc20Abi, provider)
-		: undefined
+	const token = useToken(tokenAddress)
 
 	return useCache(TOKEN_NAME_CACHE, tokenAddress, () => token?.name(), [token])
 }
@@ -275,12 +278,8 @@ export const useTokenDecimals = (tokenAddress?: string) => {
 	const [loading, setLoading] = useState(true)
 	const [decimals, setDecimals] = useState<number | undefined>(undefined)
 
-	const provider = useProvider()
-
 	// Get the marketplace contract
-	const token = tokenAddress
-		? new Contract(tokenAddress, erc20Abi, provider)
-		: undefined
+	const token = useToken(tokenAddress)
 
 	useEffect(() => {
 		if (!token) {

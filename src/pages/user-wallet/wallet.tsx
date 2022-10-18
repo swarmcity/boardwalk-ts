@@ -1,51 +1,37 @@
 import { useState } from 'react'
-import { Link, useNavigate, Routes, Route } from 'react-router-dom'
-import {
-	useAccount,
-	useBalance,
-	useNetwork,
-	usePrepareSendTransaction,
-	useSendTransaction,
-} from 'wagmi'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAccount } from 'wagmi'
 import { getAddress } from '@ethersproject/address'
 import { parseEther } from '@ethersproject/units'
+import {
+	Input,
+	Button,
+	IconButton,
+	FullscreenLoading,
+	ConfirmModal,
+} from '@swarm-city/ui-library'
 
 // Components
-import { ButtonClose } from '../../components/button-close'
-import { Input } from '../../components/input/input'
-import { ButtonRoundArrow } from '../../components/button-round-arrow'
-import { ConfirmModal } from '../../components/modals/confirm-modal/confirm-modal'
-import { FullscreenLoading } from '../../components/modals/fullscreen-loading/fullscreen-loading'
 import { Redirect } from '../../components/redirect'
+import { formatMoney } from '../../ui/utils'
+import { Typography } from '../../ui/typography'
+import { Container } from '../../ui/container'
+import { ErrorModal } from '../../ui/components/error-modal'
 
 // Lib
-import { formatAddressShort, formatBalance } from '../../lib/tools'
+import { formatAddressShort } from '../../lib/tools'
 
 // Store and routes
 import { useStore } from '../../store'
+import { LOGIN, ACCOUNT_PUBLIC_WALLET } from '../../routes'
+import { getColor } from '../../ui/colors'
 import {
-	LOGIN,
-	ACCOUNT_PRIVATE_WALLET,
-	ACCOUNT_WALLET_SEND,
-	ACCOUNT_WALLET,
-	MARKETPLACES,
-} from '../../routes'
-
-const Menu = () => {
-	const { chain } = useNetwork()
-	const symbol = chain?.nativeCurrency?.symbol
-
-	return (
-		<div className="flex-space">
-			<Link to={ACCOUNT_WALLET_SEND} className="btn btn-info">
-				send {symbol}
-			</Link>
-			<Link to={ACCOUNT_PRIVATE_WALLET} className="btn btn-info">
-				receive
-			</Link>
-		</div>
-	)
-}
+	useToken,
+	useTokenBalanceOf,
+	useTokenDecimals,
+	useTokenName,
+} from '../marketplaces/services/marketplace'
+import { APP_TOKEN } from '../../config'
 
 const formatRequest = ({
 	address,
@@ -67,48 +53,78 @@ const formatRequest = ({
 	return { to, value, isValid }
 }
 
-const Send = () => {
+interface Props {
+	closeModal: () => void
+	tokenName: string
+}
+
+const Send = ({ closeModal, tokenName }: Props) => {
 	const [showConfirm, setShowConfirm] = useState(false)
 	const [amount, setAmount] = useState('0')
 	const [address, setAddress] = useState('')
-	const { to, value, isValid } = formatRequest({ amount, address })
+	const { to, value, isValid } = formatRequest({ amount, address }) // FIXME: this works for tokens with 18 decimals, but not for other
+	const [isSending, setSending] = useState(false)
+	const [sentSuccessfully, setSentSuccessfully] = useState(false)
+	const [error, setError] = useState<Error | undefined>()
+	const { connector } = useAccount()
 
-	const { chain } = useNetwork()
-	const symbol = chain?.nativeCurrency?.symbol
+	const token = useToken(APP_TOKEN)
 
-	const { config } = usePrepareSendTransaction({ request: { to, value } })
-	const { isLoading, isError, isSuccess, error, sendTransaction, reset } =
-		useSendTransaction(config)
-
-	const navigate = useNavigate()
 	const submit = () => setShowConfirm(isValid)
+	const sendTransaction = async () => {
+		if (!connector) {
+			setError(new Error('no connector'))
+			return
+		}
+		if (!token) {
+			setError(new Error('No token contract.'))
+			return
+		}
 
-	if (isLoading) {
-		return <FullscreenLoading />
+		if (!to || !value) {
+			setError(new Error('Value or address not provided.'))
+			return
+		}
+		try {
+			const signer = await connector.getSigner()
+			setSending(true)
+
+			await token.connect(signer).transfer(to, value)
+
+			setSending(false)
+			setSentSuccessfully(true)
+		} catch (err) {
+			setSending(false)
+			setSentSuccessfully(false)
+			setError(err as Error)
+		}
 	}
 
-	if (isError) {
+	if (isSending) {
 		return (
-			<ConfirmModal
-				confirm={{ onClick: () => reset(), variant: 'checkRed' }}
-				color="danger"
-			>
-				<h1 style={{ color: '#fafafa', marginBottom: '25px' }}>
-					Something went wrong, please try again later.
-				</h1>
-				<p>{error?.message}</p>
-			</ConfirmModal>
+			<FullscreenLoading>
+				<Typography variant="header-35" color="white">
+					Sending is processing
+				</Typography>
+			</FullscreenLoading>
 		)
 	}
 
-	if (isSuccess) {
+	if (error) {
+		console.error(console.error())
+		return <ErrorModal onClose={closeModal} />
+	}
+
+	if (sentSuccessfully) {
 		return (
-			<ConfirmModal
-				confirm={{ onClick: () => navigate(ACCOUNT_WALLET), variant: 'green' }}
-				color="success"
-			>
-				<h1 style={{ color: '#fafafa' }}>{symbol} has been sent.</h1>
-				<p>{error?.message}</p>
+			<ConfirmModal confirm={{ onClick: closeModal }} variant="success">
+				<Typography variant="header-35" color="white">
+					You have successfully sent
+					<span style={{ color: getColor('yellow') }}>
+						{amount} {tokenName}
+					</span>{' '}
+					to {formatAddressShort(address)}.
+				</Typography>
 			</ConfirmModal>
 		)
 	}
@@ -117,110 +133,208 @@ const Send = () => {
 		return (
 			<ConfirmModal
 				cancel={{ onClick: () => setShowConfirm(false) }}
-				confirm={{
-					onClick: () => sendTransaction?.(),
-					variant: 'check',
-					disabled: !sendTransaction,
-				}}
+				confirm={{ onClick: () => sendTransaction?.() }}
+				variant="action"
 			>
-				<h1 style={{ color: '#fafafa' }}>
+				<Typography variant="header-35" color="white">
 					Send{' '}
-					<span className="text-warning">
-						{amount} {symbol}
+					<span style={{ color: getColor('yellow') }}>
+						{amount} {tokenName}
 					</span>{' '}
 					to {formatAddressShort(address)}?
-				</h1>
-				<p>This cannot be undone.</p>
+				</Typography>
+				<div style={{ marginTop: 45 }}>
+					<Typography variant="small-light-12" color="white">
+						This cannot be undone.
+					</Typography>
+				</div>
 			</ConfirmModal>
 		)
 	}
 
 	return (
-		<div className="flex-space user-wallet-send">
-			<form className="send" onSubmit={submit}>
-				<Input
-					id="amt-send"
-					type="number"
-					min={0}
-					value={amount}
-					onChange={(event) => setAmount(event.currentTarget.value)}
-				>
-					Amount to send
-				</Input>
-				<Input
-					id="rec-address"
-					type="text"
-					min={0}
-					value={address}
-					onChange={(event) => setAddress(event.currentTarget.value)}
-				>
-					Receiver's address
-				</Input>
+		<form
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'stretch',
+				alignItems: 'stretch',
+				width: '100%',
+			}}
+			onSubmit={submit}
+		>
+			<Input
+				id="amt-send"
+				type="number"
+				min={0}
+				value={amount}
+				onChange={(event) => setAmount(event.currentTarget.value)}
+				autoFocus
+			>
+				Amount to send
+			</Input>
+			<Input
+				id="rec-address"
+				type="text"
+				min={0}
+				value={address}
+				onChange={(event) => setAddress(event.currentTarget.value)}
+			>
+				Receiver's address
+			</Input>
 
-				{!isValid && amount && address && 'Form invalid'}
-
-				<div className="btns btn-icons">
-					<ButtonClose to={ACCOUNT_WALLET} className="close" />
-					<ButtonRoundArrow
-						type="submit"
-						className="btn-icon"
-						onClick={submit}
-					/>
-				</div>
-			</form>
-		</div>
+			<div
+				style={{
+					height: 40,
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				{!isValid && amount && address && (
+					<Typography variant="small-bold-10" color="red">
+						Form invalid
+					</Typography>
+				)}
+			</div>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+			>
+				<IconButton
+					onClick={closeModal}
+					variant="cancel"
+					style={{ marginRight: 15 }}
+				/>
+				<IconButton
+					variant="conflictNext"
+					disabled={!isValid || !amount || !address}
+					onClick={submit}
+				/>
+			</div>
+		</form>
 	)
 }
 
 export const AccountWallet = () => {
 	const [profile] = useStore.profile()
+	const navigate = useNavigate()
 
-	const { chain } = useNetwork()
-	const symbol = chain?.nativeCurrency?.symbol
-
-	const { address } = useAccount()
-	const { data: balance } = useBalance({
-		addressOrName: address,
-		watch: true,
-	})
+	const tokenName = useTokenName(APP_TOKEN)
+	const tokenBalance = useTokenBalanceOf(APP_TOKEN, profile?.address)
+	const { decimals } = useTokenDecimals(APP_TOKEN)
+	const [sending, setSending] = useState(false)
 
 	if (!profile?.address) {
 		return <Redirect to={LOGIN} />
 	}
 
-	return (
-		<div className="bg-gray-lt user-wallet">
-			<div className="close">
-				<ButtonClose to={MARKETPLACES} variant="dark" />
+	if (!tokenBalance || !tokenName || !decimals) {
+		return (
+			<div
+				style={{
+					width: '100vw',
+					minHeight: '100vh',
+					backgroundColor: getColor('grey1'),
+				}}
+			>
+				<Container>Loading...</Container>
 			</div>
-			<div className="container">
-				<div className="flex-space">
-					<div className="wallet-balance">
-						{balance ? (
-							<>
-								{formatBalance(balance)}{' '}
-								<span className="usd"> ≈ {balance.formatted} USD</span>
-							</>
-						) : (
-							<>
-								0.00 {symbol} <span className="usd"> ≈ 0.0 USD</span>
-							</>
-						)}
-					</div>
-					<div>
-						<Link to={ACCOUNT_PRIVATE_WALLET} className="link link-dark">
-							show my keys
-						</Link>
+		)
+	}
+
+	const userBalance = formatMoney(tokenBalance ?? 0n, decimals)
+
+	return (
+		<div
+			style={{
+				width: '100vw',
+				minHeight: '100vh',
+				backgroundColor: getColor('grey1'),
+			}}
+		>
+			<Container>
+				<div style={{ position: 'relative', width: '100%' }}>
+					<div style={{ position: 'absolute', right: 15, top: 15 }}>
+						<IconButton variant="close" onClick={() => navigate(-1)} />
 					</div>
 				</div>
-			</div>
-			<div className="divider short" />
-			<div className="container">
-				<Routes>
-					<Route element={<Send />} path="/send" />
-					<Route element={<Menu />} path="*" />
-				</Routes>
-			</div>
+				<main
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						marginLeft: 50,
+						marginRight: 50,
+						marginTop: 130,
+						textAlign: 'center',
+					}}
+				>
+					<Typography variant="header-35" color="yellow">
+						{userBalance.toFixed(2)} {tokenName}
+					</Typography>
+					<Link
+						to={ACCOUNT_PUBLIC_WALLET}
+						style={{
+							marginTop: 40,
+						}}
+					>
+						<Typography
+							variant="small-bold-12"
+							color="grey3"
+							style={{
+								borderBottom: `2px dotted ${getColor('grey3')}`,
+							}}
+						>
+							show my keys
+						</Typography>
+					</Link>
+				</main>
+			</Container>
+
+			<div
+				style={{
+					width: '100%',
+					height: 0,
+					borderBottom: `1px solid ${getColor('grey2')}`,
+					marginTop: 50,
+					marginBottom: 50,
+				}}
+			/>
+			<Container>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						marginLeft: 50,
+						marginRight: 50,
+						textAlign: 'center',
+					}}
+				>
+					{sending ? (
+						<Send closeModal={() => setSending(false)} tokenName={tokenName} />
+					) : (
+						<>
+							<Button size="large" onClick={() => setSending(true)}>
+								send {tokenName}
+							</Button>
+							<Button
+								size="large"
+								onClick={() => navigate(ACCOUNT_PUBLIC_WALLET)}
+								style={{ marginTop: 10 }}
+							>
+								receive
+							</Button>
+						</>
+					)}
+				</div>
+			</Container>
 		</div>
 	)
 }
