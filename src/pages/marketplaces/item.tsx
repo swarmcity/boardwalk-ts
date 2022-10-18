@@ -548,18 +548,14 @@ export const MarketplaceItem = () => {
 			status: chainItem.item?.status,
 			fee: item?.fee,
 			myReply: replies.find((r) => r.from === address),
-			selectedReply:
-				selectedReply ??
-				(selectedReplyItemClean !== undefined
-					? ({
-							text: selectedReplyItemClean.text,
-							date: new Date(),
-							amount: tokenToDecimals(item?.price || 0n),
-							isMyReply: address === selectedReplyItemClean.from,
-							user: selectedProviderUser,
-							tokenName,
-					  } as Reply)
-					: undefined),
+			selectedReply: selectedReplyItemClean && {
+				text: selectedReplyItemClean.text,
+				date: new Date(),
+				amount: tokenToDecimals(item?.price || 0n),
+				isMyReply: address === selectedReplyItemClean.from,
+				user: selectedProviderUser,
+				tokenName,
+			},
 			replies: replies,
 			seeker,
 			provider: providerUser,
