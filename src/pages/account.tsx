@@ -17,7 +17,7 @@ import { MarketplaceReputationContainer } from '../containers/marketplace-reputa
 
 // Store and routes
 import { useStore } from '../store'
-import { LOGIN, ACCOUNT_PRIVATE_WALLET, ACCOUNT_BACKUP } from '../routes'
+import { LOGIN, ACCOUNT_PRIVATE_WALLET, ACCOUNT_BACKUP, MARKETPLACES } from '../routes'
 import { useMarketplaceListSync } from './marketplaces/services/marketplace-list'
 
 export const Account = () => {
@@ -36,8 +36,10 @@ export const Account = () => {
 		<>
 			{showConfirmDialog && (
 				<ConfirmModal
-					confirm={{ onClick: () => setProfile() }}
+					confirm={{ onClick: () => {setProfile()
+						 navigate(MARKETPLACES)} }}
 					cancel={{ onClick: () => setShowConfirmDialog(false) }}
+					variant='danger'
 				>
 					<Typography variant="header-35" color="white">
 						Do you want to remove this user from this device?
