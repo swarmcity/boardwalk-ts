@@ -12,6 +12,7 @@ import { useWaku } from '../../hooks/use-waku'
 import {
 	useMarketplaceItem,
 	useMarketplaceName,
+	useMarketplaceProviderReputation,
 	useMarketplaceTokenDecimals,
 	useMarketplaceTokenName,
 } from './services/marketplace'
@@ -358,14 +359,13 @@ const FundDeal = ({
 			setLoading(true)
 			await fundItem(signer, marketplace, item, data?.signature)
 			setLoading(false)
-			// FIXME: this is not correct way of doing it, but better than nothing for now
-			location.reload()
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
 			setLoading(false)
 		}
 	}
+
 	if (error) {
 		return <ErrorModal onClose={() => setError(undefined)} />
 	}
@@ -503,6 +503,24 @@ export const MarketplaceItem = () => {
 					avatar: providerAvatar,
 			  }
 			: undefined
+
+	const selectedProviderProfile = useProfile(provider)
+	const selectedProviderAvatar = useProfilePictureURL(
+		selectedProviderProfile.profile?.pictureHash
+	)
+	const selectedProviderReputation = useMarketplaceProviderReputation(
+		id,
+		provider
+	)
+	const selectedProviderUser: User | undefined = provider
+		? {
+				address: provider,
+				reputation: selectedProviderReputation?.toBigInt() ?? 0n,
+				name: selectedProviderProfile.profile?.username,
+				avatar: selectedProviderAvatar,
+		  }
+		: undefined
+
 	const userProfile = useProfile(address)
 	const userAvatar = useProfilePictureURL(userProfile.profile?.pictureHash)
 	const user: User | undefined = address
@@ -538,7 +556,7 @@ export const MarketplaceItem = () => {
 							date: new Date(),
 							amount: tokenToDecimals(item?.price || 0n),
 							isMyReply: address === selectedReplyItemClean.from,
-							user: { address: selectedReplyItemClean.from, reputation: 0n },
+							user: selectedProviderUser,
 							tokenName,
 					  } as Reply)
 					: undefined),
