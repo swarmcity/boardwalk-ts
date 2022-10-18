@@ -693,7 +693,6 @@ export const MarketplaceItem = () => {
 							detail
 							title={store.request.description || ''}
 							date={store.request.date}
-							repliesCount={store.request.replies.length}
 							amount={formatMoney(store.request.price ?? 0n)}
 							seeker={store.request.seeker}
 							onClickUser={(user) => navigate(`/user/${user.address}`)}
