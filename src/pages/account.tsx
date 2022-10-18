@@ -166,7 +166,7 @@ export const Account = () => {
 											style={{ marginRight: 10 }}
 										/>
 										<IconButton
-											variant="confirmDanger"
+											variant="confirmAction"
 											disabled={!username || username === profile.username}
 											onClick={() => {
 												setProfile({
