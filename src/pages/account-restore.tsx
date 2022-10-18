@@ -4,7 +4,7 @@ import { Button, IconButton } from '@swarm-city/ui-library'
 
 // Store and routes
 import { useStore } from '../store'
-import { MARKETPLACES } from '../routes'
+import { ACCOUNT_PRIVATE_WALLET, MARKETPLACES } from '../routes'
 
 // Components
 import { UserCreateStop } from '../components/modals/user-create-stop'
@@ -16,6 +16,7 @@ import { Avatar } from '../ui/avatar'
 // Types
 import type { Profile } from '../types'
 import type { ChangeEvent } from 'react'
+import { FlexLink } from '../components/flex-link'
 
 export const AccountRestore = () => {
 	const [profile, setProfile] = useStore.profile()
@@ -194,17 +195,22 @@ export const AccountRestore = () => {
 					>
 						{profile?.username}
 					</Typography>
-					<Typography
-						variant="small-bold-12"
-						color="grey3"
+					<FlexLink
+						to={ACCOUNT_PRIVATE_WALLET}
 						style={{
 							marginTop: 40,
-							borderBottom: `2px dotted ${getColor('grey3')}`,
 						}}
 					>
-						{/* FIXME: this should do something on click */}
-						show my keys
-					</Typography>
+						<Typography
+							variant="small-bold-12"
+							color="grey3"
+							style={{
+								borderBottom: `2px dotted ${getColor('grey3')}`,
+							}}
+						>
+							show my keys
+						</Typography>
+					</FlexLink>
 					<Button
 						color="blue"
 						size="large"

@@ -3,7 +3,7 @@ import { Button } from '@swarm-city/ui-library'
 
 // Store and routes
 import { useStore } from '../../store'
-import { ACCOUNT_BACKUP } from '../../routes'
+import { ACCOUNT_BACKUP, ACCOUNT_PRIVATE_WALLET } from '../../routes'
 
 // Components
 import { UserCreateStop } from '../../components/modals/user-create-stop'
@@ -11,6 +11,7 @@ import { Avatar } from '../../ui/avatar'
 import { getColor } from '../../ui/colors'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
+import { FlexLink } from '../../components/flex-link'
 
 export const AccountCreated = () => {
 	const [profile] = useStore.profile()
@@ -72,17 +73,22 @@ export const AccountCreated = () => {
 					>
 						{username}
 					</Typography>
-					<Typography
-						variant="small-bold-12"
-						color="grey3"
+					<FlexLink
+						to={ACCOUNT_PRIVATE_WALLET}
 						style={{
 							marginTop: 40,
-							borderBottom: `2px dotted ${getColor('grey3')}`,
 						}}
 					>
-						{/* FIXME: this should do something on click */}
-						show my keys
-					</Typography>
+						<Typography
+							variant="small-bold-12"
+							color="grey3"
+							style={{
+								borderBottom: `2px dotted ${getColor('grey3')}`,
+							}}
+						>
+							show my keys
+						</Typography>
+					</FlexLink>
 					<Button
 						color="blue"
 						size="large"

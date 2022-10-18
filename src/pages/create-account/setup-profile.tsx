@@ -15,6 +15,7 @@ import { getColor } from '../../ui/colors'
 import { Avatar } from '../../ui/avatar'
 import { IconButton, Input } from '@swarm-city/ui-library'
 import { Typography } from '../../ui/typography'
+import { Arrow } from '../../ui/icons/arrow'
 
 export const SetupProfile = () => {
 	const [profile, setProfile] = useStore.profile()
@@ -54,9 +55,32 @@ export const SetupProfile = () => {
 						<Avatar
 							avatar={profile?.avatar}
 							size={90}
-							style={{ marginTop: 45 }}
+							style={{ marginTop: 45, cursor: 'pointer' }}
 						/>
+						<div
+							style={{ position: 'relative', width: '100%', cursor: 'pointer' }}
+						>
+							<div
+								style={{
+									position: 'absolute',
+									right: -10,
+									bottom: 0,
+									backgroundColor: getColor('grey5'),
+									borderRadius: '50%',
+									width: 30,
+									height: 30,
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
+									cursor: 'pointer',
+								}}
+							>
+								<Arrow />
+							</div>
+						</div>
 					</CreateAvatar>
+
 					<form onSubmit={onSubmit} style={{ maxWidth: 300 }}>
 						<Input
 							type="text"
