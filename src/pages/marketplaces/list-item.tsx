@@ -65,7 +65,7 @@ export const MarketplaceListItem = () => {
 
 			navigate(`/marketplace/${id}`)
 		} catch (err) {
-			console.log(err)
+			console.error(err)
 			setError(err as Error)
 			setLoading(false)
 		}
