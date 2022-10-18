@@ -1,6 +1,6 @@
 import { formatUnits } from '@ethersproject/units'
 import { FormEvent, useMemo, useState } from 'react'
-import { useParams, useNavigate } from 'react-router'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useAccount, useNetwork } from 'wagmi'
 import { hexlify } from '@ethersproject/bytes'
 import { getAddress } from '@ethersproject/address'
@@ -51,6 +51,7 @@ import { PaymentDetail } from '../../ui/components/payment-detail'
 import { Avatar } from '../../ui/avatar'
 import { Request } from '../../ui/components/request'
 import { UserAccount } from './user-account'
+import { FlexLink } from '../../components/flex-link'
 
 type ReplyFormProps = {
 	item: Item
@@ -642,8 +643,10 @@ export const MarketplaceItem = () => {
 	const { status } = chainItem.item
 
 	const isSelectedReplyMyReply =
+		store.user?.address &&
 		store.request.selectedReply?.user.address === store.user?.address
-	const isMyRequest = store.request.seeker?.address === store.user?.address
+	const isMyRequest =
+		store.user?.address && store.request.seeker?.address === store.user?.address
 	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
 
 	return (
@@ -690,7 +693,6 @@ export const MarketplaceItem = () => {
 							detail
 							title={store.request.description || ''}
 							date={store.request.date}
-							repliesCount={store.request.replies.length}
 							amount={formatMoney(store.request.price ?? 0n)}
 							seeker={store.request.seeker}
 							onClickUser={(user) => navigate(`/user/${user.address}`)}
@@ -816,16 +818,23 @@ export const MarketplaceItem = () => {
 										reputation={0}
 										tokenName={store.marketplace.tokenName}
 									/>
-									<Typography
-										color="blue"
-										variant="small-bold-12"
+									<FlexLink
+										href={`https://etherscan` /* FIXME: this should link*/}
+										target="_blank"
 										style={{
 											marginTop: 40,
-											borderBottom: `2px dotted ${getColor('blue')}`,
 										}}
 									>
-										see this on ethplorer
-									</Typography>
+										<Typography
+											color="blue"
+											variant="small-bold-12"
+											style={{
+												borderBottom: `2px dotted ${getColor('blue')}`,
+											}}
+										>
+											see this on ethplorer
+										</Typography>
+									</FlexLink>
 								</div>
 							)}
 

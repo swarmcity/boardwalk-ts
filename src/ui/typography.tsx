@@ -37,7 +37,7 @@ export function Typography({
 		fontFamily: 'Montserrat',
 		fontStyle: 'normal',
 		fontWeight: 700,
-		lineHeight: 1,
+		lineHeight: 1.2,
 		margin: 0,
 		padding: 0,
 		color,
@@ -47,7 +47,7 @@ export function Typography({
 	const bodyStyles = {
 		fontFamily: 'Montserrat',
 		fontStyle: 'normal',
-		lineHeight: 1,
+		lineHeight: 1.2,
 		margin: 0,
 		padding: 0,
 		color,

@@ -114,7 +114,14 @@ export const MarketplaceListItem = () => {
 				</Typography>
 			</Container>
 			<Container>
-				<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
+				<div
+					style={{
+						flexGrow: 1,
+						marginLeft: 10,
+						marginRight: 10,
+						marginTop: 30,
+					}}
+				>
 					<div
 						style={{
 							backgroundColor: '#FAFAFA',

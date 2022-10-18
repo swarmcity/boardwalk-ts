@@ -84,7 +84,6 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 		>
 			<Request
 				title={item.metadata.description}
-				repliesCount={0}
 				date={new Date(item.timestamp.toNumber() * 1000)}
 				amount={formatMoney(item.price, decimals)}
 				status={getStatus(item.status)}
