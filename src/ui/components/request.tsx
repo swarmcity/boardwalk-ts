@@ -3,11 +3,9 @@ import { Avatar } from '../avatar'
 import { User } from '../types'
 import { Typography } from '../typography'
 import { formatDate, formatName } from '../utils'
-import iconReplies from '../assets/icon-replies.svg?url'
 
 interface RequestProps extends HTMLAttributes<HTMLDivElement> {
 	title: string
-	repliesCount: number
 	date: Date
 	amount: number
 	seeker: User
@@ -27,7 +25,6 @@ interface RequestProps extends HTMLAttributes<HTMLDivElement> {
 }
 export const Request = ({
 	title,
-	repliesCount,
 	date,
 	amount,
 	seeker,
@@ -39,29 +36,13 @@ export const Request = ({
 	tokenName,
 }: RequestProps) => (
 	<div>
-		<div
-			style={{
-				display: 'flex',
-				alignItems: 'flex-start',
-				flexDirection: 'row',
-				justifyContent: 'space-between',
-			}}
-		>
+		<div style={{ marginRight: 35 }}>
 			<Typography
 				variant={detail ? 'body-extra-light-20' : 'body-extra-light-18'}
 				color="grey4"
-				style={{ flexBasis: '75%', fontSize: 20, margin: 0 }}
 			>
 				{title}
 			</Typography>
-			{!detail && (
-				<div>
-					<Typography variant="small-bold-12" color="grey4">
-						{repliesCount.toFixed()}
-					</Typography>
-					<img src={iconReplies} style={{ maxHeight: 25, maxWidth: 25 }} />
-				</div>
-			)}
 		</div>
 		<Typography variant="small-light-10" color="grey2-light-text">
 			{formatDate(date)}
@@ -72,6 +53,7 @@ export const Request = ({
 				flexDirection: 'row',
 				justifyContent: 'space-between',
 				alignItems: 'center',
+				marginTop: 15,
 			}}
 		>
 			<div

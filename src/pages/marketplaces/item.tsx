@@ -642,8 +642,10 @@ export const MarketplaceItem = () => {
 	const { status } = chainItem.item
 
 	const isSelectedReplyMyReply =
+		store.user?.address &&
 		store.request.selectedReply?.user.address === store.user?.address
-	const isMyRequest = store.request.seeker?.address === store.user?.address
+	const isMyRequest =
+		store.user?.address && store.request.seeker?.address === store.user?.address
 	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
 
 	return (
