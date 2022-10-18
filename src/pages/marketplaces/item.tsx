@@ -677,6 +677,7 @@ export const MarketplaceItem = () => {
 							padding: 30,
 							marginLeft: 10,
 							marginRight: 10,
+							marginTop: 22,
 						}}
 					>
 						<div style={{ position: 'absolute', right: 15, top: 15 }}>
