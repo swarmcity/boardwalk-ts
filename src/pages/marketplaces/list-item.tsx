@@ -24,6 +24,7 @@ import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
 import { formatMoney } from '../../ui/utils'
 import { ErrorModal } from '../../ui/components/error-modal'
+import { UserAccount } from './user-account'
 
 export const MarketplaceListItem = () => {
 	const { id } = useParams<string>()
@@ -84,6 +85,7 @@ export const MarketplaceListItem = () => {
 
 	return (
 		<>
+			<UserAccount />
 			{confirmationReq && price && (
 				<ConfirmModal
 					cancel={{ onClick: () => setConfirmationReq(false) }}

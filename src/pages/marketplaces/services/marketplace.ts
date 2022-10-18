@@ -244,3 +244,55 @@ export const useMarketplaceTokenBalanceOf = (
 
 	return balance
 }
+
+export const useTokenBalanceOf = (
+	tokenAddress?: string,
+	userAddress?: string
+): BigNumber | undefined => {
+	const [balance, setBalance] = useState<BigNumber | undefined>()
+	const provider = useProvider()
+	const token = tokenAddress
+		? new Contract(tokenAddress, erc20Abi, provider)
+		: undefined
+
+	useEffect(() => {
+		token?.balanceOf(userAddress).then(setBalance)
+	}, [token])
+
+	return balance
+}
+
+export const useTokenName = (tokenAddress?: string): string | undefined => {
+	const provider = useProvider()
+	const token = tokenAddress
+		? new Contract(tokenAddress, erc20Abi, provider)
+		: undefined
+
+	return useCache(TOKEN_NAME_CACHE, tokenAddress, () => token?.name(), [token])
+}
+
+export const useTokenDecimals = (tokenAddress?: string) => {
+	const [loading, setLoading] = useState(true)
+	const [decimals, setDecimals] = useState<number | undefined>(undefined)
+
+	const provider = useProvider()
+
+	// Get the marketplace contract
+	const token = tokenAddress
+		? new Contract(tokenAddress, erc20Abi, provider)
+		: undefined
+
+	useEffect(() => {
+		if (!token) {
+			return
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-extra-semi
+		;(async () => {
+			setDecimals(await token.decimals())
+			setLoading(false)
+		})()
+	}, [token])
+
+	return { decimals, loading }
+}

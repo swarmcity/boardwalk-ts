@@ -6,7 +6,7 @@ import { MarketplaceReputation } from '../ui/components/marketplace-reputation'
 interface Props extends HTMLAttributes<HTMLDivElement> {
 	marketplaceId: string
 	marketplaceName: string
-	userAddress: string
+	userAddress?: string
 }
 
 export function MarketplaceReputationContainer({
