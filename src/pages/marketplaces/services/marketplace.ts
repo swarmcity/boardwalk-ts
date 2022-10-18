@@ -247,9 +247,11 @@ export const useMarketplaceTokenBalanceOf = (
 
 export const useToken = (tokenAddress?: string): Contract | undefined => {
 	const provider = useProvider()
-	const token = tokenAddress
-		? new Contract(tokenAddress, erc20Abi, provider)
-		: undefined
+	const token = useMemo(
+		() =>
+			tokenAddress ? new Contract(tokenAddress, erc20Abi, provider) : undefined,
+		[tokenAddress]
+	)
 
 	return token
 }
