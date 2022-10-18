@@ -1,12 +1,15 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { IconButton, Input } from '@swarm-city/ui-library'
+
 import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 import { ACCOUNT_CREATED } from '../../routes'
-import { useNavigate } from 'react-router-dom'
 import { Wallet } from 'ethers'
 import { UserCreateStop } from '../../components/modals/user-create-stop'
-import { ButtonRoundArrow } from '../../components/button-round-arrow'
 import { useStore } from '../../store'
-import { Input } from '../../components/input/input'
+import { getColor } from '../../ui/colors'
+import { Container } from '../../ui/container'
+import { Typography } from '../../ui/typography'
 
 export const ChoosePassword = () => {
 	const [showPrompt, setShowPrompt] = useState(true)
@@ -33,44 +36,115 @@ export const ChoosePassword = () => {
 
 	if (showPrompt)
 		return (
-			<div className="bg-gray-lt password-warning">
-				<div className="close">
+			<div
+				style={{
+					width: '100vw',
+					minHeight: '100vh',
+					backgroundColor: getColor('grey1'),
+				}}
+			>
+				<Container>
 					<UserCreateStop />
-				</div>
-				<div className="container">
-					<main className="flex-space">
-						<header>
-							<h1>Choose a password.</h1>
-						</header>
-						<div className="warning-box">
-							<img src={warningBlue} />
-							<div>
-								<p>There is no password recovery available in Swarm City.</p>
-								<p>Choose your password with care.</p>
+					<main
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							marginLeft: 50,
+							marginRight: 50,
+							marginTop: 130,
+							textAlign: 'center',
+						}}
+					>
+						<Typography variant="header-35" color="grey2-light-text">
+							Choose a password.
+						</Typography>
+
+						<div
+							style={{
+								backgroundColor: getColor('white'),
+								marginTop: 77,
+							}}
+						>
+							<div style={{ position: 'relative', width: '100%' }}>
+								<div
+									style={{
+										position: 'absolute',
+										top: -25,
+										width: '100%',
+										display: 'flex',
+										flexDirection: 'row',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<img src={warningBlue} />
+								</div>
+							</div>
+							<div
+								style={{
+									backgroundColor: getColor('white'),
+									paddingLeft: 22,
+									paddingRight: 22,
+									paddingTop: 46,
+									paddingBottom: 34,
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									textAlign: 'center',
+								}}
+							>
+								<Typography variant="body-bold-16" color="grey4">
+									There is no password recovery available in Swarm City.
+								</Typography>
+								<Typography
+									variant="body-bold-16"
+									color="grey4"
+									style={{ marginTop: 20 }}
+								>
+									Choose your password with care.
+								</Typography>
 							</div>
 						</div>
-						<div className="btns">
-							<ButtonRoundArrow onClick={() => setShowPrompt(false)} />
-						</div>
+						<IconButton
+							variant="conflictNext"
+							onClick={() => setShowPrompt(false)}
+							style={{ marginTop: 50 }}
+						/>
 					</main>
-				</div>
+				</Container>
 			</div>
 		)
 	return (
-		<div className="bg-gray-lt choose-password">
-			<div className="close">
+		<div
+			style={{
+				width: '100vw',
+				minHeight: '100vh',
+				backgroundColor: getColor('grey1'),
+			}}
+		>
+			<Container>
 				<UserCreateStop />
-			</div>
-			<div className="container">
-				<main className="flex-space">
-					<header>
-						<h1>Choose a password.</h1>
-					</header>
+				<main
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						marginLeft: 50,
+						marginRight: 50,
+						marginTop: 130,
+						textAlign: 'center',
+					}}
+				>
+					<Typography variant="header-35" color="grey2-light-text">
+						Choose a password.
+					</Typography>
 					<form>
 						<Input
 							id="password"
 							type="password"
 							onChange={(e) => setPassword(e.currentTarget.value)}
+							autoFocus
 						>
 							password
 						</Input>
@@ -82,20 +156,32 @@ export const ChoosePassword = () => {
 							confirm password
 						</Input>
 					</form>
-					<div style={{ height: '100px', width: '100%' }}>
-						{loading && <p>Encrypting...</p>}
-						{password2 && password !== password2 && (
-							<p className="error">Password mismatch</p>
+					<div
+						style={{
+							height: '100px',
+							width: '100%',
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+						{loading && (
+							<Typography variant="body-bold-16">Encrypting...</Typography>
+						)}
+						{!loading && password2 && password !== password2 && (
+							<Typography color={'red-text'} variant="body-bold-16">
+								password mismatch
+							</Typography>
 						)}
 					</div>
-					<div className="btns">
-						<ButtonRoundArrow
-							disabled={!password || password !== password2 || loading}
-							onClick={onClick}
-						/>
-					</div>
+					<IconButton
+						variant="conflictNext"
+						disabled={!password || password !== password2 || loading}
+						onClick={onClick}
+					/>
 				</main>
-			</div>
+			</Container>
 		</div>
 	)
 }

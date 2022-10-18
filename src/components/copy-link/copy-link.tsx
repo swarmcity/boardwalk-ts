@@ -1,17 +1,15 @@
-import { useState } from 'react'
-
-// Style
-import classes from './copy-link.module.css'
+import { HTMLAttributes, useState } from 'react'
 
 // Types
-import type { AnchorHTMLAttributes } from 'react'
+import { Typography } from '../../ui/typography'
+import { getColor } from '../../ui/colors'
+import { Clipboard } from '../../ui/icons/clipboard'
 
-interface CopyLinkProps
-	extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'style'> {
+interface CopyLinkProps extends HTMLAttributes<HTMLDivElement> {
 	text: string
 }
 
-export const CopyLink = ({ text, ...other }: CopyLinkProps) => {
+export const CopyLink = ({ text, ...props }: CopyLinkProps) => {
 	const [showCopied, setShowCopied] = useState(false)
 	const copy = () => {
 		navigator.clipboard.writeText(text)
@@ -20,12 +18,32 @@ export const CopyLink = ({ text, ...other }: CopyLinkProps) => {
 	}
 
 	return (
-		<>
-			<div className={classes.copiedWrapper}>
-				{showCopied && <div className={classes.copied}>Copied!</div>}
+		<div {...props}>
+			<div style={{ position: 'relative', width: '100%' }}>
+				{showCopied && (
+					<div
+						style={{
+							// FIXME: make this as an actual tooltip
+							position: 'absolute',
+							left: -25,
+							top: 30,
+							backgroundColor: getColor('grey5'),
+							padding: 10,
+							borderRadius: 6,
+						}}
+					>
+						<Typography variant="small-bold-12" color="white">
+							Copied!
+						</Typography>
+					</div>
+				)}
 			</div>
 
-			<a style={{ cursor: 'pointer' }} {...other} onClick={copy} />
-		</>
+			<Clipboard
+				style={{ cursor: 'pointer' }}
+				fill={getColor('blue')}
+				onClick={copy}
+			/>
+		</div>
 	)
 }

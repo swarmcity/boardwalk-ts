@@ -1,50 +1,86 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { IconButton } from '@swarm-city/ui-library'
 
 // Components
-import { ButtonClose } from '../button-close'
-
-// Assets
-import checkMarkRed from '../../assets/imgs/checkMarkRed.svg?url'
+import { getColor } from '../../ui/colors'
+import { Container } from '../../ui/container'
+import { Typography } from '../../ui/typography'
 
 // Routes and store
-import { LOGIN } from '../../routes'
+import { MARKETPLACES } from '../../routes'
 import { useStore } from '../../store'
 
-export const UserCreateStop = () => {
+interface Props {
+	restoring?: boolean
+}
+
+export const UserCreateStop = ({ restoring }: Props) => {
 	const [shown, setShown] = useState<boolean>()
 	const [, setProfile] = useStore.profile()
+	const navigate = useNavigate()
 
 	if (!shown) {
-		return <ButtonClose onClick={() => setShown(true)} />
+		return (
+			<div style={{ position: 'relative', width: '100%' }}>
+				<div style={{ position: 'absolute', right: 15, top: 15 }}>
+					<IconButton variant="close" onClick={() => setShown(true)} />
+				</div>
+			</div>
+		)
 	}
 
 	return (
 		<div
-			className="bg-danger py-60 stop-creating"
 			style={{
 				width: '100vw',
 				height: '100vh',
 				zIndex: 100,
 				position: 'fixed',
-				paddingTop: 137,
+				paddingTop: 130,
+				backgroundColor: getColor('red'),
 				left: 0,
 				top: 0,
 			}}
 		>
-			<div className="container">
-				<main className="flex-space">
-					<header>
-						<h1 style={{ color: 'white' }}>Stop creating user account?</h1>
-					</header>
-					<div className="btns">
-						<ButtonClose onClick={() => setShown(false)} />
-						<Link className="btn-icon" to={LOGIN} onClick={() => setProfile()}>
-							<img src={checkMarkRed} />
-						</Link>
+			<Container>
+				<main
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						marginLeft: 40,
+						marginRight: 40,
+						textAlign: 'center',
+					}}
+				>
+					<Typography variant="header-35" color="white">
+						Stop {restoring ? 'restoring' : 'creating'} user account?
+					</Typography>
+					<div
+						style={{
+							marginTop: 210,
+							display: 'flex',
+							flexDirection: 'row',
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+						<IconButton
+							variant="close"
+							onClick={() => setShown(false)}
+							style={{ marginRight: 20 }}
+						/>
+						<IconButton
+							variant="confirmDanger"
+							onClick={() => {
+								setProfile()
+								navigate(MARKETPLACES)
+							}}
+						/>
 					</div>
 				</main>
-			</div>
+			</Container>
 		</div>
 	)
 }

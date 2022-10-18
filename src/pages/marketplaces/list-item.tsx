@@ -24,6 +24,7 @@ import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
 import { formatMoney } from '../../ui/utils'
 import { ErrorModal } from '../../ui/components/error-modal'
+import { UserAccount } from './user-account'
 
 export const MarketplaceListItem = () => {
 	const { id } = useParams<string>()
@@ -64,14 +65,14 @@ export const MarketplaceListItem = () => {
 
 			navigate(`/marketplace/${id}`)
 		} catch (err) {
-			console.log(err)
+			console.error(err)
 			setError(err as Error)
 			setLoading(false)
 		}
 	}
 
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -84,6 +85,7 @@ export const MarketplaceListItem = () => {
 
 	return (
 		<>
+			<UserAccount />
 			{confirmationReq && price && (
 				<ConfirmModal
 					cancel={{ onClick: () => setConfirmationReq(false) }}

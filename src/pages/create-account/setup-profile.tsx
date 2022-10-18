@@ -4,17 +4,17 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store'
 import { ACCOUNT_PASSWORD } from '../../routes'
 
-// Assets
-import avatarDefault from '../../assets/imgs/avatar.svg?url'
-import arrowUp from '../../assets/imgs/arrowUp.svg?url'
-
 // Components
-import { ButtonRoundArrow } from '../../components/button-round-arrow'
 import { UserCreateStop } from '../../components/modals/user-create-stop'
 import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Types
 import type { FormEvent } from 'react'
+import { Container } from '../../ui/container'
+import { getColor } from '../../ui/colors'
+import { Avatar } from '../../ui/avatar'
+import { IconButton, Input } from '@swarm-city/ui-library'
+import { Typography } from '../../ui/typography'
 
 export const SetupProfile = () => {
 	const [profile, setProfile] = useStore.profile()
@@ -25,45 +25,57 @@ export const SetupProfile = () => {
 	}
 
 	return (
-		<div className="bg-gray-lt choose-username">
-			<div className="close">
+		<div
+			style={{
+				backgroundColor: getColor('grey1'),
+				minHeight: '100vh',
+				width: '100vw',
+				overflowX: 'hidden',
+			}}
+		>
+			<Container>
 				<UserCreateStop />
-			</div>
-			<div className="container">
-				<main className="flex-space">
-					<header>
-						<h1>Choose a username and an avatar.</h1>
-					</header>
-					<div className="content">
-						<CreateAvatar>
-							<figure className="avatar">
-								<img src={profile?.avatar || avatarDefault} alt="user avatar" />
-								<a className="btn-icon btn-info btn-upload">
-									<img src={arrowUp} />
-								</a>
-							</figure>
-						</CreateAvatar>
-						<form onSubmit={onSubmit}>
-							<label htmlFor="username" className="form-label">
-								Username
-							</label>
-							<input
-								type="text"
-								id="username"
-								onChange={(e) =>
-									setProfile({ ...profile, username: e.currentTarget.value })
-								}
-							/>
-						</form>
-					</div>
-					<div className="btns">
-						<ButtonRoundArrow
-							disabled={!profile?.username}
-							to={ACCOUNT_PASSWORD}
+				<main
+					style={{
+						marginTop: 130,
+						marginLeft: 40,
+						marginRight: 40,
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						textAlign: 'center',
+					}}
+				>
+					<Typography variant="header-35" color="grey2-light-text">
+						Choose a username and an avatar.
+					</Typography>
+
+					<CreateAvatar>
+						<Avatar
+							avatar={profile?.avatar}
+							size={90}
+							style={{ marginTop: 45 }}
 						/>
-					</div>
+					</CreateAvatar>
+					<form onSubmit={onSubmit} style={{ maxWidth: 300 }}>
+						<Input
+							type="text"
+							id="username"
+							onChange={(e) =>
+								setProfile({ ...profile, username: e.currentTarget.value })
+							}
+						>
+							Username
+						</Input>
+					</form>
+					<IconButton
+						style={{ marginTop: 45 }}
+						variant="conflictNext"
+						disabled={!profile?.username}
+						onClick={() => navigate(ACCOUNT_PASSWORD)}
+					/>
 				</main>
-			</div>
+			</Container>
 		</div>
 	)
 }

@@ -16,12 +16,12 @@ export const useReputationContract = (contract?: string) => {
 	)
 }
 
-export const useReputation = (token: string | undefined, user: string) => {
+export const useReputation = (token?: string, user?: string) => {
 	const contract = useReputationContract(token)
 	const [balance, setBalance] = useState<BigNumberish>()
 
 	useEffect(() => {
-		if (!contract) {
+		if (!contract || !user) {
 			return
 		}
 

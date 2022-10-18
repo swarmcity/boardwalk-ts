@@ -1,6 +1,6 @@
 import { useCallback, useImperativeHandle, useState, forwardRef } from 'react'
 import Crop from 'react-easy-crop'
-import cn from 'classnames'
+import classes from './cropper.module.css'
 
 // Lib
 import { getCroppedImage } from '../lib/canvas'
@@ -10,9 +10,7 @@ import type { Point, Area } from 'react-easy-crop/types'
 import type { CropperProps as CropProps } from 'react-easy-crop'
 import type { Ref } from 'react'
 
-type CropperProps = Pick<CropProps, 'image'> & {
-	wrapperClass: string | undefined
-}
+type CropperProps = Pick<CropProps, 'image'>
 
 export type CropperRef = {
 	getImage: () => Promise<string>
@@ -20,7 +18,7 @@ export type CropperRef = {
 }
 
 const CropperInner = (
-	{ wrapperClass, image, ...props }: CropperProps,
+	{ image, ...props }: CropperProps,
 	ref: Ref<CropperRef>
 ) => {
 	const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
@@ -44,7 +42,7 @@ const CropperInner = (
 	}))
 
 	return (
-		<div className={cn('relative', wrapperClass)} style={{ height: '200px' }}>
+		<div style={{ width: 250, height: 250, position: 'relative' }}>
 			<Crop
 				{...props}
 				image={image}
@@ -57,6 +55,7 @@ const CropperInner = (
 				onCropComplete={onCropComplete}
 				onZoomChange={setZoom}
 				onRotationChange={setRotation}
+				classes={{ containerClassName: classes.container }}
 			/>
 		</div>
 	)

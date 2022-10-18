@@ -1,22 +1,13 @@
 import { useEffect, useState } from 'react'
-import cn from 'classnames'
 import { Wallet } from 'ethers'
-
-// Assets
-import avatarImage from '../../../assets/imgs/avatar.svg?url'
-
-// Components
-import { ButtonRoundArrow } from '../../button-round-arrow'
-import { ButtonClose } from '../../button-close'
-
-// Style
-import classes from './password.module.css'
 
 // Store
 import { useStore } from '../../../store'
 
 // Types
 import type { FormEvent } from 'react'
+import { Avatar } from '../../../ui/avatar'
+import { IconButton, Input } from '@swarm-city/ui-library'
 
 type PasswordModalProps = {
 	show?: boolean
@@ -70,45 +61,45 @@ export const PasswordModal = ({
 
 	return (
 		<div
-			className={cn(classes.passwordModal, 'modal')}
-			tabIndex={-1}
-			aria-labelledby="pwModalLabel"
-			aria-hidden="false"
-			style={{ display: 'block' }}
+			style={{
+				width: '100vw',
+				height: '100vh',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'center',
+				alignItems: 'center',
+				position: 'fixed',
+				zIndex: 300,
+				backdropFilter: 'blur(10px)',
+			}}
 		>
-			<div className="modal-dialog modal-fullscreen">
-				<div className="modal-content">
-					<div className="modal-body">
-						<div className="bg-info-50 send-password">
-							<main className="flex-space">
-								<div className="content">
-									<figure className="avatar">
-										<img src={avatarImage} alt="user avatar" />
-									</figure>
-									<form onSubmit={decrypt}>
-										<input
-											type="password"
-											placeholder="password?"
-											value={password}
-											disabled={loading}
-											onChange={(event) =>
-												setPassword(event.currentTarget.value)
-											}
-										/>
-									</form>
-								</div>
-								<div className="btns btn-icons">
-									<ButtonClose
-										variant="dark"
-										className="btn-img close"
-										onClick={onClose}
-									/>
-									<ButtonRoundArrow onClick={decrypt} disabled={loading} />
-								</div>
-							</main>
-						</div>
-					</div>
-				</div>
+			<Avatar size={80} />
+			<form onSubmit={decrypt} style={{ marginTop: 40 }}>
+				<Input
+					id="password"
+					autoFocus
+					type="password"
+					placeholder="password?"
+					value={password}
+					disabled={loading}
+					onChange={(event) => setPassword(event.currentTarget.value)}
+				/>
+			</form>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'center',
+					alignItems: 'center',
+					marginTop: 80,
+				}}
+			>
+				<IconButton variant="cancel" onClick={onClose} />
+				<IconButton
+					variant="confirmAction"
+					onClick={decrypt}
+					disabled={loading}
+				/>
 			</div>
 		</div>
 	)

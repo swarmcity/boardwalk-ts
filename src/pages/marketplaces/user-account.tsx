@@ -1,13 +1,9 @@
-import { useAccount, useBalance, useNetwork } from 'wagmi'
 import { Link, useNavigate } from 'react-router-dom'
 import type { HTMLAttributes } from 'react'
 
 // Routes and store
-import { ACCOUNT_WALLET, LOGIN } from '../../routes'
+import { ACCOUNT_WALLET, LOGIN, ACCOUNT } from '../../routes'
 import { useStore } from '../../store'
-
-// Components
-import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Services
 import { useSyncProfile } from '../../services/profile'
@@ -18,43 +14,24 @@ import { formatMoney, formatName } from '../../ui/utils'
 import { Plus } from '../../ui/icons/plus'
 import { getColor } from '../../ui/colors'
 import {
-	useMarketplaceTokenBalanceOf,
-	useMarketplaceTokenDecimals,
-	useMarketplaceTokenName,
+	useTokenBalanceOf,
+	useTokenDecimals,
+	useTokenName,
 } from './services/marketplace'
 
-interface Props extends HTMLAttributes<HTMLDivElement> {
-	marketplaceId?: string
-}
+import { APP_TOKEN } from '../../config'
 
-export const UserAccount = ({
-	marketplaceId,
-	children,
-	style,
-	...props
-}: Props) => {
+type Props = HTMLAttributes<HTMLDivElement>
+
+export const UserAccount = ({ children, style, ...props }: Props) => {
 	const [profile] = useStore.profile()
 	const navigate = useNavigate()
 
-	const tokenName = useMarketplaceTokenName(marketplaceId)
-	const tokenBalance = useMarketplaceTokenBalanceOf(
-		marketplaceId,
-		profile?.address
-	)
-	const tokenDecimals = useMarketplaceTokenDecimals(marketplaceId)
+	const tokenName = useTokenName(APP_TOKEN)
+	const tokenBalance = useTokenBalanceOf(APP_TOKEN, profile?.address)
+	const { decimals } = useTokenDecimals(APP_TOKEN)
 
-	const { chain } = useNetwork()
-	const symbol = chain?.nativeCurrency?.symbol
-
-	const { address } = useAccount()
-	const { data: balance } = useBalance({
-		addressOrName: address,
-		watch: true,
-	})
-
-	const userBalance = marketplaceId
-		? formatMoney(tokenBalance ?? 0n, tokenDecimals.decimals)
-		: formatMoney(balance?.value ?? 0n, balance?.decimals)
+	const userBalance = formatMoney(tokenBalance ?? 0n, decimals)
 
 	// Keep the profile in sync
 	useSyncProfile()
@@ -98,23 +75,25 @@ export const UserAccount = ({
 				)}
 				{profile?.address && (
 					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<CreateAvatar>
+						<Link to={ACCOUNT}>
 							<Avatar
 								avatar={profile?.avatar}
 								size={40}
 								style={{ marginRight: 10 }}
 							/>
-						</CreateAvatar>
+						</Link>
 						<div style={{ display: 'flex', flexDirection: 'column' }}>
-							<Typography variant="small-bold-12" color="grey4">
-								{formatName({
-									address: profile.address,
-									name: profile.username,
-								})}
-							</Typography>
+							<Link to={ACCOUNT}>
+								<Typography variant="small-bold-12" color="grey4">
+									{formatName({
+										address: profile.address,
+										name: profile.username,
+									})}
+								</Typography>
+							</Link>
 							<Link to={ACCOUNT_WALLET}>
 								<Typography variant="header-22" color="yellow">
-									{userBalance.toFixed(4)} {tokenName ?? symbol}
+									{userBalance.toFixed(4)} {tokenName}
 								</Typography>
 							</Link>
 						</div>

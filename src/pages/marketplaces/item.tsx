@@ -98,7 +98,7 @@ const ReplyForm = ({
 	}
 
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -273,7 +273,7 @@ const PayoutItem = ({
 	}
 
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -365,7 +365,7 @@ const FundDeal = ({
 		}
 	}
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -590,7 +590,7 @@ export const MarketplaceItem = () => {
 
 		return (
 			<>
-				<UserAccount marketplaceId={id} />
+				<UserAccount />
 				<Container>
 					<div
 						style={{
@@ -610,7 +610,7 @@ export const MarketplaceItem = () => {
 	}
 
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loadingSelectProvider) {
@@ -648,7 +648,7 @@ export const MarketplaceItem = () => {
 
 	return (
 		<>
-			<UserAccount marketplaceId={id} />
+			<UserAccount />
 			<Container>
 				<div
 					style={{
@@ -677,6 +677,7 @@ export const MarketplaceItem = () => {
 							padding: 30,
 							marginLeft: 10,
 							marginRight: 10,
+							marginTop: 22,
 						}}
 					>
 						<div style={{ position: 'absolute', right: 15, top: 15 }}>
@@ -820,9 +821,7 @@ export const MarketplaceItem = () => {
 										variant="small-bold-12"
 										style={{
 											marginTop: 40,
-											textDecoration: `2px underline dotted ${getColor(
-												'blue'
-											)}`,
+											borderBottom: `2px dotted ${getColor('blue')}`,
 										}}
 									>
 										see this on ethplorer

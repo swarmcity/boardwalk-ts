@@ -1,6 +1,8 @@
 import type { Icon } from '../types'
 
-export function Back({ size, fill }: Icon) {
+type Props = Icon & React.SVGProps<SVGSVGElement>
+
+export function Back({ size, fill, ...props }: Props) {
 	return (
 		<svg
 			width={size ?? 25}
@@ -8,6 +10,7 @@ export function Back({ size, fill }: Icon) {
 			viewBox="0 0 25 25"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			{...props}
 		>
 			<path
 				fillRule="evenodd"
