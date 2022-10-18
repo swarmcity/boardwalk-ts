@@ -23,7 +23,11 @@ import { formatAddressShort } from '../../lib/tools'
 
 // Store and routes
 import { useStore } from '../../store'
-import { LOGIN, ACCOUNT_PRIVATE_WALLET, ACCOUNT_PUBLIC_WALLET } from '../../routes'
+import {
+	LOGIN,
+	ACCOUNT_PRIVATE_WALLET,
+	ACCOUNT_PUBLIC_WALLET,
+} from '../../routes'
 import { getColor } from '../../ui/colors'
 import {
 	useToken,
@@ -60,7 +64,7 @@ interface Props {
 
 const Send = ({ closeModal, tokenName }: Props) => {
 	const [showConfirm, setShowConfirm] = useState(false)
-	const [amount, setAmount] = useState('0')
+	const [amount, setAmount] = useState('')
 	const [address, setAddress] = useState('')
 	const { to, value, isValid } = formatRequest({ amount, address }) // FIXME: this works for tokens with 18 decimals, but not for other
 	const [isSending, setSending] = useState(false)
@@ -176,7 +180,6 @@ const Send = ({ closeModal, tokenName }: Props) => {
 			<Input
 				id="rec-address"
 				type="text"
-				min={0}
 				value={address}
 				onChange={(event) => setAddress(event.currentTarget.value)}
 			>
