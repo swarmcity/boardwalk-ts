@@ -42,7 +42,6 @@ export const CreateAvatar = ({ children }: Props) => {
 
 	return (
 		<div
-			className="bg-gray-lt set-avatar"
 			style={{
 				width: '100vw',
 				minHeight: '100vh',

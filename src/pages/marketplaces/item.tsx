@@ -98,7 +98,7 @@ const ReplyForm = ({
 	}
 
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -273,7 +273,7 @@ const PayoutItem = ({
 	}
 
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -365,7 +365,7 @@ const FundDeal = ({
 		}
 	}
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {
@@ -610,7 +610,7 @@ export const MarketplaceItem = () => {
 	}
 
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loadingSelectProvider) {

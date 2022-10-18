@@ -71,7 +71,7 @@ export const MarketplaceListItem = () => {
 	}
 
 	if (error) {
-		return <ErrorModal error={error} onClose={() => setError(undefined)} />
+		return <ErrorModal onClose={() => setError(undefined)} />
 	}
 
 	if (loading) {

@@ -1,45 +1,25 @@
 import { IconButton } from '@swarm-city/ui-library'
 import { useParams, useNavigate } from 'react-router'
+import { MarketplaceReputationContainer } from '../../containers/marketplace-reputation'
 import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
 import { Avatar } from '../../ui/avatar'
 import { getColor } from '../../ui/colors'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
-
-interface Marketplace {
-	name: string
-	seekerRep: number
-	providerRep: number
-}
-
-const marketplaces: Marketplace[] = [
-	{
-		name: 'Settler',
-		seekerRep: 1,
-		providerRep: 0,
-	},
-	{
-		name: 'ScCommShare',
-		seekerRep: 9,
-		providerRep: 12,
-	},
-	{
-		name: 'SwarmCitySwag',
-		seekerRep: 4,
-		providerRep: 2,
-	},
-]
+import { useMarketplaceListSync } from '../marketplaces/services/marketplace-list'
 
 export function User() {
 	const navigate = useNavigate()
 	const { id } = useParams<string>()
 	if (!id) {
+		// FIXME: add some error boundaries because this could crash the app
 		throw new Error('no id')
 	}
 	const { profile, waiting, loading } = useProfile(id)
 
 	const avatar = useProfilePictureURL(profile?.pictureHash)
+	const marketplaces = useMarketplaceListSync()
 
 	if (waiting || loading)
 		return (
@@ -47,7 +27,8 @@ export function User() {
 				style={{
 					backgroundColor: getColor('grey1'),
 					minHeight: '100vh',
-					width: '100%',
+					width: '100vw',
+					overflowX: 'hidden',
 				}}
 			>
 				<Container>
@@ -55,7 +36,6 @@ export function User() {
 						style={{
 							display: 'flex',
 							flexDirection: 'column',
-							width: '100%',
 							alignItems: 'center',
 							padding: 50,
 						}}
@@ -71,7 +51,8 @@ export function User() {
 			style={{
 				backgroundColor: getColor('grey1'),
 				minHeight: '100vh',
-				width: '100%',
+				width: '100vw',
+				overflowX: 'hidden',
 			}}
 		>
 			<Container>
@@ -79,8 +60,9 @@ export function User() {
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
-						width: '100%',
 						alignItems: 'center',
+						paddingLeft: 50,
+						paddingRight: 50,
 					}}
 				>
 					<div style={{ position: 'relative', width: '100%' }}>
@@ -92,73 +74,40 @@ export function User() {
 					<Typography variant="body-bold-16" style={{ marginTop: 17 }}>
 						{profile?.username}
 					</Typography>
-					<Typography
-						variant="small-bold-12"
-						color="blue"
-						style={{
-							borderBottom: `2px dotted ${getColor('blue')}`,
-							marginTop: 9,
-						}}
-					>
-						<a href={`https://goerli.etherscan.io/address/${id}`}>
+					<a href={`https://goerli.etherscan.io/address/${id}`} target="blank">
+						<Typography
+							variant="small-bold-12"
+							color="blue"
+							style={{
+								borderBottom: `2px dotted ${getColor('blue')}`,
+								marginTop: 9,
+							}}
+						>
 							show on ethplorer
-						</a>
-					</Typography>
+						</Typography>
+					</a>
 					<div
 						style={{
 							marginTop: 53,
 							width: '100%',
 							paddingLeft: 50,
 							paddingRight: 50,
+							textAlign: 'left',
+							alignItems: 'flex-start',
 						}}
 					>
-						{marketplaces.map(({ name, seekerRep, providerRep }, index) => (
-							<div
-								key={index}
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									marginBottom: 20,
-								}}
-							>
-								<Typography variant="body-bold-16" color="grey4">
-									{name}
-								</Typography>
-								<div
+						{marketplaces &&
+							Object.values(marketplaces).map((marketplace) => (
+								<MarketplaceReputationContainer
+									key={marketplace.address}
+									marketplaceId={marketplace.address}
+									marketplaceName={marketplace.name}
+									userAddress={id}
 									style={{
-										display: 'flex',
-										flexDirection: 'row',
-										alignItems: 'center',
+										marginTop: 15,
 									}}
-								>
-									<div style={{ display: 'flex', flexDirection: 'column' }}>
-										<Typography variant="body-extra-light-20" color="blue">
-											{seekerRep} SWR
-										</Typography>
-										<Typography variant="small-light-12" color="grey3">
-											as a Seeker
-										</Typography>
-									</div>
-									<div
-										style={{
-											height: 32,
-											width: 0,
-											border: '1px dashed #BFBFBF',
-											marginLeft: 15,
-											marginRight: 15,
-										}}
-									/>
-									<div style={{ display: 'flex', flexDirection: 'column' }}>
-										<Typography variant="body-extra-light-20" color="blue">
-											{providerRep} SWR
-										</Typography>
-										<Typography variant="small-light-12" color="grey3">
-											as a Provider
-										</Typography>
-									</div>
-								</div>
-							</div>
-						))}
+								/>
+							))}
 					</div>
 				</div>
 			</Container>

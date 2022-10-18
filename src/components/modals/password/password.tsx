@@ -69,7 +69,7 @@ export const PasswordModal = ({
 				justifyContent: 'center',
 				alignItems: 'center',
 				position: 'fixed',
-				zIndex: 100,
+				zIndex: 300,
 				backdropFilter: 'blur(10px)',
 			}}
 		>

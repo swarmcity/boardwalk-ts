@@ -68,12 +68,7 @@ export const Home = () => {
 							alignItems: 'flex-start',
 						}}
 					>
-						<a
-							href="https://swarm.city/"
-							className="link"
-							target="_blank"
-							rel="noreferrer"
-						>
+						<a href="https://swarm.city/" target="_blank" rel="noreferrer">
 							<Typography
 								variant="small-bold-12"
 								color="blue"
@@ -86,7 +81,6 @@ export const Home = () => {
 						</a>
 						<a
 							href="https://discord.com/invite/NvnmBmCavn"
-							className="link"
 							target="_blank"
 							rel="noreferrer"
 							style={{ marginTop: 17 }}
@@ -104,7 +98,7 @@ export const Home = () => {
 					</div>
 				</Container>
 			</nav>
-			<address className="bg-gray-lt">
+			<address>
 				<Container>
 					<div
 						style={{
@@ -122,7 +116,6 @@ export const Home = () => {
 							Find Swarm City on
 						</Typography>
 						<a
-							className="p-1"
 							href="https://discord.com/invite/NvnmBmCavn"
 							target="_blank"
 							rel="noreferrer"
@@ -133,7 +126,6 @@ export const Home = () => {
 							</Typography>
 						</a>
 						<a
-							className="p-1"
 							href="https://twitter.com/SwarmCityDApp"
 							target="_blank"
 							rel="noreferrer"
@@ -144,7 +136,6 @@ export const Home = () => {
 							</Typography>
 						</a>
 						<a
-							className="p-1"
 							href="https://medium.com/swarm-city-times"
 							target="_blank"
 							rel="noreferrer"
@@ -155,7 +146,6 @@ export const Home = () => {
 							</Typography>
 						</a>
 						<a
-							className="p-1"
 							href="https://github.com/swarmcity"
 							target="_blank"
 							rel="noreferrer"
@@ -166,7 +156,6 @@ export const Home = () => {
 							</Typography>
 						</a>
 						<a
-							className="p-1"
 							href="https://www.youtube.com/channel/UCsHBWn_ytZ3xdMbTyYe5Ifg"
 							target="_blank"
 							rel="noreferrer"

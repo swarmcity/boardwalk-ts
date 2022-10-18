@@ -3,12 +3,13 @@ import { HTMLAttributes, useState } from 'react'
 // Types
 import { Typography } from '../../ui/typography'
 import { getColor } from '../../ui/colors'
+import { Clipboard } from '../../ui/icons/clipboard'
 
 interface CopyLinkProps extends HTMLAttributes<HTMLDivElement> {
 	text: string
 }
 
-export const CopyLink = ({ text, children, ...props }: CopyLinkProps) => {
+export const CopyLink = ({ text, ...props }: CopyLinkProps) => {
 	const [showCopied, setShowCopied] = useState(false)
 	const copy = () => {
 		navigator.clipboard.writeText(text)
@@ -24,7 +25,7 @@ export const CopyLink = ({ text, children, ...props }: CopyLinkProps) => {
 						style={{
 							// FIXME: make this as an actual tooltip
 							position: 'absolute',
-							right: 15,
+							left: -25,
 							top: 30,
 							backgroundColor: getColor('grey5'),
 							padding: 10,
@@ -38,17 +39,11 @@ export const CopyLink = ({ text, children, ...props }: CopyLinkProps) => {
 				)}
 			</div>
 
-			<Typography
-				style={{
-					cursor: 'pointer',
-					borderBottom: `2px dotted ${getColor('blue')}`,
-				}}
-				variant="small-bold-12"
-				color="blue"
+			<Clipboard
+				style={{ cursor: 'pointer' }}
+				fill={getColor('blue')}
 				onClick={copy}
-			>
-				{children}
-			</Typography>
+			/>
 		</div>
 	)
 }

@@ -25,7 +25,7 @@ import { formatAddressShort, formatBalance } from '../../lib/tools'
 import { useStore } from '../../store'
 import {
 	LOGIN,
-	ACCOUNT_PUBLIC_WALLET,
+	ACCOUNT_PRIVATE_WALLET,
 	ACCOUNT_WALLET_SEND,
 	ACCOUNT_WALLET,
 	MARKETPLACES,
@@ -40,7 +40,7 @@ const Menu = () => {
 			<Link to={ACCOUNT_WALLET_SEND} className="btn btn-info">
 				send {symbol}
 			</Link>
-			<Link to={ACCOUNT_PUBLIC_WALLET} className="btn btn-info">
+			<Link to={ACCOUNT_PRIVATE_WALLET} className="btn btn-info">
 				receive
 			</Link>
 		</div>
@@ -208,7 +208,7 @@ export const AccountWallet = () => {
 						)}
 					</div>
 					<div>
-						<Link to={ACCOUNT_PUBLIC_WALLET} className="link link-dark">
+						<Link to={ACCOUNT_PRIVATE_WALLET} className="link link-dark">
 							show my keys
 						</Link>
 					</div>

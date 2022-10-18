@@ -5,11 +5,10 @@ import { getColor } from '../colors'
 import { Typography } from '../typography'
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-	error?: Error
 	onClose?: () => void
 }
 
-export function ErrorModal({ error, onClose }: Props) {
+export function ErrorModal({ onClose }: Props) {
 	return (
 		<div
 			style={{
@@ -29,13 +28,6 @@ export function ErrorModal({ error, onClose }: Props) {
 			<Typography color="white" variant="header-35">
 				Something went wrong...
 			</Typography>
-			{error && (
-				<div style={{ maxHeight: '50%', overflow: 'auto', marginTop: 10 }}>
-					<Typography color="white" variant="small-light-10">
-						{JSON.stringify(error)}
-					</Typography>
-				</div>
-			)}
 			<div style={{ marginTop: 30 }}>
 				<IconButton variant="errorNext" onClick={onClose} />
 			</div>

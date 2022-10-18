@@ -60,7 +60,6 @@ export const AccountRestore = () => {
 							Upload and unlock your account file.
 						</Typography>
 						<label
-							className="btn btn-light"
 							style={{
 								fontFamily: 'Montserrat',
 								background: getColor('white'),

@@ -13,7 +13,8 @@ import { Backup } from './pages/create-account/backup'
 import { Marketplaces } from './pages/marketplaces'
 import { AccountRestore } from './pages/account-restore'
 import { AccountWallet } from './pages/user-wallet/wallet'
-import { AccountPublicWallet } from './pages/user-wallet/public'
+import { AccountPrivateWallet } from './pages/user-wallet/private'
+import { Account } from './pages/account'
 
 // Components
 import { PasswordSigner } from './components/modals/password-signer'
@@ -34,6 +35,7 @@ import { WakuProvider } from './hooks/use-waku'
 import type { PasswordSignerRef } from './components/modals/password-signer'
 import type { RefObject } from 'react'
 import { User } from './pages/user'
+import { AccountPublicWallet } from './pages/user-wallet/public'
 
 const { chains, provider, webSocketProvider } = configureChains(
 	[WAGMI_CHAIN],
@@ -100,6 +102,7 @@ export const App = () => {
 				<Routes>
 					<Route element={<Login />} path={ROUTES.LOGIN} />
 					<Route element={<SetupProfile />} path={ROUTES.CREATE_ACCOUNT} />
+					<Route element={<Account />} path={ROUTES.ACCOUNT} />
 					<Route element={<AccountCreated />} path={ROUTES.ACCOUNT_CREATED} />
 					<Route element={<ChoosePassword />} path={ROUTES.ACCOUNT_PASSWORD} />
 					<Route element={<Backup />} path={ROUTES.ACCOUNT_BACKUP} />
@@ -110,6 +113,10 @@ export const App = () => {
 					<Route
 						element={<AccountWallet />}
 						path={`${ROUTES.ACCOUNT_WALLET}/*`}
+					/>
+					<Route
+						element={<AccountPrivateWallet />}
+						path={ROUTES.ACCOUNT_PRIVATE_WALLET}
 					/>
 					<Route
 						element={<AccountPublicWallet />}

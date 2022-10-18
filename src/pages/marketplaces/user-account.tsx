@@ -3,11 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import type { HTMLAttributes } from 'react'
 
 // Routes and store
-import { ACCOUNT_WALLET, LOGIN } from '../../routes'
+import { ACCOUNT_WALLET, LOGIN, ACCOUNT } from '../../routes'
 import { useStore } from '../../store'
-
-// Components
-import { CreateAvatar } from '../../components/modals/create-avatar'
 
 // Services
 import { useSyncProfile } from '../../services/profile'
@@ -98,20 +95,22 @@ export const UserAccount = ({
 				)}
 				{profile?.address && (
 					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<CreateAvatar>
+						<Link to={ACCOUNT}>
 							<Avatar
 								avatar={profile?.avatar}
 								size={40}
 								style={{ marginRight: 10 }}
 							/>
-						</CreateAvatar>
+						</Link>
 						<div style={{ display: 'flex', flexDirection: 'column' }}>
-							<Typography variant="small-bold-12" color="grey4">
-								{formatName({
-									address: profile.address,
-									name: profile.username,
-								})}
-							</Typography>
+							<Link to={ACCOUNT}>
+								<Typography variant="small-bold-12" color="grey4">
+									{formatName({
+										address: profile.address,
+										name: profile.username,
+									})}
+								</Typography>
+							</Link>
 							<Link to={ACCOUNT_WALLET}>
 								<Typography variant="header-22" color="yellow">
 									{userBalance.toFixed(4)} {tokenName ?? symbol}
