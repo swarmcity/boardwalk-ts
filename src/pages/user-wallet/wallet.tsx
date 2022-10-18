@@ -23,7 +23,7 @@ import { formatAddressShort } from '../../lib/tools'
 
 // Store and routes
 import { useStore } from '../../store'
-import { LOGIN, ACCOUNT_PUBLIC_WALLET } from '../../routes'
+import { LOGIN, ACCOUNT_PRIVATE_WALLET } from '../../routes'
 import { getColor } from '../../ui/colors'
 import {
 	useToken,
@@ -279,7 +279,7 @@ export const AccountWallet = () => {
 						{userBalance.toFixed(2)} {tokenName}
 					</Typography>
 					<Link
-						to={ACCOUNT_PUBLIC_WALLET}
+						to={ACCOUNT_PRIVATE_WALLET}
 						style={{
 							marginTop: 40,
 						}}
@@ -326,7 +326,7 @@ export const AccountWallet = () => {
 							</Button>
 							<Button
 								size="large"
-								onClick={() => navigate(ACCOUNT_PUBLIC_WALLET)}
+								onClick={() => navigate(ACCOUNT_PRIVATE_WALLET)}
 								style={{ marginTop: 10 }}
 							>
 								receive

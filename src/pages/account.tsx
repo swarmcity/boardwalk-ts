@@ -79,8 +79,18 @@ export const Account = () => {
 							}}
 						>
 							<CreateAvatar>
-								<Avatar size={90} avatar={profile.avatar} />
-								<div style={{ position: 'relative', width: '100%' }}>
+								<Avatar
+									size={90}
+									avatar={profile.avatar}
+									style={{ cursor: 'pointer' }}
+								/>
+								<div
+									style={{
+										position: 'relative',
+										width: '100%',
+										cursor: 'pointer',
+									}}
+								>
 									<div
 										style={{
 											position: 'absolute',
@@ -94,6 +104,7 @@ export const Account = () => {
 											alignItems: 'center',
 											justifyContent: 'center',
 											boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
+											cursor: 'pointer',
 										}}
 									>
 										<Arrow />
