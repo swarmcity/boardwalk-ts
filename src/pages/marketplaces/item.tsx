@@ -177,6 +177,7 @@ const ReplyContainer = ({
 	setSelectedReply,
 	amount,
 	tokenName,
+	marketplace,
 }: {
 	reply: ItemReplyClean
 	isMyReply: boolean
@@ -185,15 +186,20 @@ const ReplyContainer = ({
 	setSelectedReply: (reply: Reply | undefined) => void
 	amount: number
 	tokenName?: string
+	marketplace: string
 }) => {
 	// Profile
 	const { profile } = useProfile(replyItem.from)
 	const avatar = useProfilePictureURL(profile?.pictureHash)
+	const reputation = useMarketplaceProviderReputation(
+		marketplace,
+		replyItem.from
+	)
 
 	const user: User = {
 		name: profile?.username,
 		address: replyItem.from,
-		reputation: 0n,
+		reputation: reputation?.toBigInt() ?? 0n,
 		avatar,
 	}
 
@@ -872,6 +878,7 @@ export const MarketplaceItem = () => {
 											status={status}
 											setSelectedReply={setSelectedReply}
 											tokenName={store.marketplace.tokenName}
+											marketplace={id}
 										/>
 									))}
 								</>
