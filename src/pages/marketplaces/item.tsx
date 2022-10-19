@@ -697,6 +697,7 @@ export const MarketplaceItem = () => {
 							seeker={store.request.seeker}
 							onClickUser={(user) => navigate(`/user/${user.address}`)}
 							tokenName={store.marketplace.tokenName}
+							isMyListing={item.owner === address}
 						/>
 					</div>
 					<div
