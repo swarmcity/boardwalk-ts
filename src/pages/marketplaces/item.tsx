@@ -188,6 +188,8 @@ const ReplyContainer = ({
 	tokenName?: string
 	marketplace: string
 }) => {
+	const navigate = useNavigate()
+
 	// Profile
 	const { profile } = useProfile(replyItem.from)
 	const avatar = useProfilePictureURL(profile?.pictureHash)
@@ -217,6 +219,7 @@ const ReplyContainer = ({
 			reply={reply}
 			onSelectClick={() => setSelectedReply(reply)}
 			showSelectBtn={status === Status.Open && isMyRequest}
+			onClickUser={(user) => navigate(`/user/${user.address}`)}
 		/>
 	)
 }
