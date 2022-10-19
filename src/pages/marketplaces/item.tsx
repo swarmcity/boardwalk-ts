@@ -548,14 +548,16 @@ export const MarketplaceItem = () => {
 			status: chainItem.item?.status,
 			fee: item?.fee,
 			myReply: replies.find((r) => r.from === address),
-			selectedReply: selectedReplyItemClean && {
-				text: selectedReplyItemClean.text,
-				date: new Date(),
-				amount: tokenToDecimals(item?.price || 0n),
-				isMyReply: address === selectedReplyItemClean.from,
-				user: selectedProviderUser,
-				tokenName,
-			},
+			selectedReply:
+				selectedReplyItemClean &&
+				({
+					text: selectedReplyItemClean.text,
+					date: new Date(),
+					amount: tokenToDecimals(item?.price || 0n),
+					isMyReply: address === selectedReplyItemClean.from,
+					user: selectedProviderUser,
+					tokenName,
+				} as Reply), // FIXME: this should not be typecasted
 			replies: replies,
 			seeker,
 			provider: providerUser,
@@ -660,7 +662,7 @@ export const MarketplaceItem = () => {
 
 	const isSelectedReplyMyReply =
 		store.user?.address &&
-		store.request.selectedReply?.user.address === store.user?.address
+		store.request.selectedReply?.user?.address === store.user?.address
 	const isMyRequest =
 		store.user?.address && store.request.seeker?.address === store.user?.address
 	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
