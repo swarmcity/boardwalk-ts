@@ -90,8 +90,6 @@ const ReplyForm = ({
 			await createReply(waku, marketplace, item.id, { text }, signer)
 			setText('')
 			setLoading(false)
-			// FIXME: this is not correct way of doing it, but better than nothing for now
-			location.reload()
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
@@ -265,8 +263,6 @@ const PayoutItem = ({
 			await payoutItem(signer, marketplace, item)
 			setSuccess(true)
 			setLoading(false)
-			// FIXME: this is not correct way of doing it, but better than nothing for now
-			location.reload()
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
@@ -593,7 +589,6 @@ export const MarketplaceItem = () => {
 			})
 
 			setLoadingSelectProvider(false)
-			location.reload()
 		} catch (error) {
 			console.error(error)
 			setError(error as Error)
