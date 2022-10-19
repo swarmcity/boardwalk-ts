@@ -224,59 +224,59 @@ export const useGetMarketplaceItems = (address: string) => {
 			}
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-extra-semi
-		;(async () => {
-			const newItem = contract.interface.getEventTopic('NewItem')
-			const statusChange = contract.interface.getEventTopic('ItemStatusChange')
+			// eslint-disable-next-line @typescript-eslint/no-extra-semi
+			; (async () => {
+				const newItem = contract.interface.getEventTopic('NewItem')
+				const statusChange = contract.interface.getEventTopic('ItemStatusChange')
 
-			// Listen to logs in real time
-			wsContract.on('ItemStatusChange', listener)
+				// Listen to logs in real time
+				wsContract.on('ItemStatusChange', listener)
 
-			// Fetch historical
-			const events = await contract.queryFilter(
-				{
-					address: contract.address,
-					topics: [[newItem, statusChange]],
-				},
-				0
-			)
+				// Fetch historical
+				const events = await contract.queryFilter(
+					{
+						address: contract.address,
+						topics: [[newItem, statusChange]],
+					},
+					0
+				)
 
-			for (const event of events) {
-				const { blockNumber, transactionIndex, topics } = event
+				for (const event of events) {
+					const { blockNumber, transactionIndex, topics } = event
 
-				switch (topics[0]) {
-					case newItem:
-						const item = await decodeNewItemEvent(event, contract.interface)
-						metadata[item.id.toString()] = {
-							blockNumber,
-							transactionIndex,
-							metadata: item.metadata,
-						}
-						if (!indexed[item.metadata]) {
-							indexed[item.metadata] = []
-						}
-						indexed[item.metadata].push(item)
-						break
+					switch (topics[0]) {
+						case newItem:
+							const item = await decodeNewItemEvent(event, contract.interface)
+							metadata[item.id.toString()] = {
+								blockNumber,
+								transactionIndex,
+								metadata: item.metadata,
+							}
+							if (!indexed[item.metadata]) {
+								indexed[item.metadata] = []
+							}
+							indexed[item.metadata].push(item)
+							break
 
-					case statusChange:
-						const { id, status } = await decodeStatusChangeEvent(
-							event,
-							contract.interface
-						)
-						const data = metadata[id.toString()]
+						case statusChange:
+							const { id, status } = await decodeStatusChangeEvent(
+								event,
+								contract.interface
+							)
+							const data = metadata[id.toString()]
 
-						if (shouldUpdate(event, data)) {
-							updateMetadata(id, data.metadata, status)
-						}
+							if (shouldUpdate(event, data)) {
+								updateMetadata(id, data.metadata, status)
+							}
 
-						break
+							break
+					}
 				}
-			}
 
-			setItems(indexed)
-			setLoading(false)
-			setLastUpdate(Date.now())
-		})()
+				setItems(indexed)
+				setLoading(false)
+				setLastUpdate(Date.now())
+			})()
 
 		return () => {
 			wsContract.off('ItemStatusChange', listener)

@@ -479,11 +479,11 @@ export const MarketplaceItem = () => {
 	const seekerAvatar = useProfilePictureURL(seekerProfile.profile?.pictureHash)
 	const seeker: User | undefined = item?.owner
 		? {
-				address: item.owner,
-				reputation: item?.seekerRep.toBigInt() ?? 0n,
-				name: seekerProfile.profile?.username,
-				avatar: seekerAvatar,
-		  }
+			address: item.owner,
+			reputation: item?.seekerRep.toBigInt() ?? 0n,
+			name: seekerProfile.profile?.username,
+			avatar: seekerAvatar,
+		}
 		: undefined
 
 	const providerProfile = useProfile(chainItem.item?.providerAddress)
@@ -492,24 +492,24 @@ export const MarketplaceItem = () => {
 	)
 	const providerUser: User | undefined =
 		chainItem.item?.providerAddress &&
-		chainItem.item.providerAddress !==
+			chainItem.item.providerAddress !==
 			'0x0000000000000000000000000000000000000000'
 			? {
-					address: chainItem.item.providerAddress,
-					reputation: chainItem.item?.providerRep ?? 0n,
-					name: providerProfile.profile?.username,
-					avatar: providerAvatar,
-			  }
+				address: chainItem.item.providerAddress,
+				reputation: chainItem.item?.providerRep ?? 0n,
+				name: providerProfile.profile?.username,
+				avatar: providerAvatar,
+			}
 			: undefined
 	const userProfile = useProfile(address)
 	const userAvatar = useProfilePictureURL(userProfile.profile?.pictureHash)
 	const user: User | undefined = address
 		? {
-				address: address,
-				reputation: 0n,
-				name: userProfile.profile?.username,
-				avatar: userAvatar,
-		  }
+			address: address,
+			reputation: 0n,
+			name: userProfile.profile?.username,
+			avatar: userAvatar,
+		}
 		: undefined
 	const store = {
 		marketplace: {
@@ -532,13 +532,13 @@ export const MarketplaceItem = () => {
 				selectedReply ??
 				(selectedReplyItemClean !== undefined
 					? ({
-							text: selectedReplyItemClean.text,
-							date: new Date(),
-							amount: formatMoney(item?.price || 0n),
-							isMyReply: address === selectedReplyItemClean.from,
-							user: { address: selectedReplyItemClean.from, reputation: 0n },
-							tokenName,
-					  } as Reply)
+						text: selectedReplyItemClean.text,
+						date: new Date(),
+						amount: formatMoney(item?.price || 0n),
+						isMyReply: address === selectedReplyItemClean.from,
+						user: { address: selectedReplyItemClean.from, reputation: 0n },
+						tokenName,
+					} as Reply)
 					: undefined),
 			replies: replies,
 			seeker,
@@ -832,7 +832,7 @@ export const MarketplaceItem = () => {
 												borderBottom: `2px dotted ${getColor('blue')}`,
 											}}
 										>
-											see this on ethplorer
+											see this on etherscan
 										</Typography>
 									</FlexLink>
 								</div>

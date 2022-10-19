@@ -83,7 +83,7 @@ export function User() {
 								marginTop: 9,
 							}}
 						>
-							show on ethplorer
+							show on etherscan
 						</Typography>
 					</a>
 					<div
