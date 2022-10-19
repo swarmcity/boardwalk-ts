@@ -934,7 +934,7 @@ export const MarketplaceItem = () => {
 								marketplace={id}
 								item={itemId}
 								amount={tokenToDecimals(store.request.price ?? 0n)}
-								user={store.request.seeker}
+								user={store.request.provider!}
 							/>
 						)}
 						{isSelectedReplyMyReply && status === Status.Funded && <InDeal />}
