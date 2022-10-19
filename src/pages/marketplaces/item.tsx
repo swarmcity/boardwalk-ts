@@ -89,14 +89,11 @@ const ReplyForm = ({
 			setLoading(true)
 			await createReply(waku, marketplace, item.id, { text }, signer)
 			setText('')
-			setLoading(false)
-			// FIXME: this is not correct way of doing it, but better than nothing for now
-			location.reload()
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
-			setLoading(false)
 		}
+		setLoading(false)
 	}
 
 	if (error) {
@@ -264,14 +261,11 @@ const PayoutItem = ({
 			setLoading(true)
 			await payoutItem(signer, marketplace, item)
 			setSuccess(true)
-			setLoading(false)
-			// FIXME: this is not correct way of doing it, but better than nothing for now
-			location.reload()
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
-			setLoading(false)
 		}
+		setLoading(false)
 	}
 
 	if (error) {
@@ -591,14 +585,12 @@ export const MarketplaceItem = () => {
 				provider: selectedReply?.user.address,
 				item: itemId,
 			})
-
-			setLoadingSelectProvider(false)
-			location.reload()
 		} catch (error) {
 			console.error(error)
 			setError(error as Error)
-			setLoadingSelectProvider(false)
 		}
+
+		setLoadingSelectProvider(false)
 	}
 
 	if (!item || !chainItem.item || !store.request.seeker) {
