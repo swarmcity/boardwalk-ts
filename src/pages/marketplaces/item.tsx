@@ -43,7 +43,7 @@ import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
 import { getColor } from '../../ui/colors'
 import { Reply as ReplyUI } from '../../ui/components/reply'
-import { formatName, formatMoney } from '../../ui/utils'
+import { amountToString, formatName, tokenToDecimals } from '../../ui/utils'
 import { Reply, User } from '../../ui/types'
 import { ErrorModal } from '../../ui/components/error-modal'
 import { InDeal } from '../../ui/components/in-deal'
@@ -294,7 +294,8 @@ const PayoutItem = ({
 			>
 				<Typography variant="header-35">
 					<>
-						You're about to pay {amount} {tokenName} to {formatName(user)}.
+						You're about to pay {amountToString(amount)} {tokenName} to{' '}
+						{formatName(user)}.
 					</>
 				</Typography>
 				<div style={{ paddingTop: 30 }}>
@@ -386,7 +387,8 @@ const FundDeal = ({
 			>
 				<Typography variant="header-35">
 					<>
-						You're about to fund this deal with {amount + fee} {tokenName}.
+						You're about to fund this deal with {amountToString(amount + fee)}{' '}
+						{tokenName}.
 					</>
 				</Typography>
 				<div style={{ paddingTop: 30 }}>
@@ -397,7 +399,7 @@ const FundDeal = ({
 				<div>
 					<Typography variant="small-light-12">
 						<>
-							{fee} {tokenName} fee is included.
+							{amountToString(fee)} {tokenName} fee is included.
 						</>
 					</Typography>
 				</div>
@@ -534,7 +536,7 @@ export const MarketplaceItem = () => {
 					? ({
 							text: selectedReplyItemClean.text,
 							date: new Date(),
-							amount: formatMoney(item?.price || 0n),
+							amount: tokenToDecimals(item?.price || 0n),
 							isMyReply: address === selectedReplyItemClean.from,
 							user: { address: selectedReplyItemClean.from, reputation: 0n },
 							tokenName,
@@ -693,7 +695,7 @@ export const MarketplaceItem = () => {
 							detail
 							title={store.request.description || ''}
 							date={store.request.date}
-							amount={formatMoney(store.request.price ?? 0n)}
+							amount={tokenToDecimals(store.request.price ?? 0n)}
 							seeker={store.request.seeker}
 							onClickUser={(user) => navigate(`/user/${user.address}`)}
 							tokenName={store.marketplace.tokenName}
@@ -814,7 +816,7 @@ export const MarketplaceItem = () => {
 										provider={store.request.provider}
 										user={store.user}
 										marketplace={store.marketplace.name ?? ''}
-										amount={formatMoney(store.request.price ?? 0n)}
+										amount={tokenToDecimals(store.request.price ?? 0n)}
 										reputation={0}
 										tokenName={store.marketplace.tokenName}
 									/>
@@ -879,7 +881,7 @@ export const MarketplaceItem = () => {
 												store.request.seeker?.address === store.user?.address
 											}
 											isMyReply={reply.from === store.user?.address}
-											amount={formatMoney(store.request.price ?? 0n)}
+											amount={tokenToDecimals(store.request.price ?? 0n)}
 											status={status}
 											setSelectedReply={setSelectedReply}
 											tokenName={store.marketplace.tokenName}
@@ -914,15 +916,15 @@ export const MarketplaceItem = () => {
 								marketplace={id}
 								item={itemId}
 								data={selectedProvider.data}
-								amount={formatMoney(store.request.price ?? 0n)}
-								fee={formatMoney(store.request.fee?.toBigInt() ?? 0n)}
+								amount={tokenToDecimals(store.request.price ?? 0n)}
+								fee={tokenToDecimals(store.request.fee?.toBigInt() ?? 0n)}
 							/>
 						)}
 						{isMyRequest && status === Status.Funded && (
 							<PayoutItem
 								marketplace={id}
 								item={itemId}
-								amount={formatMoney(store.request.price ?? 0n)}
+								amount={tokenToDecimals(store.request.price ?? 0n)}
 								user={store.request.seeker}
 							/>
 						)}

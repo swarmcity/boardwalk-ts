@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react'
 import { Avatar } from '../avatar'
 import { User } from '../types'
 import { Typography } from '../typography'
-import { formatDate, formatName } from '../utils'
+import { amountToString, formatDate, formatName } from '../utils'
 
 interface RequestProps extends HTMLAttributes<HTMLDivElement> {
 	title: string
@@ -115,10 +115,10 @@ export const Request = ({
 				}}
 			>
 				<Typography variant="small-bold-10" color="yellow">
-					{tokenName ?? 'DAI'}
+					{tokenName}
 				</Typography>
 				<Typography variant="header-24" color="yellow">
-					{amount}
+					{amountToString(amount)}
 				</Typography>
 			</div>
 		</div>

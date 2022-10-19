@@ -22,9 +22,10 @@ import {
 } from './services/marketplace'
 import { Container } from '../../ui/container'
 import { Typography } from '../../ui/typography'
-import { formatMoney } from '../../ui/utils'
+import { amountToString, tokenToDecimals } from '../../ui/utils'
 import { ErrorModal } from '../../ui/components/error-modal'
 import { UserAccount } from './user-account'
+import { getColor } from '../../ui/colors'
 
 export const MarketplaceListItem = () => {
 	const { id } = useParams<string>()
@@ -41,7 +42,7 @@ export const MarketplaceListItem = () => {
 	const name = useMarketplaceName(id)
 	const config = useMarketplaceConfig(id, ['fee', 'token'])
 	const tokenName = useMarketplaceTokenName(id)
-	const fee = formatMoney(BigNumber.from(config?.fee ?? 0n)) // TODO: instead of defaulting to 0 the page should be in loading state
+	const fee = tokenToDecimals(BigNumber.from(config?.fee ?? 0n)) // TODO: instead of defaulting to 0 the page should be in loading state
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<Error | undefined>(undefined)
 
@@ -93,11 +94,14 @@ export const MarketplaceListItem = () => {
 				>
 					<div style={{ padding: 20 }}>
 						<Typography variant="header-35" style={{ marginBottom: 12 }}>
-							You are about to post this request for {price + fee} {tokenName}.
+							You are about to post this request for{' '}
+							{amountToString(price + fee)} {tokenName}.
 						</Typography>
 						<Typography>This cannot be undone.</Typography>
 						<br />
-						<Typography>0.5 {tokenName} fee is included.</Typography>
+						<Typography>
+							{amountToString(fee)} {tokenName} fee is included.
+						</Typography>
 					</div>
 				</ConfirmModal>
 			)}
@@ -124,7 +128,7 @@ export const MarketplaceListItem = () => {
 				>
 					<div
 						style={{
-							backgroundColor: '#FAFAFA',
+							backgroundColor: getColor('white'),
 							boxShadow: '0px 1px 0px #DFDFDF',
 							position: 'relative',
 						}}
@@ -209,7 +213,7 @@ export const MarketplaceListItem = () => {
 										color="grey4"
 										style={{ marginLeft: 12 }}
 									>
-										{price + fee} {tokenName}
+										{amountToString(price + fee)} {tokenName}
 									</Typography>
 								</div>
 							) : null}

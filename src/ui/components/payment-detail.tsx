@@ -3,7 +3,7 @@ import { HTMLAttributes } from 'react'
 import { Avatar } from '../avatar'
 import { User } from '../types'
 import { Typography } from '../typography'
-import { formatName } from '../utils'
+import { amountToString, formatName } from '../utils'
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
 	seeker: User
@@ -38,8 +38,9 @@ export function PaymentDetail({
 					style={{ display: 'flex', flexDirection: 'column', marginLeft: 18 }}
 				>
 					<Typography variant="small-light-12">
-						{isSeeker ? 'You' : formatName(seeker)} paid {amount}{' '}
-						{tokenName ?? 'DAI'} to {isProvider ? 'you' : formatName(provider)}.
+						{isSeeker ? 'You' : formatName(seeker)} paid{' '}
+						{amountToString(amount)} {tokenName} to{' '}
+						{isProvider ? 'you' : formatName(provider)}.
 					</Typography>
 					<Typography variant="small-light-12">
 						{isSeeker ? 'You' : formatName(seeker)} gained {reputation} SWR on{' '}
@@ -60,8 +61,9 @@ export function PaymentDetail({
 					style={{ display: 'flex', flexDirection: 'column', marginLeft: 18 }}
 				>
 					<Typography variant="small-light-12">
-						{isProvider ? 'You' : formatName(provider)} received {amount}{' '}
-						{tokenName ?? 'DAI'} from {isSeeker ? 'you' : formatName(seeker)}.
+						{isProvider ? 'You' : formatName(provider)} received{' '}
+						{amountToString(amount)} {tokenName} from{' '}
+						{isSeeker ? 'you' : formatName(seeker)}.
 					</Typography>
 					<Typography variant="small-light-12">
 						{isProvider ? 'You' : formatName(provider)} gained {reputation} SWR

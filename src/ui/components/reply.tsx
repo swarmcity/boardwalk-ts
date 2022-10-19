@@ -3,7 +3,7 @@ import { HTMLAttributes } from 'react'
 import { Avatar } from '../avatar'
 import { getColor } from '../colors'
 import { Typography } from '../typography'
-import { formatName } from '../utils'
+import { amountToString, formatName } from '../utils'
 
 import type { User, Reply as ReplyType } from '../types'
 
@@ -54,7 +54,7 @@ export function Reply({
 							color="grey4"
 							style={{ marginTop: 5 }}
 						>
-							for {reply.amount} {reply.tokenName ?? 'DAI'}
+							for {amountToString(reply.amount)} {reply.tokenName}
 						</Typography>
 					</div>
 					<Typography variant="small-light-10" color="grey2-light-text">
@@ -186,7 +186,7 @@ export function Reply({
 						color="grey4"
 						style={{ marginTop: 5 }}
 					>
-						for {reply.amount} {reply.tokenName ?? 'DAI'}
+						for {amountToString(reply.amount)} {reply.tokenName}
 					</Typography>
 				</div>
 			</div>
@@ -219,7 +219,7 @@ export function Reply({
 					color="grey4"
 					style={{ marginTop: 5 }}
 				>
-					for {reply.amount} {reply.tokenName ?? 'DAI'}
+					for {amountToString(reply.amount)} {reply.tokenName}
 				</Typography>
 			</div>
 			<div

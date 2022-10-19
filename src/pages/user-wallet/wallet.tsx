@@ -13,7 +13,7 @@ import {
 
 // Components
 import { Redirect } from '../../components/redirect'
-import { formatMoney } from '../../ui/utils'
+import { amountToString, tokenToDecimals } from '../../ui/utils'
 import { Typography } from '../../ui/typography'
 import { Container } from '../../ui/container'
 import { ErrorModal } from '../../ui/components/error-modal'
@@ -125,7 +125,7 @@ const Send = ({ closeModal, tokenName }: Props) => {
 				<Typography variant="header-35" color="white">
 					You have successfully sent
 					<span style={{ color: getColor('yellow') }}>
-						{amount} {tokenName}
+						{amountToString(Number(amount))} {tokenName}
 					</span>{' '}
 					to {formatAddressShort(address)}.
 				</Typography>
@@ -143,7 +143,7 @@ const Send = ({ closeModal, tokenName }: Props) => {
 				<Typography variant="header-35" color="white">
 					Send{' '}
 					<span style={{ color: getColor('yellow') }}>
-						{amount} {tokenName}
+						{amountToString(Number(amount))} {tokenName}
 					</span>{' '}
 					to {formatAddressShort(address)}?
 				</Typography>
@@ -251,7 +251,7 @@ export const AccountWallet = () => {
 		)
 	}
 
-	const userBalance = formatMoney(tokenBalance ?? 0n, decimals)
+	const userBalance = tokenToDecimals(tokenBalance ?? 0n, decimals)
 
 	return (
 		<div
