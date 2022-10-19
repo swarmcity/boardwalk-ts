@@ -822,7 +822,7 @@ export const MarketplaceItem = () => {
 										user={store.user}
 										marketplace={store.marketplace.name ?? ''}
 										amount={tokenToDecimals(store.request.price ?? 0n)}
-										reputation={0}
+										reputation={5}
 										tokenName={store.marketplace.tokenName}
 									/>
 									<FlexLink
