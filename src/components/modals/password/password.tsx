@@ -62,10 +62,8 @@ export const PasswordModal = ({
 	}
 
 	return (
-		<div
-			className={classes.root}
-		>
-			<Avatar size={80} />
+		<div className={classes.root}>
+			<Avatar size={80} avatar={profile.avatar} />
 			<form onSubmit={decrypt} style={{ marginTop: 40 }}>
 				<Input
 					id="password"
