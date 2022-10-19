@@ -59,14 +59,14 @@ type ReplyFormProps = {
 	item: Item
 	marketplace: string
 	decimals: number | undefined
-	onCancel: () => void
+	hideForm: () => void
 }
 
 const ReplyForm = ({
 	item,
 	marketplace,
 	decimals,
-	onCancel,
+	hideForm,
 }: ReplyFormProps) => {
 	const [text, setText] = useState('')
 	const [profile] = useStore.profile()
@@ -94,6 +94,7 @@ const ReplyForm = ({
 			console.error(err)
 			setError(err as Error)
 		}
+		hideForm()
 		setLoading(false)
 	}
 
@@ -157,16 +158,8 @@ const ReplyForm = ({
 					</Typography>
 				</div>
 			</div>
-			<div
-				style={{
-					marginTop: 26,
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}
-			>
-				<IconButton variant="cancel" onClick={onCancel} />
+			<div style={{ marginTop: 26 }}>
+				<IconButton variant="cancel" onClick={hideForm} />
 				<IconButton
 					variant="confirmAction"
 					onClick={postReply}
@@ -538,16 +531,17 @@ export const MarketplaceItem = () => {
 			status: chainItem.item?.status,
 			fee: item?.fee,
 			myReply: replies.find((r) => r.from === address),
-			selectedReply:
-				selectedReplyItemClean &&
-				({
-					text: selectedReplyItemClean.text,
-					date: new Date(),
-					amount: tokenToDecimals(item?.price || 0n),
-					isMyReply: address === selectedReplyItemClean.from,
-					user: selectedProviderUser,
-					tokenName,
-				} as Reply), // FIXME: this should not be typecasted
+			selectedReply: selectedReply
+				? selectedReply
+				: selectedReplyItemClean &&
+				  ({
+						text: selectedReplyItemClean.text,
+						date: new Date(),
+						amount: tokenToDecimals(item?.price || 0n),
+						isMyReply: address === selectedReplyItemClean.from,
+						user: selectedProviderUser,
+						tokenName,
+				  } as Reply), // FIXME: this should not be typecasted
 			replies: replies,
 			seeker,
 			provider: providerUser,
@@ -750,6 +744,8 @@ export const MarketplaceItem = () => {
 											style={{
 												padding: 30,
 												backgroundColor: getColor('white'),
+												display: 'flex',
+												justifyContent: 'center',
 											}}
 										>
 											<Button
@@ -908,18 +904,21 @@ export const MarketplaceItem = () => {
 								</div>
 							)}
 
-						{status === Status.Open && !isMyRequest && isReplying && (
-							<div
-								style={{ marginLeft: 30, marginRight: 30, marginBottom: 30 }}
-							>
-								<ReplyForm
-									item={item}
-									marketplace={id}
-									decimals={decimals}
-									onCancel={() => setIsReplying(false)}
-								/>
-							</div>
-						)}
+						{status === Status.Open &&
+							!isMyRequest &&
+							isReplying &&
+							!store.request.myReply && (
+								<div
+									style={{ marginLeft: 30, marginRight: 30, marginBottom: 30 }}
+								>
+									<ReplyForm
+										item={item}
+										marketplace={id}
+										decimals={decimals}
+										hideForm={() => setIsReplying(false)}
+									/>
+								</div>
+							)}
 
 						{isSelectedReplyMyReply && status === Status.Open && (
 							<FundDeal
