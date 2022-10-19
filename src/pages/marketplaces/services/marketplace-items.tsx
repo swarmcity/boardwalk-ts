@@ -57,6 +57,7 @@ type ChainItem = {
 	seekerRep: BigNumber
 	timestamp: BigNumber
 	status: Status
+	transactions: Partial<Record<Status, string>>
 }
 
 type StatusChangeEvent = {
@@ -159,6 +160,7 @@ const decodeNewItemEvent = async (
 		seekerRep: args.seekerRep,
 		timestamp: args.timestamp,
 		status: Status.Open,
+		transactions: {},
 	}
 }
 
@@ -204,11 +206,13 @@ export const useGetMarketplaceItems = (address: string) => {
 		const updateMetadata = (
 			id: BigNumber,
 			metadata: string,
-			status: Status
+			status: Status,
+			transactionHash: string
 		) => {
 			for (const item of indexed[metadata]) {
 				if (item.id.eq(id)) {
 					item.status = status
+					item.transactions[status] = transactionHash
 				}
 			}
 		}
@@ -218,7 +222,7 @@ export const useGetMarketplaceItems = (address: string) => {
 			const data = metadata[id.toString()]
 
 			if (shouldUpdate(event, data)) {
-				updateMetadata(id, data.metadata, status)
+				updateMetadata(id, data.metadata, status, event.transactionHash)
 				setItems(indexed)
 				setLastUpdate(Date.now())
 			}
@@ -266,7 +270,7 @@ export const useGetMarketplaceItems = (address: string) => {
 						const data = metadata[id.toString()]
 
 						if (shouldUpdate(event, data)) {
-							updateMetadata(id, data.metadata, status)
+							updateMetadata(id, data.metadata, status, event.transactionHash)
 						}
 
 						break
