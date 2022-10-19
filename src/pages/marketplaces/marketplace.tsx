@@ -105,14 +105,16 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
 	return (
 		<>
-			{items.map((item) => (
-				<DisplayItem
-					key={item.id.toString()}
-					marketplace={marketplace}
-					decimals={decimals}
-					item={item}
-				/>
-			))}
+			{items
+				.sort((a, b) => b.timestamp.sub(a.timestamp).toNumber())
+				.map((item) => (
+					<DisplayItem
+						key={item.id.toString()}
+						marketplace={marketplace}
+						decimals={decimals}
+						item={item}
+					/>
+				))}
 		</>
 	)
 }
