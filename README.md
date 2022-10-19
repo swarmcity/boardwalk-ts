@@ -168,4 +168,4 @@ After deselecting Brenda, Gary selects Pepe as a Provider. Unfortunately, Pepe d
 
 - [ ] As a user, I get notified so I can quickly navigate to the actionnable items. [Issue #57](https://github.com/swarmcity/boardwalk-ts/issues/57)
 
-Trigger PR
+Trigger PR preview 
