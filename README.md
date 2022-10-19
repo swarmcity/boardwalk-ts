@@ -167,3 +167,5 @@ After deselecting Brenda, Gary selects Pepe as a Provider. Unfortunately, Pepe d
 - [ ] As a Seeker, I can cancel my request, so the request is no longer on the marketplace. [Issue #56](https://github.com/swarmcity/boardwalk-ts/issues/56)
 
 - [ ] As a user, I get notified so I can quickly navigate to the actionnable items. [Issue #57](https://github.com/swarmcity/boardwalk-ts/issues/57)
+
+Trigger PR
