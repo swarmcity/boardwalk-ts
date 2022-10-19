@@ -19,8 +19,8 @@ export function MarketplaceReputationContainer({
 		'providerRep',
 		'seekerRep',
 	])
-	const seekerRepString = useReputation(repToken?.providerRep, userAddress)
-	const providerRepString = useReputation(repToken?.seekerRep, userAddress)
+	const seekerRepString = useReputation(repToken?.seekerRep, userAddress)
+	const providerRepString = useReputation(repToken?.providerRep, userAddress)
 
 	const seekerRep = Number(seekerRepString?.toString() || 0)
 	const providerRep = Number(providerRepString?.toString() || 0)
