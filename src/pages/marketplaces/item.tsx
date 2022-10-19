@@ -52,7 +52,6 @@ import { PaymentDetail } from '../../ui/components/payment-detail'
 import { Avatar } from '../../ui/avatar'
 import { Request } from '../../ui/components/request'
 import { UserAccount } from './user-account'
-import { FlexLink } from '../../components/flex-link'
 import { LOGIN } from '../../routes'
 
 type ReplyFormProps = {
@@ -555,7 +554,6 @@ export const MarketplaceItem = () => {
 
 	// Wagmi
 	const { chain } = useNetwork()
-	const explorer = chain?.blockExplorers?.default.url
 
 	const selectProvider = async () => {
 		try {
@@ -826,23 +824,6 @@ export const MarketplaceItem = () => {
 										reputation={5}
 										tokenName={store.marketplace.tokenName}
 									/>
-									<FlexLink
-										href={`${explorer}/address/${id}`}
-										target="_blank"
-										style={{
-											marginTop: 40,
-										}}
-									>
-										<Typography
-											color="blue"
-											variant="small-bold-12"
-											style={{
-												borderBottom: `2px dotted ${getColor('blue')}`,
-											}}
-										>
-											see this on etherscan
-										</Typography>
-									</FlexLink>
 								</div>
 							)}
 
