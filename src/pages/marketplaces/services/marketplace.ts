@@ -202,7 +202,7 @@ export const useMarketplaceItem = (marketplace: string, itemId: bigint) => {
 
 export const useMarketplaceSeekerReputation = (
 	marketplace: string,
-	user: string
+	user?: string
 ) => {
 	const config = useMarketplaceConfig(marketplace, ['seekerRep'])
 	return useReputation(config?.seekerRep, user)
@@ -210,7 +210,7 @@ export const useMarketplaceSeekerReputation = (
 
 export const useMarketplaceProviderReputation = (
 	marketplace: string,
-	user: string
+	user?: string
 ) => {
 	const config = useMarketplaceConfig(marketplace, ['providerRep'])
 	return useReputation(config?.providerRep, user)

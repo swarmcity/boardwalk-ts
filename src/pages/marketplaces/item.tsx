@@ -12,6 +12,7 @@ import { useWaku } from '../../hooks/use-waku'
 import {
 	useMarketplaceItem,
 	useMarketplaceName,
+	useMarketplaceProviderReputation,
 	useMarketplaceTokenDecimals,
 	useMarketplaceTokenName,
 } from './services/marketplace'
@@ -358,14 +359,13 @@ const FundDeal = ({
 			setLoading(true)
 			await fundItem(signer, marketplace, item, data?.signature)
 			setLoading(false)
-			// FIXME: this is not correct way of doing it, but better than nothing for now
-			location.reload()
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
 			setLoading(false)
 		}
 	}
+
 	if (error) {
 		return <ErrorModal onClose={() => setError(undefined)} />
 	}
@@ -503,6 +503,24 @@ export const MarketplaceItem = () => {
 					avatar: providerAvatar,
 			  }
 			: undefined
+
+	const selectedProviderProfile = useProfile(provider)
+	const selectedProviderAvatar = useProfilePictureURL(
+		selectedProviderProfile.profile?.pictureHash
+	)
+	const selectedProviderReputation = useMarketplaceProviderReputation(
+		id,
+		provider
+	)
+	const selectedProviderUser: User | undefined = provider
+		? {
+				address: provider,
+				reputation: selectedProviderReputation?.toBigInt() ?? 0n,
+				name: selectedProviderProfile.profile?.username,
+				avatar: selectedProviderAvatar,
+		  }
+		: undefined
+
 	const userProfile = useProfile(address)
 	const userAvatar = useProfilePictureURL(userProfile.profile?.pictureHash)
 	const user: User | undefined = address
@@ -531,17 +549,15 @@ export const MarketplaceItem = () => {
 			fee: item?.fee,
 			myReply: replies.find((r) => r.from === address),
 			selectedReply:
-				selectedReply ??
-				(selectedReplyItemClean !== undefined
-					? ({
-							text: selectedReplyItemClean.text,
-							date: new Date(),
-							amount: tokenToDecimals(item?.price || 0n),
-							isMyReply: address === selectedReplyItemClean.from,
-							user: { address: selectedReplyItemClean.from, reputation: 0n },
-							tokenName,
-					  } as Reply)
-					: undefined),
+				selectedReplyItemClean &&
+				({
+					text: selectedReplyItemClean.text,
+					date: new Date(),
+					amount: tokenToDecimals(item?.price || 0n),
+					isMyReply: address === selectedReplyItemClean.from,
+					user: selectedProviderUser,
+					tokenName,
+				} as Reply), // FIXME: this should not be typecasted
 			replies: replies,
 			seeker,
 			provider: providerUser,
@@ -646,7 +662,7 @@ export const MarketplaceItem = () => {
 
 	const isSelectedReplyMyReply =
 		store.user?.address &&
-		store.request.selectedReply?.user.address === store.user?.address
+		store.request.selectedReply?.user?.address === store.user?.address
 	const isMyRequest =
 		store.user?.address && store.request.seeker?.address === store.user?.address
 	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
