@@ -53,6 +53,7 @@ import { Avatar } from '../../ui/avatar'
 import { Request } from '../../ui/components/request'
 import { UserAccount } from './user-account'
 import { FlexLink } from '../../components/flex-link'
+import { LOGIN } from '../../routes'
 
 type ReplyFormProps = {
 	item: Item
@@ -954,9 +955,9 @@ export const MarketplaceItem = () => {
 								>
 									<IconButton
 										variant="reply"
-										onClick={() => {
-											setIsReplying(true)
-										}}
+										onClick={() =>
+											user?.address ? setIsReplying(true) : navigate(LOGIN)
+										}
 									/>
 								</div>
 							)}

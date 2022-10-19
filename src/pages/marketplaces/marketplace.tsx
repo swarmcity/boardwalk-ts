@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi'
 import { IconButton } from '@swarm-city/ui-library'
 
 // Routes
-import { MARKETPLACES, MARKETPLACE_ADD } from '../../routes'
+import { LOGIN, MARKETPLACES, MARKETPLACE_ADD } from '../../routes'
 
 // Services
 import {
@@ -175,7 +175,7 @@ export const Marketplace = () => {
 			<div style={{ position: 'fixed', right: 50, zIndex: 50, bottom: 60 }}>
 				<IconButton
 					variant="requestStart"
-					onClick={() => navigate(MARKETPLACE_ADD(id))}
+					onClick={() => navigate(address ? MARKETPLACE_ADD(id) : LOGIN)}
 				/>
 			</div>
 			<Container>
