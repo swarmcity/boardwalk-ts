@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, FormEvent } from 'react'
 import { Wallet } from 'ethers'
+import { IconButton, Input } from '@swarm-city/ui-library'
 
 // Store
 import { useStore } from '../../../store'
 
-// Types
-import type { FormEvent } from 'react'
+// Component
 import { Avatar } from '../../../ui/avatar'
-import { IconButton, Input } from '@swarm-city/ui-library'
+
+// Styles
+import classes from './password.module.css'
 
 type PasswordModalProps = {
 	show?: boolean
@@ -60,20 +62,8 @@ export const PasswordModal = ({
 	}
 
 	return (
-		<div
-			style={{
-				width: '100vw',
-				height: '100vh',
-				display: 'flex',
-				flexDirection: 'column',
-				justifyContent: 'center',
-				alignItems: 'center',
-				position: 'fixed',
-				zIndex: 300,
-				backdropFilter: 'blur(10px)',
-			}}
-		>
-			<Avatar size={80} />
+		<div className={classes.root}>
+			<Avatar size={80} avatar={profile.avatar} />
 			<form onSubmit={decrypt} style={{ marginTop: 40 }}>
 				<Input
 					id="password"
@@ -85,15 +75,7 @@ export const PasswordModal = ({
 					onChange={(event) => setPassword(event.currentTarget.value)}
 				/>
 			</form>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'center',
-					alignItems: 'center',
-					marginTop: 80,
-				}}
-			>
+			<div className={classes.actions}>
 				<IconButton variant="cancel" onClick={onClose} />
 				<IconButton
 					variant="confirmAction"
