@@ -114,10 +114,6 @@ const ReplyForm = ({
 			style={{
 				display: 'flex',
 				flexDirection: 'column',
-				alignItems: 'center',
-				justifyContent: 'stretch',
-				flexGrow: 1,
-				width: '100%',
 			}}
 		>
 			<div
@@ -125,38 +121,29 @@ const ReplyForm = ({
 					display: 'flex',
 					flexDirection: 'row',
 					alignItems: 'center',
-					justifyContent: 'stretch',
-					flexGrow: 1,
-					width: '100%',
 				}}
 			>
-				<div>
-					<Avatar
-						size={40}
-						avatar={profile?.avatar}
-						style={{
-							margin: '0 12px 0 0',
-						}}
-					/>
-				</div>
+				<Avatar
+					size={40}
+					avatar={profile?.avatar}
+					style={{
+						marginRight: 12,
+					}}
+				/>
 				<div
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
-						justifyContent: 'stretch',
-						alignItems: 'center',
 						textAlign: 'left',
-						width: '100%',
+						flexGrow: 1,
 					}}
 				>
-					<div style={{ width: '100%' }}>
-						<Input
-							id="reply"
-							onChange={(event) => setText(event.currentTarget.value)}
-						>
-							Your reply
-						</Input>
-					</div>
+					<Input
+						id="reply"
+						onChange={(event) => setText(event.currentTarget.value)}
+					>
+						Your reply
+					</Input>
 					<Typography
 						variant="body-bold-16"
 						style={{
@@ -170,7 +157,15 @@ const ReplyForm = ({
 					</Typography>
 				</div>
 			</div>
-			<div style={{ marginTop: 26 }}>
+			<div
+				style={{
+					marginTop: 26,
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
 				<IconButton variant="cancel" onClick={onCancel} />
 				<IconButton
 					variant="confirmAction"
@@ -914,7 +909,9 @@ export const MarketplaceItem = () => {
 							)}
 
 						{status === Status.Open && !isMyRequest && isReplying && (
-							<div style={{ marginLeft: 30, marginRight: 0, marginBottom: 30 }}>
+							<div
+								style={{ marginLeft: 30, marginRight: 30, marginBottom: 30 }}
+							>
 								<ReplyForm
 									item={item}
 									marketplace={id}
