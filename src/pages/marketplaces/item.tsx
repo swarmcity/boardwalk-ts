@@ -555,6 +555,7 @@ export const MarketplaceItem = () => {
 
 	// Wagmi
 	const { chain } = useNetwork()
+	const explorer = chain?.blockExplorers?.default.url
 
 	const selectProvider = async () => {
 		try {
@@ -826,7 +827,7 @@ export const MarketplaceItem = () => {
 										tokenName={store.marketplace.tokenName}
 									/>
 									<FlexLink
-										href={`https://etherscan` /* FIXME: this should link*/}
+										href={`${explorer}/address/${id}`}
 										target="_blank"
 										style={{
 											marginTop: 40,
@@ -839,7 +840,7 @@ export const MarketplaceItem = () => {
 												borderBottom: `2px dotted ${getColor('blue')}`,
 											}}
 										>
-											see this on ethplorer
+											see this on etherscan
 										</Typography>
 									</FlexLink>
 								</div>

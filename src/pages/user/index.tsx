@@ -1,5 +1,6 @@
 import { IconButton } from '@swarm-city/ui-library'
 import { useParams, useNavigate } from 'react-router'
+import { useNetwork } from 'wagmi'
 import { MarketplaceReputationContainer } from '../../containers/marketplace-reputation'
 import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
@@ -20,6 +21,10 @@ export function User() {
 
 	const avatar = useProfilePictureURL(profile?.pictureHash)
 	const marketplaces = useMarketplaceListSync()
+
+	// Explorer
+	const { chain } = useNetwork()
+	const explorer = chain?.blockExplorers?.default.url
 
 	if (waiting || loading)
 		return (
@@ -74,7 +79,7 @@ export function User() {
 					<Typography variant="body-bold-16" style={{ marginTop: 17 }}>
 						{profile?.username}
 					</Typography>
-					<a href={`https://goerli.etherscan.io/address/${id}`} target="blank">
+					<a href={`${explorer}/address/${id}`} target="blank">
 						<Typography
 							variant="small-bold-12"
 							color="blue"
@@ -83,7 +88,7 @@ export function User() {
 								marginTop: 9,
 							}}
 						>
-							show on ethplorer
+							show on etherscan
 						</Typography>
 					</a>
 					<div
