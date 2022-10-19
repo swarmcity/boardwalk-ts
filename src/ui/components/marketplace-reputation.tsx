@@ -37,7 +37,7 @@ export function MarketplaceReputation({
 			>
 				<div style={{ display: 'flex', flexDirection: 'column' }}>
 					<Typography variant="body-extra-light-20" color="blue">
-						{seekerRep} SWR
+						{seekerRep.toFixed(0)} SWR
 					</Typography>
 					<Typography variant="small-light-12" color="grey3">
 						as a Seeker
@@ -54,7 +54,7 @@ export function MarketplaceReputation({
 				/>
 				<div style={{ display: 'flex', flexDirection: 'column' }}>
 					<Typography variant="body-extra-light-20" color="blue">
-						{providerRep} SWR
+						{providerRep.toFixed(0)} SWR
 					</Typography>
 					<Typography variant="small-light-12" color="grey3">
 						as a Provider

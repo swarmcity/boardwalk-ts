@@ -25,7 +25,7 @@ import { useProfile } from '../../services/profile'
 import { useProfilePictureURL } from '../../services/profile-picture'
 
 // Lib
-import { formatMoney } from '../../ui/utils'
+import { tokenToDecimals } from '../../ui/utils'
 import { getStatus } from '../../types'
 import { User } from '../../ui/types'
 import { UserAccount } from './user-account'
@@ -85,7 +85,7 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 			<Request
 				title={item.metadata.description}
 				date={new Date(item.timestamp.toNumber() * 1000)}
-				amount={formatMoney(item.price, decimals)}
+				amount={tokenToDecimals(item.price, decimals)}
 				status={getStatus(item.status)}
 				onClickUser={() => navigate(`/user/${item.owner}`)}
 				isMyListing={item.owner === address}

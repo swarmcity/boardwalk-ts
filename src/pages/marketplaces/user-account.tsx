@@ -10,7 +10,7 @@ import { useSyncProfile } from '../../services/profile'
 import { Container } from '../../ui/container'
 import { Avatar } from '../../ui/avatar'
 import { Typography } from '../../ui/typography'
-import { formatMoney, formatName } from '../../ui/utils'
+import { tokenToDecimals, formatName, amountToString } from '../../ui/utils'
 import { Plus } from '../../ui/icons/plus'
 import { getColor } from '../../ui/colors'
 import {
@@ -31,7 +31,7 @@ export const UserAccount = ({ children, style, ...props }: Props) => {
 	const tokenBalance = useTokenBalanceOf(APP_TOKEN, profile?.address)
 	const { decimals } = useTokenDecimals(APP_TOKEN)
 
-	const userBalance = formatMoney(tokenBalance ?? 0n, decimals)
+	const userBalance = tokenToDecimals(tokenBalance ?? 0n, decimals)
 
 	// Keep the profile in sync
 	useSyncProfile()
@@ -93,7 +93,7 @@ export const UserAccount = ({ children, style, ...props }: Props) => {
 							</Link>
 							<Link to={ACCOUNT_WALLET}>
 								<Typography variant="header-22" color="yellow">
-									{userBalance.toFixed(4)} {tokenName}
+									{amountToString(userBalance)} {tokenName}
 								</Typography>
 							</Link>
 						</div>

@@ -22,7 +22,7 @@ export const MarketplaceItem = ({
 				<IconButton variant="select" />
 			</div>
 			<Typography variant="small-light-12" color="grey3">
-				{completedDeals.toFixed()} deals completed
+				{completedDeals.toFixed(0)} deals completed
 			</Typography>
 		</div>
 	</div>
