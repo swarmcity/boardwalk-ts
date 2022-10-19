@@ -746,7 +746,6 @@ export const MarketplaceItem = () => {
 											style={{
 												padding: 30,
 												backgroundColor: getColor('white'),
-												width: '100%',
 											}}
 										>
 											<Button
@@ -783,7 +782,12 @@ export const MarketplaceItem = () => {
 													{formatName(store.request.selectedReply.user)} to
 													respond
 												</Typography>
-												<Button style={{ marginTop: 30 }} size="large">
+												<Button
+													style={{ marginTop: 30 }}
+													size="large"
+													color="blue-light"
+													bg
+												>
 													unselect{' '}
 													{formatName(store.request.selectedReply.user)}
 												</Button>
