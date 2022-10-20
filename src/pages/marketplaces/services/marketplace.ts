@@ -181,19 +181,30 @@ export const useMarketplaceItem = (marketplace: string, itemId: bigint) => {
 		}
 
 		const wsContract = contract.connect(wsProvider)
-		const listener = (_: BigNumberish, status: Status) => {
+
+		const statusFilter = contract.filters.ItemStatusChange(itemId)
+		const statusListener = (_: BigNumberish, status: Status) => {
 			setItem((item) => item && { ...item, status })
+		}
+
+		const fundFilter = contract.filters.FundItem(null, itemId)
+		const fundListener = (providerAddress: string) => {
+			// TODO: Fetch `providerRep`
+			setItem((item) => item && { ...item, providerAddress, providerRep: 0n })
 		}
 
 		contract.items(itemId).then((item: Array<BigNumberish | string>) => {
 			setItem(cleanOutput(item))
 			setLastUpdate(Date.now())
 			setLoading(false)
-			wsContract.on('ItemStatusChange', listener)
+
+			wsContract.on(statusFilter, statusListener)
+			wsContract.on(fundFilter, fundListener)
 		})
 
 		return () => {
-			wsContract.off('ItemStatusChange', listener)
+			wsContract.off(statusFilter, statusListener)
+			wsContract.off(fundFilter, fundListener)
 		}
 	}, [marketplace, itemId, wsProvider])
 
