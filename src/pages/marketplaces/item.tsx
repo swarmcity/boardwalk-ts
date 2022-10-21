@@ -304,7 +304,7 @@ const PayoutItem = ({
 			<Button
 				style={{ marginTop: 30 }}
 				size="large"
-				color="green"
+				color="green-light"
 				bg
 				disabled={loading || success}
 				onClick={() => setConfirm(true)}
