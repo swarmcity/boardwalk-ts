@@ -97,7 +97,7 @@ export const newEventDrivenCache = <Key extends string | number | symbol, Data>(
 
 	const subscribe = (key: Key) => {
 		// Only subscribe if no listeners currently exist
-		if (listeners[key]?.length) {
+		if (listeners[key]?.length !== 1) {
 			return
 		}
 
@@ -107,12 +107,13 @@ export const newEventDrivenCache = <Key extends string | number | symbol, Data>(
 
 	return {
 		subscribe: (key: Key, listener: (data: Data) => void) => {
-			subscribe(key)
 			addListener(key, listener)
+			subscribe(key)
 
 			const cached = cache[key]
 			if (cached) {
-				listener(cached)
+				// TODO: Figure out why the cast is necessary
+				listener(cached as Data)
 			}
 
 			return () => {
