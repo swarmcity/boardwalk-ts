@@ -61,7 +61,7 @@ export const AccountPrivateWallet = () => {
 						color="grey4"
 						style={{ marginTop: 120 }}
 					>
-						Your public key:
+						Your address:
 					</Typography>
 					<Typography
 						variant="body-extra-light-20"
