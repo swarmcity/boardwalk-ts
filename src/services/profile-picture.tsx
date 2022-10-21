@@ -73,6 +73,7 @@ const createCache = (waku: WakuLight) =>
 						const blob = new Blob([picture.data], { type: picture?.type })
 						const url = URL.createObjectURL(blob)
 						callback({ picture, payload: message.payload, url })
+						return true
 					}
 				}
 			)
