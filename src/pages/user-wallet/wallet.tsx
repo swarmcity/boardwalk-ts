@@ -121,7 +121,7 @@ const Send = ({ closeModal, tokenName }: Props) => {
 
 	if (sentSuccessfully) {
 		return (
-			<ConfirmModal confirm={{ onClick: closeModal }} variant="success">
+			<ConfirmModal confirm={{ onClick: closeModal }} variant="action">
 				<Typography variant="header-35" color="white">
 					You have successfully sent
 					<span style={{ color: getColor('yellow') }}>
