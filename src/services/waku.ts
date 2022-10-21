@@ -192,3 +192,21 @@ export const useLatestTopicData = <Data>(
 
 	return { ...state, lastUpdate, data, payload }
 }
+
+export const fetchLatestTopicData = <Msg extends Message>(
+	waku: WakuLight,
+	decoders: Decoder<Msg>[],
+	callback: (message: Promise<Msg | undefined>) => Promise<boolean | void>,
+	options?: QueryOptions | undefined,
+	watch = false
+) => {
+	waku.store.queryCallbackOnPromise(decoders, callback, {
+		pageDirection: PageDirection.BACKWARD,
+		pageSize: 1,
+	})
+	const unsubscribe =
+		watch &&
+		waku.filter.subscribe(decoders, wrapFilterCallback(callback), options)
+
+	return { unsubscribe }
+}
