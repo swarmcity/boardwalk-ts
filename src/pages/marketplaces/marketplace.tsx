@@ -89,6 +89,9 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 				status={getStatus(item.status)}
 				onClickUser={() => navigate(`/user/${item.owner}`)}
 				isMyListing={item.owner === address}
+				isMyDeal={
+					(address && item.owner === address) || provider?.address === address
+				}
 				seeker={{
 					address: item.owner,
 					name: profile?.username,
