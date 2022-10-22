@@ -969,6 +969,7 @@ export const MarketplaceItem = () => {
 						<div
 							style={{
 								marginTop: 40,
+								marginBottom: 40,
 								display: 'flex',
 								justifyContent: 'center',
 							}}
