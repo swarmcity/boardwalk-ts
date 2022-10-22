@@ -15,7 +15,7 @@ export function InDeal({ children, style, ...props }: Props) {
 				justifyContent: 'center',
 				textAlign: 'center',
 				backgroundColor: getColor('green'),
-				padding: 30,
+				padding: 40,
 				...style,
 			}}
 			{...props}
@@ -25,7 +25,7 @@ export function InDeal({ children, style, ...props }: Props) {
 					style={{
 						position: 'absolute',
 						bottom: 0,
-						right: 46,
+						right: 0,
 					}}
 				>
 					<IconButton variant="chat" />
