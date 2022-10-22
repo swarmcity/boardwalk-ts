@@ -133,6 +133,7 @@ export function Reply({
 							alignItems: 'center',
 							justifyContent: 'center',
 							cursor: 'pointer',
+							margin: 2,
 						}}
 					>
 						<IconButton variant="select" onClick={onSelectClick} />
