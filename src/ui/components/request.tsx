@@ -11,6 +11,7 @@ interface RequestProps extends HTMLAttributes<HTMLDivElement> {
 	seeker: User
 	provider?: User
 	isMyListing?: boolean
+	isMyDeal?: boolean
 	detail?: boolean
 	onClickUser: (user: User) => void
 	status?:
@@ -30,6 +31,7 @@ export const Request = ({
 	seeker,
 	provider,
 	isMyListing,
+	isMyDeal,
 	onClickUser,
 	detail,
 	status,
@@ -97,13 +99,23 @@ export const Request = ({
 						</>
 					</Typography>
 				)}
-				{status !== 'open' && !detail && (
+				{!detail && (
 					<Typography
 						variant="small-bold-12"
 						color="grey4"
 						style={{ marginLeft: 8 }}
 					>
-						Deal {status}.
+						{status &&
+							!['open', 'funded', 'disputed', 'resolved'].includes(status) && (
+								<>Deal {status}.</>
+							)}
+						{status === 'funded' && (
+							<>{isMyDeal ? "You're in a deal" : "They're in a deal"}.</>
+						)}
+						{status === 'disputed' && (
+							<>{isMyDeal ? "You're in conflict" : "They're in conflict"}.</>
+						)}
+						{status === 'resolved' && <>Conflict resolved..</>}
 					</Typography>
 				)}
 			</div>
