@@ -736,6 +736,8 @@ export const MarketplaceItem = () => {
 												cursor: 'pointer',
 												marginLeft: 30,
 												marginTop: 30,
+												marginRight: 2,
+												marginBottom: 2,
 											}}
 										>
 											<IconButton
@@ -955,9 +957,9 @@ export const MarketplaceItem = () => {
 					{isMyRequest && status === Status.Open && (
 						<div
 							style={{
-								marginTop: 58,
 								display: 'flex',
 								justifyContent: 'center',
+								margin: 50,
 							}}
 						>
 							<Button color="red" onClick={cancel} disabled={!canCancel}>
@@ -968,8 +970,7 @@ export const MarketplaceItem = () => {
 					{(isMyRequest || isSelectedReplyMyReply) && status === Status.Funded && (
 						<div
 							style={{
-								marginTop: 40,
-								marginBottom: 40,
+								margin: 50,
 								display: 'flex',
 								justifyContent: 'center',
 							}}
