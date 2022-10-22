@@ -198,7 +198,9 @@ export const Marketplace = () => {
 			<Container>
 				<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
 					{loading ? (
-						<Typography>Fetching your marketplace data...</Typography>
+						<div style={{ paddingLeft: 30, marginTop: 22, marginBottom: 32 }}>
+							<Typography>Fetching your marketplace data...</Typography>
+						</div>
 					) : (
 						<>
 							<div style={{ marginTop: 22, marginBottom: 32 }}>
