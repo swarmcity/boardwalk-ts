@@ -42,6 +42,11 @@ export type EventDrivenCacheInstance<Key, Data> = {
 	unsubscribe: (key: Key, listener: ((data: Data) => void) | null) => void
 }
 
+export type CacheContext<Key, Data> = {
+	cache?: EventDrivenCacheInstance<Key, Data> | undefined
+	ready?: boolean
+}
+
 export const newEventDrivenCache = <Key extends string | number | symbol, Data>(
 	fn: (
 		key: Key | undefined,
@@ -130,17 +135,15 @@ export const newEventDrivenCache = <Key extends string | number | symbol, Data>(
 }
 
 export const useEventDrivenCache = <Key, Data>(
-	context: React.Context<{
-		cache?: EventDrivenCacheInstance<Key, Data> | undefined
-	}>,
+	context: React.Context<CacheContext<Key, Data>>,
 	key?: Key
 ) => {
-	const { cache } = useContext(context)
+	const { cache, ready } = useContext(context)
 	const [data, setData] = useState<Data>()
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
 	useEffect(() => {
-		if (!cache || !key) {
+		if (!cache || !key || !ready) {
 			return
 		}
 
@@ -148,7 +151,7 @@ export const useEventDrivenCache = <Key, Data>(
 			setData(data)
 			setLastUpdate(Date.now())
 		})
-	}, [cache, key])
+	}, [cache, key, ready])
 
 	return { lastUpdate, data }
 }

@@ -13,7 +13,7 @@ import { fetchLatestTopicData, postWakuMessage, WithPayload } from './waku'
 // Lib
 import { bufferToHex } from '../lib/tools'
 import {
-	EventDrivenCacheInstance,
+	CacheContext,
 	newEventDrivenCache,
 	useEventDrivenCache,
 } from '../lib/cache'
@@ -87,23 +87,23 @@ const createCache = (waku: WakuLight) =>
 		}
 	)
 
-export const ProfilePictureCacheContext = createContext<{
-	cache?: EventDrivenCacheInstance<
+export const ProfilePictureCacheContext = createContext<
+	CacheContext<
 		string,
 		{ picture: ProfilePicture; payload: Uint8Array; url: string }
 	>
-}>({})
+>({})
 
 export const ProfilePictureCacheProvider = ({
 	children,
 }: {
 	children: ReactNode
 }) => {
-	const { waku } = useWaku([Protocols.Store, Protocols.Filter])
+	const { waku, waiting } = useWaku([Protocols.Store, Protocols.Filter])
 	const cache = useMemo(() => waku && createCache(waku), [waku])
 
 	return (
-		<ProfilePictureCacheContext.Provider value={{ cache }}>
+		<ProfilePictureCacheContext.Provider value={{ cache, ready: !waiting }}>
 			{children}
 		</ProfilePictureCacheContext.Provider>
 	)

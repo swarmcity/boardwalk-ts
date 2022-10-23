@@ -25,7 +25,7 @@ import { useWaku } from '../hooks/use-waku'
 
 // Lib
 import {
-	EventDrivenCacheInstance,
+	CacheContext,
 	newEventDrivenCache,
 	useEventDrivenCache,
 } from '../lib/cache'
@@ -112,19 +112,19 @@ const createCache = (waku: WakuLight) =>
 		}
 	)
 
-export const ProfileCacheContext = createContext<{
-	cache?: EventDrivenCacheInstance<
+export const ProfileCacheContext = createContext<
+	CacheContext<
 		string,
 		{ profile: ProfileProto; message: WithPayload<MessageV0> }
 	>
-}>({})
+>({})
 
 export const ProfileCacheProvider = ({ children }: { children: ReactNode }) => {
-	const { waku } = useWaku([Protocols.Store, Protocols.Filter])
+	const { waku, waiting } = useWaku([Protocols.Store, Protocols.Filter])
 	const cache = useMemo(() => waku && createCache(waku), [waku])
 
 	return (
-		<ProfileCacheContext.Provider value={{ cache }}>
+		<ProfileCacheContext.Provider value={{ cache, ready: !waiting }}>
 			{children}
 		</ProfileCacheContext.Provider>
 	)
@@ -185,14 +185,17 @@ export const useSyncProfile = () => {
 	const { waku, waiting } = useWaku([Protocols.LightPush])
 	const { address, connector } = useAccount()
 	const [profile] = useStore.profile()
-	const {
-		loading,
-		profile: wakuProfile,
-		message,
-	} = useProfile(profile?.address ?? '')
+	const { profile: wakuProfile, message } = useProfile(profile?.address ?? '')
 
 	useEffect(() => {
-		if (!waku || !connector || !profile || !address || waiting || loading) {
+		if (
+			!waku ||
+			!connector ||
+			!profile ||
+			!address ||
+			waiting ||
+			!wakuProfile
+		) {
 			return
 		}
 
@@ -239,5 +242,5 @@ export const useSyncProfile = () => {
 				}
 			)
 		}
-	}, [waku, connector, waiting, profile?.lastUpdate, loading])
+	}, [waku, connector, waiting, profile?.lastUpdate, wakuProfile])
 }
