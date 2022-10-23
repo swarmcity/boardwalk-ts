@@ -200,10 +200,22 @@ export const fetchLatestTopicData = <Msg extends Message>(
 	options?: QueryOptions | undefined,
 	watch = false
 ) => {
-	waku.store.queryCallbackOnPromise(decoders, callback, {
-		pageDirection: PageDirection.BACKWARD,
-		pageSize: 1,
-	})
+	// eslint-disable-next-line @typescript-eslint/no-extra-semi
+	;(async () => {
+		const generator = waku.store.queryGenerator(decoders, {
+			pageDirection: PageDirection.BACKWARD,
+			pageSize: 1,
+		})
+
+		for await (const messages of generator) {
+			for (const message of messages) {
+				if (await callback(message)) {
+					return
+				}
+			}
+		}
+	})()
+
 	const unsubscribe =
 		watch &&
 		waku.filter.subscribe(decoders, wrapFilterCallback(callback), options)
