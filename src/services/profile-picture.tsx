@@ -52,10 +52,11 @@ const createCache = (waku: WakuLight) =>
 				picture: ProfilePicture
 				payload: Uint8Array
 				url: string
-			}) => void
+			}) => void,
+			hasCache: boolean
 		) => {
-			if (!hash) {
-				return () => null
+			if (!hash || hasCache) {
+				return
 			}
 
 			const decoders = [new DecoderV0(getProfilePictureTopic(hash))]

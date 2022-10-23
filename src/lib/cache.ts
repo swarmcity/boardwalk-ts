@@ -43,7 +43,11 @@ export type EventDrivenCacheInstance<Key, Data> = {
 }
 
 export const newEventDrivenCache = <Key extends string | number | symbol, Data>(
-	fn: (key: Key | undefined, callback: (data: Data) => void) => () => void
+	fn: (
+		key: Key | undefined,
+		callback: (data: Data) => void,
+		hasCache: boolean
+	) => (() => void) | undefined
 ): EventDrivenCacheInstance<Key, Data> => {
 	const cache: Partial<Record<Key, Data>> = {}
 	const listeners: Partial<Record<Key, Array<(data: Data) => void>>> = {}
@@ -69,6 +73,7 @@ export const newEventDrivenCache = <Key extends string | number | symbol, Data>(
 		// Clean the subscription when there are no listeners left
 		if (!cleaned.length) {
 			subscriptions[key]?.()
+			delete subscriptions[key]
 		}
 	}
 
@@ -97,12 +102,12 @@ export const newEventDrivenCache = <Key extends string | number | symbol, Data>(
 
 	const subscribe = (key: Key) => {
 		// Only subscribe if no listeners currently exist
-		if (listeners[key]?.length !== 1) {
+		if (subscriptions[key]) {
 			return
 		}
 
 		// Call the function
-		subscriptions[key] = fn(key, callback(key))
+		subscriptions[key] = fn(key, callback(key), !!cache[key])
 	}
 
 	return {
