@@ -38,6 +38,7 @@ import type { PasswordSignerRef } from './components/modals/password-signer'
 import type { RefObject } from 'react'
 
 // Services
+import { ProfileCacheProvider } from './services/profile'
 import { ProfilePictureCacheProvider } from './services/profile-picture'
 
 const { chains, provider, webSocketProvider } = configureChains(
@@ -102,37 +103,45 @@ export const App = () => {
 		<WagmiConfig client={client}>
 			<WakuProvider>
 				<ProfilePictureCacheProvider>
-					<PasswordSigner ref={ref} />
-					<Routes>
-						<Route element={<Login />} path={ROUTES.LOGIN} />
-						<Route element={<SetupProfile />} path={ROUTES.CREATE_ACCOUNT} />
-						<Route element={<Account />} path={ROUTES.ACCOUNT} />
-						<Route element={<AccountCreated />} path={ROUTES.ACCOUNT_CREATED} />
-						<Route
-							element={<ChoosePassword />}
-							path={ROUTES.ACCOUNT_PASSWORD}
-						/>
-						<Route element={<Backup />} path={ROUTES.ACCOUNT_BACKUP} />
-						<Route
-							element={<Marketplaces />}
-							path={`${ROUTES.MARKETPLACES}/*`}
-						/>
-						<Route element={<AccountRestore />} path={ROUTES.ACCOUNT_RESTORE} />
-						<Route element={<Home />} path={ROUTES.HOME} />
-						<Route element={<User />} path={ROUTES.USER(':id')} />
-						<Route
-							element={<AccountWallet />}
-							path={`${ROUTES.ACCOUNT_WALLET}/*`}
-						/>
-						<Route
-							element={<AccountPrivateWallet />}
-							path={ROUTES.ACCOUNT_PRIVATE_WALLET}
-						/>
-						<Route
-							element={<AccountPublicWallet />}
-							path={ROUTES.ACCOUNT_PUBLIC_WALLET}
-						/>
-					</Routes>
+					<ProfileCacheProvider>
+						<PasswordSigner ref={ref} />
+						<Routes>
+							<Route element={<Login />} path={ROUTES.LOGIN} />
+							<Route element={<SetupProfile />} path={ROUTES.CREATE_ACCOUNT} />
+							<Route element={<Account />} path={ROUTES.ACCOUNT} />
+							<Route
+								element={<AccountCreated />}
+								path={ROUTES.ACCOUNT_CREATED}
+							/>
+							<Route
+								element={<ChoosePassword />}
+								path={ROUTES.ACCOUNT_PASSWORD}
+							/>
+							<Route element={<Backup />} path={ROUTES.ACCOUNT_BACKUP} />
+							<Route
+								element={<Marketplaces />}
+								path={`${ROUTES.MARKETPLACES}/*`}
+							/>
+							<Route
+								element={<AccountRestore />}
+								path={ROUTES.ACCOUNT_RESTORE}
+							/>
+							<Route element={<Home />} path={ROUTES.HOME} />
+							<Route element={<User />} path={ROUTES.USER(':id')} />
+							<Route
+								element={<AccountWallet />}
+								path={`${ROUTES.ACCOUNT_WALLET}/*`}
+							/>
+							<Route
+								element={<AccountPrivateWallet />}
+								path={ROUTES.ACCOUNT_PRIVATE_WALLET}
+							/>
+							<Route
+								element={<AccountPublicWallet />}
+								path={ROUTES.ACCOUNT_PUBLIC_WALLET}
+							/>
+						</Routes>
+					</ProfileCacheProvider>
 				</ProfilePictureCacheProvider>
 			</WakuProvider>
 		</WagmiConfig>
