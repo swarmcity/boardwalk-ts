@@ -17,7 +17,7 @@ export function User() {
 		// FIXME: add some error boundaries because this could crash the app
 		throw new Error('no id')
 	}
-	const { profile, waiting, loading } = useProfile(id)
+	const { profile, loading } = useProfile(id)
 
 	const avatar = useProfilePictureURL(profile?.pictureHash)
 	const marketplaces = useMarketplaceListSync()
@@ -26,7 +26,7 @@ export function User() {
 	const { chain } = useNetwork()
 	const explorer = chain?.blockExplorers?.default.url
 
-	if (waiting || loading)
+	if (loading)
 		return (
 			<div
 				style={{
