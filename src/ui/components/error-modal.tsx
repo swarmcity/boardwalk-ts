@@ -23,6 +23,7 @@ export function ErrorModal({ onClose }: Props) {
 				top: 0,
 				left: 0,
 				backgroundColor: getColor('red'),
+				zIndex: 100,
 			}}
 		>
 			<Typography color="white" variant="header-35">
