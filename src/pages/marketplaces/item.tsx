@@ -292,7 +292,7 @@ const PayoutItem = ({
 				</Typography>
 				<div style={{ paddingTop: 30 }}>
 					<Typography variant="small-light-12">
-						This cannot be undone.
+						This can not be undone.
 					</Typography>
 				</div>
 			</ConfirmModal>
@@ -384,7 +384,7 @@ const FundDeal = ({
 				</Typography>
 				<div style={{ paddingTop: 30 }}>
 					<Typography variant="small-light-12">
-						This cannot be undone.
+						This can not be undone.
 					</Typography>
 				</div>
 				<div>
@@ -515,6 +515,88 @@ const SelectProviderContainer = ({ provider }: { provider: User }) => {
 				onClick={() => setShowConfirm(true)}
 			>
 				unselect {formatName(provider)}
+			</Button>
+		</div>
+	)
+}
+
+interface CancelRequestProps {
+	marketplaceId: string
+	itemId: bigint
+}
+const CancelRequestContainer = ({
+	marketplaceId,
+	itemId,
+}: CancelRequestProps) => {
+	const [isLoading, setIsLoading] = useState(false)
+	const [showConfirm, setShowConfirm] = useState(false)
+	const [error, setError] = useState<Error | undefined>()
+	const { connector } = useAccount()
+	const navigate = useNavigate()
+
+	const canCancel = connector
+	const cancel = async () => {
+		try {
+			if (!canCancel) {
+				throw new Error('no connector')
+			}
+
+			const signer = await connector.getSigner()
+			setIsLoading(true)
+
+			await cancelItem(signer, marketplaceId, itemId)
+			navigate(`/marketplace/${marketplaceId}`)
+		} catch (error) {
+			console.error()
+			setError(error as Error)
+		}
+		setIsLoading(false)
+	}
+
+	if (error) {
+		return <ErrorModal onClose={() => setError(undefined)} />
+	}
+
+	if (isLoading) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">Request is being canceled.</Typography>
+			</FullscreenLoading>
+		)
+	}
+	if (showConfirm) {
+		return (
+			<ConfirmModal
+				confirm={{ onClick: cancel }}
+				cancel={{ onClick: () => setShowConfirm(false) }}
+				variant="danger"
+			>
+				<Typography variant="header-35" color="white">
+					Cancel this request?
+				</Typography>
+				<div style={{ paddingTop: 30 }}>
+					<Typography variant="small-light-12">
+						This can not be undone.
+					</Typography>
+				</div>
+			</ConfirmModal>
+		)
+	}
+
+	return (
+		<div
+			style={{
+				margin: 50,
+				display: 'flex',
+				justifyContent: 'center',
+			}}
+		>
+			<Button
+				color="red"
+				onClick={() => setShowConfirm(true)}
+				disabled={!canCancel}
+			>
+				cancel this request
 			</Button>
 		</div>
 	)
@@ -715,22 +797,6 @@ export const MarketplaceItem = () => {
 				</Typography>
 			</FullscreenLoading>
 		)
-	}
-
-	const canCancel = connector
-	const cancel = async () => {
-		try {
-			if (!canCancel) {
-				throw new Error('no connector')
-			}
-
-			const signer = await connector.getSigner()
-
-			await cancelItem(signer, id, itemId)
-			navigate(`/marketplace/${id}`)
-		} catch (error) {
-			console.error()
-		}
 	}
 
 	const { status } = chainItem.item
@@ -1012,17 +1078,10 @@ export const MarketplaceItem = () => {
 					</div>
 
 					{isMyRequest && status === Status.Open && (
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'center',
-								margin: 50,
-							}}
-						>
-							<Button color="red" onClick={cancel} disabled={!canCancel}>
-								cancel this request
-							</Button>
-						</div>
+						<CancelRequestContainer
+							marketplaceId={store.marketplace.id}
+							itemId={store.request.id}
+						/>
 					)}
 					{(isMyRequest || isSelectedReplyMyReply) && status === Status.Funded && (
 						<div
