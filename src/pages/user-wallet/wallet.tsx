@@ -149,7 +149,7 @@ const Send = ({ closeModal, tokenName }: Props) => {
 				</Typography>
 				<div style={{ marginTop: 45 }}>
 					<Typography variant="small-light-12" color="white">
-						This cannot be undone.
+						This can not be undone.
 					</Typography>
 				</div>
 			</ConfirmModal>

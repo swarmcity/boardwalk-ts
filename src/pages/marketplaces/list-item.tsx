@@ -97,7 +97,7 @@ export const MarketplaceListItem = () => {
 							You are about to post this request for{' '}
 							{amountToString(price + fee)} {tokenName}.
 						</Typography>
-						<Typography>This cannot be undone.</Typography>
+						<Typography>This can not be undone.</Typography>
 						<br />
 						<Typography>
 							{amountToString(fee)} {tokenName} fee is included.
