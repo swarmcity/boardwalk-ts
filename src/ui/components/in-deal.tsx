@@ -1,11 +1,12 @@
-import { IconButton } from '@swarm-city/ui-library'
-import { HTMLAttributes } from 'react'
+import { HTMLAttributes, ReactNode } from 'react'
 import { getColor } from '../colors'
 import { Typography } from '../typography'
 
-type Props = HTMLAttributes<HTMLDivElement>
+type Props = HTMLAttributes<HTMLDivElement> & {
+	chat: ReactNode
+}
 
-export function InDeal({ children, style, ...props }: Props) {
+export function InDeal({ children, style, chat, ...props }: Props) {
 	return (
 		<div
 			style={{
@@ -28,7 +29,7 @@ export function InDeal({ children, style, ...props }: Props) {
 						right: 0,
 					}}
 				>
-					<IconButton variant="chat" />
+					{chat}
 				</div>
 			</div>
 			<Typography variant="body-bold-16" color="white">

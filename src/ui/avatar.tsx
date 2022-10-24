@@ -1,26 +1,24 @@
 import { HTMLAttributes } from 'react'
 import avatarDefault from '../assets/imgs/avatar.svg?url'
 
-interface Props extends HTMLAttributes<HTMLDivElement> {
+interface Props extends HTMLAttributes<HTMLImageElement> {
 	avatar?: string
 	size?: number
 }
 
-export function Avatar({ avatar, style, size }: Props) {
+export function Avatar({ avatar, style, size, ...props }: Props) {
 	return (
-		<div
+		<img
 			style={{
+				objectFit: 'cover',
 				width: size ?? 75,
 				height: size ?? 75,
 				borderRadius: '50%',
 				overflow: 'hidden',
 				...style,
 			}}
-		>
-			<img
-				style={{ maxWidth: '100%', maxHeight: '100%' }}
-				src={avatar ?? avatarDefault}
-			/>
-		</div>
+			src={avatar ?? avatarDefault}
+			{...props}
+		/>
 	)
 }
