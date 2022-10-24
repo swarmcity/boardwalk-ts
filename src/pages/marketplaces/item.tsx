@@ -435,6 +435,91 @@ const FundDeal = ({
 	)
 }
 
+const SelectProviderContainer = ({ provider }: { provider: User }) => {
+	const [isLoading, setIsLoading] = useState(false)
+	const [showConfirm, setShowConfirm] = useState(false)
+	const [error, setError] = useState<Error | undefined>()
+	const { waku } = useWaku()
+	const { connector } = useAccount()
+
+	const unselectProvider = async () => {
+		try {
+			if (!waku || !connector) {
+				return
+			}
+			const signer = await connector.getSigner()
+			setIsLoading(true)
+			setShowConfirm(false)
+
+			// FIXME: Something should actually happen here
+			const sleep = (time: number): Promise<void> =>
+				new Promise((resolve) => setTimeout(() => resolve(), time))
+			await sleep(2000)
+			console.log(signer.address)
+		} catch (error) {
+			console.error(error)
+			setError(error as Error)
+		}
+
+		setIsLoading(false)
+	}
+
+	if (error) {
+		return <ErrorModal onClose={() => setError(undefined)} />
+	}
+
+	if (isLoading) {
+		return (
+			<FullscreenLoading>
+				<Typography variant="header-35">Unselecting provider.</Typography>
+			</FullscreenLoading>
+		)
+	}
+	if (showConfirm) {
+		return (
+			<ConfirmModal
+				confirm={{ onClick: unselectProvider }}
+				cancel={{ onClick: () => setShowConfirm(false) }}
+				variant="danger"
+			>
+				<Typography variant="header-35" color="white">
+					Unselect {formatName(provider)} from this deal?
+				</Typography>
+			</ConfirmModal>
+		)
+	}
+
+	return (
+		<div
+			style={{
+				backgroundColor: getColor('blue'),
+				padding: 30,
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				textAlign: 'center',
+			}}
+		>
+			<Typography variant="body-bold-16" color="white">
+				You selected {formatName(provider)} to make a deal.
+			</Typography>
+			<Typography variant="small-light-12" color="white">
+				Waiting for {formatName(provider)} to respond
+			</Typography>
+			<Button
+				style={{ marginTop: 30 }}
+				size="large"
+				color="blue-light"
+				bg
+				onClick={() => setShowConfirm(true)}
+			>
+				unselect {formatName(provider)}
+			</Button>
+		</div>
+	)
+}
+
 export const MarketplaceItem = () => {
 	const { id, item: itemIdString } = useParams<{ id: string; item: string }>()
 	if (!id || !itemIdString) {
@@ -772,37 +857,9 @@ export const MarketplaceItem = () => {
 									{status === Status.Open &&
 										isMyRequest &&
 										selectedProvider.data && (
-											<div
-												style={{
-													backgroundColor: getColor('blue'),
-													padding: 30,
-													display: 'flex',
-													flexDirection: 'column',
-													alignItems: 'center',
-													justifyContent: 'center',
-													textAlign: 'center',
-												}}
-											>
-												<Typography variant="body-bold-16" color="white">
-													You selected{' '}
-													{formatName(store.request.selectedReply.user)} to make
-													a deal.
-												</Typography>
-												<Typography variant="small-light-12" color="white">
-													Waiting for{' '}
-													{formatName(store.request.selectedReply.user)} to
-													respond
-												</Typography>
-												<Button
-													style={{ marginTop: 30 }}
-													size="large"
-													color="blue-light"
-													bg
-												>
-													unselect{' '}
-													{formatName(store.request.selectedReply.user)}
-												</Button>
-											</div>
+											<SelectProviderContainer
+												provider={store.request.selectedReply.user}
+											/>
 										)}
 								</>
 							)}
