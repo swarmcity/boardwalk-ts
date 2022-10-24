@@ -323,20 +323,23 @@ const FundDeal = ({
 	item,
 	amount,
 	fee,
+	seeker,
 }: {
 	data?: SelectProvider
 	marketplace: string
 	item: bigint
 	amount: number
 	fee: number
+	seeker: User
 }) => {
 	const { connector } = useAccount()
 	const tokenName = useMarketplaceTokenName(marketplace)
 
 	// State
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState<string | undefined>(undefined)
 	const [error, setError] = useState<Error>()
-	const [confirm, setConfirm] = useState(false)
+	const [showFundConfirm, setShowFundConfirm] = useState(false)
+	const [showRejectConfirm, setShowRejectConfirm] = useState(false)
 
 	// Fund function
 	const canFund = connector && data?.signature
@@ -347,14 +350,36 @@ const FundDeal = ({
 
 		try {
 			const signer = await connector.getSigner()
-			setLoading(true)
+			setLoading('Funding is being processed')
+			setShowFundConfirm(false)
 			await fundItem(signer, marketplace, item, data?.signature)
-			setLoading(false)
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
-			setLoading(false)
 		}
+		setLoading(undefined)
+	}
+
+	const rejectDeal = async () => {
+		if (!connector) {
+			return
+		}
+
+		try {
+			const signer = await connector.getSigner()
+			setLoading('Declining the deal')
+			setShowRejectConfirm(false)
+
+			// FIXME: Something should actually happen here
+			const sleep = (time: number): Promise<void> =>
+				new Promise((resolve) => setTimeout(() => resolve(), time))
+			await sleep(2000)
+			console.log(signer.address)
+		} catch (err) {
+			console.error(err)
+			setError(err as Error)
+		}
+		setLoading(undefined)
 	}
 
 	if (error) {
@@ -364,17 +389,17 @@ const FundDeal = ({
 	if (loading) {
 		return (
 			<FullscreenLoading>
-				<Typography variant="header-35">Funding is being processed.</Typography>
+				<Typography variant="header-35">{loading}.</Typography>
 			</FullscreenLoading>
 		)
 	}
 
-	if (confirm) {
+	if (showFundConfirm) {
 		return (
 			<ConfirmModal
 				variant="action"
 				confirm={{ onClick: fund }}
-				cancel={{ onClick: () => setConfirm(false) }}
+				cancel={{ onClick: () => setShowFundConfirm(false) }}
 			>
 				<Typography variant="header-35">
 					<>
@@ -392,6 +417,24 @@ const FundDeal = ({
 						<>
 							{amountToString(fee)} {tokenName} fee is included.
 						</>
+					</Typography>
+				</div>
+			</ConfirmModal>
+		)
+	}
+
+	if (showRejectConfirm) {
+		return (
+			<ConfirmModal
+				variant="danger"
+				confirm={{ onClick: rejectDeal }}
+				cancel={{ onClick: () => setShowRejectConfirm(false) }}
+			>
+				<Typography variant="header-35">Decline this deal?</Typography>
+				<div style={{ paddingTop: 30 }}>
+					<Typography variant="small-light-12">
+						This can not be undone. {formatName(seeker)} will be notified that
+						you do not want to accept this deal. Your reply will be removed.
 					</Typography>
 				</div>
 			</ConfirmModal>
@@ -424,10 +467,14 @@ const FundDeal = ({
 						alignItems: 'center',
 					}}
 				>
-					<IconButton variant="cancel" style={{ marginRight: 15 }} />
+					<IconButton
+						variant="cancel"
+						style={{ marginRight: 15 }}
+						onClick={() => setShowRejectConfirm(true)}
+					/>
 					<IconButton
 						variant="confirmAction"
-						onClick={() => setConfirm(true)}
+						onClick={() => setShowFundConfirm(true)}
 					/>
 				</div>
 			</div>
@@ -1045,6 +1092,7 @@ export const MarketplaceItem = () => {
 								data={selectedProvider.data}
 								amount={tokenToDecimals(store.request.price ?? 0n)}
 								fee={tokenToDecimals(store.request.fee?.toBigInt() ?? 0n)}
+								seeker={store.request.seeker}
 							/>
 						)}
 						{isMyRequest && status === Status.Funded && (
