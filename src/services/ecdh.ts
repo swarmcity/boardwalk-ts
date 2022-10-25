@@ -1,19 +1,17 @@
+const algorithm = {
+	name: 'ECDH',
+	namedCurve: 'P-256',
+}
+
 export const generateKey = async () => {
-	return await crypto.subtle.generateKey(
-		{
-			name: 'ECDH',
-			namedCurve: 'P-256',
-		},
-		true,
-		['deriveKey', 'deriveBits']
-	)
+	return crypto.subtle.generateKey(algorithm, true, ['deriveKey', 'deriveBits'])
 }
 
 export const deriveKey = async (
 	privateKey: CryptoKey,
 	publicKey: CryptoKey
 ) => {
-	return await crypto.subtle.deriveKey(
+	return crypto.subtle.deriveKey(
 		{
 			name: 'ECDH',
 			public: publicKey,
@@ -29,13 +27,7 @@ export const deriveKey = async (
 }
 
 export const importKey = async (key: JsonWebKey) => {
-	return await crypto.subtle.importKey(
-		'jwk',
-		key,
-		{ name: 'ECDH', namedCurve: 'P-256' },
-		false,
-		[]
-	)
+	return crypto.subtle.importKey('jwk', key, algorithm, false, [])
 }
 
 export const exportRawKey = async (key: CryptoKey) => {
@@ -43,6 +35,5 @@ export const exportRawKey = async (key: CryptoKey) => {
 }
 
 export const jsonToRaw = async (key: JsonWebKey) => {
-	const imported = await importKey(key)
-	return exportRawKey(imported)
+	return exportRawKey(await importKey(key))
 }
