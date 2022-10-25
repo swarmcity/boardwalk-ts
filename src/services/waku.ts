@@ -192,3 +192,33 @@ export const useLatestTopicData = <Data>(
 
 	return { ...state, lastUpdate, data, payload }
 }
+
+export const fetchLatestTopicData = <Msg extends Message>(
+	waku: WakuLight,
+	decoders: Decoder<Msg>[],
+	callback: (message: Promise<Msg | undefined>) => Promise<boolean | void>,
+	options?: QueryOptions | undefined,
+	watch = false
+) => {
+	// eslint-disable-next-line @typescript-eslint/no-extra-semi
+	;(async () => {
+		const generator = waku.store.queryGenerator(decoders, {
+			pageDirection: PageDirection.BACKWARD,
+			pageSize: 1,
+		})
+
+		for await (const messages of generator) {
+			for (const message of messages) {
+				if (await callback(message)) {
+					return
+				}
+			}
+		}
+	})()
+
+	const unsubscribe =
+		watch &&
+		waku.filter.subscribe(decoders, wrapFilterCallback(callback), options)
+
+	return { unsubscribe }
+}

@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { createContext, ReactNode, useEffect, useMemo } from 'react'
 import { useAccount } from 'wagmi'
 import { getAddress } from '@ethersproject/address'
-import { MessageV0 } from 'js-waku/lib/waku_message/version_0'
+import { DecoderV0, MessageV0 } from 'js-waku/lib/waku_message/version_0'
+import { WakuLight } from 'js-waku/lib/interfaces'
 
 // Store
 import { setStore, useStore } from '../store'
@@ -15,13 +16,19 @@ import type { Profile } from '../types'
 import { Profile as ProfileProto } from '../protos/profile'
 
 // Services
-import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
+import { fetchLatestTopicData, postWakuMessage, WithPayload } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
 import { createProfilePicture } from './profile-picture'
 
 // Hooks
 import { useWaku } from '../hooks/use-waku'
-import { WakuLight } from 'js-waku/lib/interfaces'
+
+// Lib
+import {
+	CacheContext,
+	newEventDrivenCache,
+	useEventDrivenCache,
+} from '../lib/cache'
 
 type CreateProfile = {
 	username: string
@@ -50,6 +57,79 @@ export const getProfileTopic = (address?: string) => {
 	return address ? `/swarmcity/1/profile-${getAddress(address)}/proto` : ''
 }
 
+const decodeMessage = (
+	message: WithPayload<MessageV0>
+): ProfileProto | false => {
+	return decodeSignedPayload(
+		eip712Config,
+		{
+			formatValue: (profile, address) => ({ ...profile, address }),
+			getSigner: (profile) => profile.address,
+		},
+		ProfileProto,
+		message.payload
+	)
+}
+
+// Cache
+const createCache = (waku: WakuLight) =>
+	newEventDrivenCache(
+		(
+			address: string | undefined,
+			callback: (data: {
+				profile: ProfileProto
+				message: WithPayload<MessageV0>
+			}) => void,
+			hasCache: boolean
+		) => {
+			if (!address || hasCache) {
+				return
+			}
+
+			const decoders = [new DecoderV0(getProfileTopic(address))]
+			const { unsubscribe } = fetchLatestTopicData(
+				waku,
+				decoders,
+				async (msg: Promise<MessageV0 | undefined>) => {
+					const message = (await msg) as WithPayload<MessageV0>
+					if (!message) {
+						return
+					}
+
+					const profile = decodeMessage(message)
+					if (profile) {
+						callback({ profile, message })
+						return true
+					}
+				}
+			)
+
+			return () => {
+				if (unsubscribe) {
+					unsubscribe.then((fn) => fn())
+				}
+			}
+		}
+	)
+
+export const ProfileCacheContext = createContext<
+	CacheContext<
+		string,
+		{ profile: ProfileProto; message: WithPayload<MessageV0> }
+	>
+>({})
+
+export const ProfileCacheProvider = ({ children }: { children: ReactNode }) => {
+	const { waku, waiting } = useWaku([Protocols.Store, Protocols.Filter])
+	const cache = useMemo(() => waku && createCache(waku), [waku])
+
+	return (
+		<ProfileCacheContext.Provider value={{ cache, ready: !waiting }}>
+			{children}
+		</ProfileCacheContext.Provider>
+	)
+}
+
 export const createProfile = async (
 	waku: WakuLight,
 	connector: { getSigner: () => Promise<Signer> },
@@ -68,26 +148,9 @@ export const createProfile = async (
 	return postWakuMessage(waku, topic, payload)
 }
 
-const decodeMessage = (
-	message: WithPayload<MessageV0>
-): ProfileProto | false => {
-	return decodeSignedPayload(
-		eip712Config,
-		{
-			formatValue: (profile, address) => ({ ...profile, address }),
-			getSigner: (profile) => profile.address,
-		},
-		ProfileProto,
-		message.payload
-	)
-}
-
 export const useProfile = (address?: string) => {
-	const { data, ...state } = useLatestTopicData(
-		getProfileTopic(address),
-		decodeMessage
-	)
-	return { ...state, profile: data }
+	const { data, ...state } = useEventDrivenCache(ProfileCacheContext, address)
+	return { ...state, ...data, loading: !data?.profile }
 }
 
 const postPicture = async (waku: WakuLight, dataUri?: string) => {
@@ -122,14 +185,17 @@ export const useSyncProfile = () => {
 	const { waku, waiting } = useWaku([Protocols.LightPush])
 	const { address, connector } = useAccount()
 	const [profile] = useStore.profile()
-	const {
-		loading,
-		profile: wakuProfile,
-		payload,
-	} = useProfile(profile?.address ?? '')
+	const { profile: wakuProfile, message } = useProfile(profile?.address ?? '')
 
 	useEffect(() => {
-		if (!waku || !connector || !profile || !address || waiting || loading) {
+		if (
+			!waku ||
+			!connector ||
+			!profile ||
+			!address ||
+			waiting ||
+			!wakuProfile
+		) {
 			return
 		}
 
@@ -165,14 +231,16 @@ export const useSyncProfile = () => {
 
 		// If both profiles are in sync, only update the profile once a day
 		if (
-			payload &&
+			message &&
 			Date.now() - (profile.lastSync?.getTime() ?? 0) > 24 * 60 * 60
 		) {
-			postWakuMessage(waku, getProfileTopic(address), payload).then(() => {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-expect-error
-				setStore.profile.lastSync(new Date())
-			})
+			postWakuMessage(waku, getProfileTopic(address), message.payload).then(
+				() => {
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-expect-error
+					setStore.profile.lastSync(new Date())
+				}
+			)
 		}
-	}, [waku, connector, waiting, profile?.lastUpdate, loading])
+	}, [waku, connector, waiting, profile?.lastUpdate, wakuProfile])
 }
