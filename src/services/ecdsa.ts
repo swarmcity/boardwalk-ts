@@ -17,5 +17,5 @@ export const jsonToRaw = async (key: JsonWebKey) => {
 }
 
 export const sign = async (key: CryptoKey, data: BufferSource) => {
-	return crypto.subtle.sign(algorithm, key, data)
+	return new Uint8Array(await crypto.subtle.sign(algorithm, key, data))
 }
