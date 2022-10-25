@@ -66,6 +66,7 @@ export const useWakuFilter = <Msg extends Message>(
 	return { waiting, error }
 }
 
+// eslint-disable max-params
 export const useWakuStore = <Msg extends Message, Callback>(
 	fn: (
 		waku: WakuLight
@@ -77,14 +78,15 @@ export const useWakuStore = <Msg extends Message, Callback>(
 	decoders: Decoder<Msg>[],
 	_callback: (message: Callback) => Promise<void | boolean> | boolean | void,
 	dependencies: DependencyList,
-	options: QueryOptions = {}
+	options: QueryOptions = {},
+	disable = false
 ) => {
 	const { waku, waiting } = useWaku([Protocols.Store])
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string>()
 
 	useEffect(() => {
-		if (!waku || waiting) {
+		if (!waku || waiting || disable) {
 			return
 		}
 
@@ -103,7 +105,7 @@ export const useWakuStore = <Msg extends Message, Callback>(
 		return () => {
 			cancelled = true
 		}
-	}, [waiting, ...dependencies])
+	}, [waiting, disable, ...dependencies])
 
 	return { waiting, loading, error }
 }
@@ -114,14 +116,16 @@ export const useWakuStoreQuery = <Msg extends Message>(
 		message: Promise<Msg | undefined>
 	) => Promise<void | boolean> | boolean | void,
 	dependencies: DependencyList,
-	options: QueryOptions = {}
+	options: QueryOptions = {},
+	disable = false
 ) => {
 	return useWakuStore<Msg, Promise<Msg | undefined>>(
 		(waku: WakuLight) => waku.store.queryCallbackOnPromise.bind(waku.store),
 		decoders,
 		callback,
 		dependencies,
-		options
+		options,
+		disable
 	)
 }
 
@@ -129,14 +133,16 @@ export const useWakuStoreQueryOrdered = <Msg extends Message>(
 	decoders: Decoder<Msg>[],
 	callback: (message: Msg) => Promise<void | boolean> | boolean | void,
 	dependencies: DependencyList,
-	options: QueryOptions = {}
+	options: QueryOptions = {},
+	disable = false
 ) => {
 	return useWakuStore<Msg, Msg>(
 		(waku: WakuLight) => waku.store.queryOrderedCallback.bind(waku.store),
 		decoders,
 		callback,
 		dependencies,
-		options
+		options,
+		disable
 	)
 }
 

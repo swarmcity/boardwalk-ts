@@ -30,6 +30,7 @@
 		"react-easy-crop": "^4.4.2",
 		"react-router": "^6.3.0",
 		"react-router-dom": "^6.3.0",
+		"react-use": "^17.4.0",
 		"teaful": "^0.10.0",
 		"wagmi": "^0.6.0"
 	},
@@ -96,7 +97,8 @@
 					"case": "kebabCase"
 				}
 			],
-			"prefer-reflect": "off"
+			"prefer-reflect": "off",
+			"max-params": "off"
 		},
 		"settings": {
 			"react": {
