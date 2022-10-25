@@ -39,10 +39,10 @@ export const importKey = async (key: JsonWebKey) => {
 }
 
 export const exportRawKey = async (key: CryptoKey) => {
-	return await crypto.subtle.exportKey('raw', key)
+	return new Uint8Array(await crypto.subtle.exportKey('raw', key))
 }
 
 export const jsonToRaw = async (key: JsonWebKey) => {
 	const imported = await importKey(key)
-	return new Uint8Array(await exportRawKey(imported))
+	return exportRawKey(imported)
 }

@@ -44,6 +44,12 @@ type ChatMessage = {
 	message: string
 }
 
+type FormattedChatKeys = {
+	symKey: Uint8Array
+	mySigPubKey: Uint8Array
+	theirSigPubKey: Uint8Array
+}
+
 // Store
 const store = createStore<ChatStore>(
 	{
@@ -65,13 +71,19 @@ const fetchChatKeys = (marketplace: string, item: bigint) => {
 	return key
 }
 
-const formatChatKeys = async (chatKeys: ChatKeys) => {
-	if (!chatKeys.symKey || !chatKeys.theirSigPubKey) {
+const formatChatKeys = async (
+	chatKeys: ChatKeys
+): Promise<FormattedChatKeys | undefined> => {
+	if (!chatKeys.theirSigPubKey || !chatKeys.theirECDHPubKey) {
 		return
 	}
 
+	const privKey = await ecdh.importKey(chatKeys.myECDHPrivKey)
+	const pubKey = await ecdh.importKey(chatKeys.theirECDHPubKey)
+	const symKey = await ecdh.deriveKey(privKey, pubKey)
+
 	return {
-		symKey: await ecdh.jsonToRaw(chatKeys.symKey),
+		symKey: await ecdh.exportRawKey(symKey),
 		mySigPubKey: await ecdsa.jsonToRaw(chatKeys.mySigPubKey),
 		theirSigPubKey: await ecdsa.jsonToRaw(chatKeys.theirSigPubKey),
 	}
@@ -112,19 +124,6 @@ export const setChatKey = async (
 	key: JsonWebKey
 ) => {
 	setStore.keys[getRecordKey(marketplace, item)][type]?.(key)
-
-	// When we get the ECDH public key of the other party, we compute the
-	// symmetric key. Our ECDH key is assumed to be known beforehand.
-	if (type === 'theirECDHPubKey') {
-		const keys = fetchChatKeys(marketplace, item)
-
-		const privKey = await ecdh.importKey(keys.myECDHPrivKey)
-		const pubKey = await ecdh.importKey(key)
-		const symKey = await ecdh.deriveKey(privKey, pubKey)
-		const jwkSymKey = await crypto.subtle.exportKey('jwk', symKey)
-
-		setStore.keys[getRecordKey(marketplace, item)].symKey?.(jwkSymKey)
-	}
 }
 
 export const getChatMessageTopic = (marketplace: string, item: bigint) => {
@@ -178,7 +177,7 @@ export const createChatMessage = async (
 	message: ChatMessage
 ) => {
 	const keys = await getChatKeys(marketplace, item)
-	if (!keys?.symKey) {
+	if (!keys) {
 		throw new Error('no symmetric key found')
 	}
 
