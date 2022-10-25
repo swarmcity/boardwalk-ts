@@ -474,6 +474,7 @@ function ChatModal({
 									onChange={(event) =>
 										setMessageText(event.currentTarget.value)
 									}
+									autoComplete="off"
 									ref={inputElementRef}
 								/>
 							</form>
