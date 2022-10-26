@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message KeyExchange {
+  bytes sigPubKey = 1;
+  bytes ecdhPubKey = 2;
+}

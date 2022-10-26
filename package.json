@@ -45,6 +45,7 @@
 		"eslint": "^8.21.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-config-react": "^1.1.7",
+		"eslint-plugin-import": "^2.26.0",
 		"eslint-plugin-prettier": "^4.2.1",
 		"eslint-plugin-react": "^7.30.1",
 		"eslint-plugin-unicorn": "^43.0.2",
@@ -77,7 +78,8 @@
 		"parser": "@typescript-eslint/parser",
 		"plugins": [
 			"@typescript-eslint",
-			"unicorn"
+			"unicorn",
+			"import"
 		],
 		"rules": {
 			"@typescript-eslint/no-unused-vars": [
@@ -104,7 +106,17 @@
 			"react": {
 				"version": "detect"
 			}
-		}
+		},
+		"overrides": [
+			{
+				"files": [
+					"src/protos/*.ts"
+				],
+				"rules": {
+					"no-use-before-define": "off"
+				}
+			}
+		]
 	},
 	"eslintIgnore": [
 		"build/*"

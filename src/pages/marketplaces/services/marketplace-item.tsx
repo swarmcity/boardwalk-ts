@@ -28,6 +28,9 @@ import {
 	wrapFilterCallback,
 } from '../../../services/waku'
 
+// Services
+import { generateChatKeys, getKeyExchange } from '../../../services/chat'
+
 export type CreateReply = {
 	text: string
 }
@@ -56,6 +59,11 @@ const TYPES: Record<string, Array<TypedDataField>> = {
 		{ name: 'item', type: 'uint256' },
 		{ name: 'from', type: 'address' },
 		{ name: 'text', type: 'string' },
+		{ name: 'keyExchange', type: 'KeyExchange' },
+	],
+	KeyExchange: [
+		{ name: 'sigPubKey', type: 'bytes' },
+		{ name: 'ecdhPubKey', type: 'bytes' },
 	],
 }
 
@@ -77,8 +85,12 @@ export const createReply = async (
 		throw new Error('not implemented yet')
 	}
 
+	// Generate chat keys
+	const keys = await generateChatKeys(marketplace, item.toBigInt())
+	const keyExchange = await getKeyExchange(keys)
+
 	// Data to sign and in the Waku message
-	const data = { from, marketplace, item: item.toBigInt(), text }
+	const data = { from, marketplace, item: item.toBigInt(), text, keyExchange }
 
 	// Sign the message
 	const signatureHex = await signer._signTypedData(DOMAIN, TYPES, data)

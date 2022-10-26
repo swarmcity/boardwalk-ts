@@ -51,6 +51,11 @@ type FormattedChatKeys = {
 	mySigPrivKey: Uint8Array
 }
 
+type KeyPairs = {
+	ecdhKeys: CryptoKeyPair
+	ecdsaKeys: CryptoKeyPair
+}
+
 // Store
 const store = createStore<ChatStore>(
 	{
@@ -101,7 +106,10 @@ const useChatKeys = (marketplace: string, item: bigint) => {
 	return useAsync(async () => formatChatKeys(chatKeys), [chatKeys])
 }
 
-export const generateChatKeys = async (marketplace: string, item: bigint) => {
+export const generateChatKeys = async (
+	marketplace: string,
+	item: bigint
+): Promise<KeyPairs> => {
 	const current = fetchChatKeys(marketplace, item)
 	if (current.myECDHPrivKey || current.mySigPrivKey) {
 		throw new Error('keys already exist for this item in this marketplace')
@@ -117,6 +125,14 @@ export const generateChatKeys = async (marketplace: string, item: bigint) => {
 	})
 
 	return { ecdhKeys, ecdsaKeys }
+}
+
+export const getKeyExchange = async ({ ecdhKeys, ecdsaKeys }: KeyPairs) => {
+	const exportKey = crypto.subtle.exportKey.bind(null, 'raw')
+	return {
+		sigPubKey: new Uint8Array(await exportKey(ecdsaKeys.publicKey)),
+		ecdhPubKey: new Uint8Array(await exportKey(ecdhKeys.publicKey)),
+	}
 }
 
 export const setChatKey = async (

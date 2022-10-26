@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "./key-exchange.proto";
+
 message Marketplace {
 	bytes address = 1;
 	string name = 2;
@@ -11,5 +13,6 @@ message SelectProvider {
 	bytes seeker = 2;
 	bytes provider = 3;
 	uint64 item = 4;
+	KeyExchange keyExchange = 98;
 	bytes signature = 99;
 }
