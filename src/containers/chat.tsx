@@ -6,16 +6,10 @@ import { Avatar } from '../ui/avatar'
 import { getColor } from '../ui/colors'
 import { ErrorModal } from '../ui/components/error-modal'
 import { Container } from '../ui/container'
-import { User } from '../ui/types'
-import { Typography } from '../ui/typography'
-import { formatDate, formatName } from '../ui/utils'
+import type { Message, User } from '../ui/types'
+import { ChatBubble } from '../ui/components/chat-bubble'
+import { ChatConflictBubble } from '../ui/components/chat-conflict-bubble'
 
-interface Message {
-	text: string
-	date: Date
-	from: User
-	isStartOfConflict?: true
-}
 // FIXME: Remove
 const roleMarketplaceOwner: User = {
 	address: '0x0',
@@ -101,133 +95,6 @@ const templateMessages: Message[] = [
 		from: roleSeeker,
 	},
 ]
-
-interface PropsConflictDealBubble extends HTMLAttributes<HTMLDivElement> {
-	message: Message
-	user: User
-	marketplaceOwner: User
-}
-
-function ConflictDeal({
-	message,
-	user,
-	marketplaceOwner,
-}: PropsConflictDealBubble) {
-	const myMessage = user.address === message.from.address
-	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				marginTop: 40,
-				marginBottom: 10,
-			}}
-		>
-			<Typography
-				variant="small-light-10"
-				color="grey2-light-text"
-				textAlign="center"
-			>
-				{formatDate(message.date)}
-			</Typography>
-			<div
-				style={{
-					padding: 10,
-					marginTop: 5,
-					marginBottom: 5,
-					backgroundColor: getColor('grey1'),
-					textAlign: 'center',
-				}}
-			>
-				<Typography variant="small-bold-12">
-					This deal is now{' '}
-					<span style={{ color: getColor('red-text') }}>in conflict</span>.
-				</Typography>
-			</div>
-			<ChatBubble
-				message={message}
-				user={user}
-				customDateText={`${formatName(message.from)}'s motivation`}
-			/>
-			<Typography
-				variant="small-light-10"
-				color="grey2-light-text"
-				textAlign="center"
-				style={{ marginTop: 30 }}
-			>
-				{formatDate(message.date)}
-			</Typography>
-			<div
-				style={{
-					padding: 10,
-					marginTop: 5,
-					marginBottom: 5,
-					backgroundColor: getColor('grey1'),
-					textAlign: 'center',
-				}}
-			>
-				<Typography variant="small-light-12">
-					{myMessage ? 'You were' : 'The marketplace maintainer is'} added.
-				</Typography>
-			</div>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'center',
-					marginTop: 5,
-					alignItems: 'center',
-				}}
-			>
-				<div style={{ width: 25, height: 25, marginRight: 10 }}>
-					<Avatar avatar={marketplaceOwner.avatar} size={25} />
-				</div>
-
-				<Typography variant="small-bold-12">
-					{formatName(marketplaceOwner)}
-				</Typography>
-			</div>
-		</div>
-	)
-}
-
-interface PropsChatBubble extends HTMLAttributes<HTMLDivElement> {
-	message: Message
-	user: User
-	customDateText?: string
-}
-
-function ChatBubble({ message, user, customDateText }: PropsChatBubble) {
-	const myMessage = user.address === message.from.address
-	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: myMessage ? 'row' : 'row-reverse',
-			}}
-		>
-			<div style={{ width: 25, height: 25 }}>
-				<Avatar avatar={message.from.avatar} size={25} />
-			</div>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					marginLeft: 10,
-					marginRight: 10,
-					textAlign: myMessage ? 'left' : 'right',
-				}}
-			>
-				<Typography variant="small-light-10" color="grey2-light-text">
-					{customDateText ?? formatDate(message.date)}
-				</Typography>
-				<Typography variant="body-light-16" color="grey4">
-					{message.text}
-				</Typography>
-			</div>
-		</div>
-	)
-}
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
 	hide: () => void
@@ -427,7 +294,7 @@ function ChatModal({
 								}}
 							>
 								{message.isStartOfConflict ? (
-									<ConflictDeal
+									<ChatConflictBubble
 										message={message}
 										user={user}
 										marketplaceOwner={marketplaceOwner}
@@ -499,6 +366,9 @@ export interface ChatProps {
 	provider: User
 }
 
+/**
+ * This is deliberately a separate component because if the Chat is not shown, it does not load any data from hooks. It's just a button
+ */
 export function Chat({ user, seeker, provider }: ChatProps) {
 	const [shown, setShown] = useState(false)
 

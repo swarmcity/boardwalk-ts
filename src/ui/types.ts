@@ -40,3 +40,10 @@ export interface Icon {
 	fill?: string
 	size?: number
 }
+
+export interface Message {
+	text: string
+	date: Date
+	from: User
+	isStartOfConflict?: true
+}
