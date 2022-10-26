@@ -33,6 +33,7 @@ type ChatKeys = {
 
 	mySigPubKey: JsonWebKey
 	mySigPrivKey: JsonWebKey
+	myECDHPubKey: JsonWebKey
 	myECDHPrivKey: JsonWebKey
 }
 
@@ -106,13 +107,24 @@ const useChatKeys = (marketplace: string, item: bigint) => {
 	return useAsync(async () => formatChatKeys(chatKeys), [chatKeys])
 }
 
+// TODO: Clean this up (maybe only store private keys, maybe only
+// store Uint8Array and get rid of `crypto.subtle` altogether?
 export const generateChatKeys = async (
 	marketplace: string,
 	item: bigint
 ): Promise<KeyPairs> => {
 	const current = fetchChatKeys(marketplace, item)
 	if (current.myECDHPrivKey || current.mySigPrivKey) {
-		throw new Error('keys already exist for this item in this marketplace')
+		return {
+			ecdhKeys: {
+				publicKey: await ecdh.importKey(current.myECDHPubKey),
+				privateKey: await ecdh.importKey(current.myECDHPrivKey),
+			},
+			ecdsaKeys: {
+				publicKey: await ecdsa.importKey(current.mySigPubKey),
+				privateKey: await ecdsa.importKey(current.mySigPrivKey),
+			},
+		}
 	}
 
 	const ecdhKeys = await ecdh.generateKey()
@@ -120,6 +132,7 @@ export const generateChatKeys = async (
 
 	setStore.keys[getRecordKey(marketplace, item)]({
 		myECDHPrivKey: await crypto.subtle.exportKey('jwk', ecdhKeys.privateKey),
+		myECDHPubKey: await crypto.subtle.exportKey('jwk', ecdhKeys.publicKey),
 		mySigPrivKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.privateKey),
 		mySigPubKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.publicKey),
 	})
