@@ -146,10 +146,10 @@ export const postWakuMessage = async (
 	payload: Uint8Array
 ) => {
 	// Post the metadata on Waku
-	const message = new MessageV0({ payload })
+	const message = { payload }
 
 	// Send the message
-	await waku.lightPush.push(new EncoderV0(topic), message)
+	await waku.lightPush.push(new EncoderV0(topic), { payload })
 
 	// Return message
 	return message

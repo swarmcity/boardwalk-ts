@@ -94,7 +94,7 @@ export const createReply = async (
 	// Post the metadata on Waku
 	await waku.lightPush.push(
 		new EncoderV0(getItemTopic(marketplace, item.toString())),
-		new MessageV0({ payload })
+		{ payload }
 	)
 }
 

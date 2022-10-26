@@ -90,10 +90,9 @@ export const createItem = async (
 	const decimals = await token.decimals()
 
 	// Post the metadata on Waku
-	await waku.lightPush.push(
-		new EncoderV0(getItemTopic(marketplace)),
-		new MessageV0({ payload })
-	)
+	await waku.lightPush.push(new EncoderV0(getItemTopic(marketplace)), {
+		payload,
+	})
 
 	// Convert the price to bigint
 	const amount = numberToBigInt(price, decimals)
