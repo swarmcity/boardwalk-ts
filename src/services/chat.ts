@@ -48,7 +48,7 @@ type FormattedChatKeys = {
 	symKey: Uint8Array
 	mySigPubKey: Uint8Array
 	theirSigPubKey: Uint8Array
-	mySigPrivKey: CryptoKey
+	mySigPrivKey: Uint8Array
 }
 
 // Store
@@ -87,7 +87,7 @@ const formatChatKeys = async (
 		symKey: await ecdh.exportRawKey(symKey),
 		mySigPubKey: await ecdsa.jsonToRaw(chatKeys.mySigPubKey),
 		theirSigPubKey: await ecdsa.jsonToRaw(chatKeys.theirSigPubKey),
-		mySigPrivKey: await ecdsa.importKey(chatKeys.mySigPrivKey),
+		mySigPrivKey: await ecdsa.jsonToRaw(chatKeys.mySigPrivKey),
 	}
 }
 
@@ -186,12 +186,13 @@ export const createChatMessage = async (
 	// Create the protobuf message
 	const payload = ChatMessageProto.encode(message)
 
-	// Sign the payload
-	const signature = await ecdsa.sign(keys.mySigPrivKey, payload)
-
 	// Post the message on Waku
 	await waku.lightPush.push(
-		new SymEncoder(getChatMessageTopic(marketplace, item), keys.symKey),
-		new MessageV1({}, payload, signature, keys.mySigPubKey)
+		new SymEncoder(
+			getChatMessageTopic(marketplace, item),
+			keys.symKey,
+			keys.mySigPrivKey
+		),
+		{ payload }
 	)
 }
