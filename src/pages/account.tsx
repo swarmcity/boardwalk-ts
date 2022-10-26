@@ -154,14 +154,16 @@ export const Account = () => {
 							)}
 							{editingUsernane && (
 								<>
-									<Input
-										id="username"
-										defaultValue={profile.username}
-										autoFocus
-										onChange={(e) => setUsername(e.target.value)}
-									>
-										Username
-									</Input>
+									<div style={{ marginTop: 40 }}>
+										<Input
+											id="username"
+											defaultValue={profile.username}
+											autoFocus
+											onChange={(e) => setUsername(e.target.value)}
+										>
+											Username
+										</Input>
+									</div>
 									<div
 										style={{
 											marginTop: 20,

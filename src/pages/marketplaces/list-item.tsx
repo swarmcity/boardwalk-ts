@@ -140,12 +140,16 @@ export const MarketplaceListItem = () => {
 							/>
 						</div>
 						<div style={{ padding: 30 }}>
-							<Input
-								id="what"
-								onChange={(event) => setDescription(event.currentTarget.value)}
-							>
-								What are you looking for?
-							</Input>
+							<div style={{ marginTop: 40 }}>
+								<Input
+									id="what"
+									onChange={(event) =>
+										setDescription(event.currentTarget.value)
+									}
+								>
+									What are you looking for?
+								</Input>
+							</div>
 							<div
 								style={{
 									display: 'flex',
@@ -153,7 +157,7 @@ export const MarketplaceListItem = () => {
 									alignItems: 'flex-end',
 								}}
 							>
-								<div style={{ flexGrow: 1 }}>
+								<div style={{ flexGrow: 1, marginTop: 40 }}>
 									<Input
 										id="amount"
 										onChange={(event) =>

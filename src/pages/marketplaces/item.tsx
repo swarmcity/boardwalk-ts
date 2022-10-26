@@ -139,12 +139,14 @@ const ReplyForm = ({
 						flexGrow: 1,
 					}}
 				>
-					<Input
-						id="reply"
-						onChange={(event) => setText(event.currentTarget.value)}
-					>
-						Your reply
-					</Input>
+					<div style={{ marginTop: 40 }}>
+						<Input
+							id="reply"
+							onChange={(event) => setText(event.currentTarget.value)}
+						>
+							Your reply
+						</Input>
+					</div>
 					<Typography
 						variant="body-bold-16"
 						style={{
@@ -158,8 +160,20 @@ const ReplyForm = ({
 					</Typography>
 				</div>
 			</div>
-			<div style={{ marginTop: 26 }}>
-				<IconButton variant="cancel" onClick={hideForm} />
+			<div
+				style={{
+					marginTop: 26,
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				<IconButton
+					variant="cancel"
+					onClick={hideForm}
+					style={{ marginRight: 15 }}
+				/>
 				<IconButton
 					variant="confirmAction"
 					onClick={postReply}
