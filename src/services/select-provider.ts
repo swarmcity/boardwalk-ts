@@ -12,7 +12,6 @@ import { SelectProvider } from '../protos/select-provider'
 // Services
 import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
-import { generateChatKeys, getKeyExchange } from './chat'
 
 type Marketplace = {
 	address: string
@@ -36,16 +35,6 @@ const eip712Config: EIP712Config = {
 			{ name: 'seeker', type: 'address' },
 			{ name: 'provider', type: 'address' },
 			{ name: 'item', type: 'uint256' },
-			{ name: 'keyExchange', type: 'KeyExchange' },
-		],
-
-		// TODO: This is wrong as this signature is checked in the contract
-		// and doesn't include the key exchange. So we need two different
-		// messages with two different signatures. This makes everything
-		// quite a bit more difficult.
-		KeyExchange: [
-			{ name: 'sigPubKey', type: 'bytes' },
-			{ name: 'ecdhPubKey', type: 'bytes' },
 		],
 	},
 }
@@ -81,10 +70,6 @@ export const createSelectProvider = async (
 ) => {
 	const topic = getSelectProviderTopic(data.marketplace.address, data.item)
 
-	// Generate chat keys
-	const keys = await generateChatKeys(data.marketplace.address, data.item)
-	const keyExchange = await getKeyExchange(keys)
-
 	const formatMarketplace = <Condition extends boolean>(array: Condition) => ({
 		...data.marketplace,
 		address: toArray(array, data.marketplace.address),
@@ -100,7 +85,6 @@ export const createSelectProvider = async (
 		marketplace: formatMarketplace(array),
 		provider: toArray(array, data.provider),
 		item: BigInt(data.item),
-		keyExchange,
 	})
 
 	const payload = await createSignedProto(
