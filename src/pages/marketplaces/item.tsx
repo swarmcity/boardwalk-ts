@@ -53,6 +53,7 @@ import { Avatar } from '../../ui/avatar'
 import { Request } from '../../ui/components/request'
 import { UserAccount } from './user-account'
 import { LOGIN } from '../../routes'
+import { Chat } from '../../containers/chat'
 
 type ReplyFormProps = {
 	item: Item
@@ -138,12 +139,14 @@ const ReplyForm = ({
 						flexGrow: 1,
 					}}
 				>
-					<Input
-						id="reply"
-						onChange={(event) => setText(event.currentTarget.value)}
-					>
-						Your reply
-					</Input>
+					<div style={{ marginTop: 40 }}>
+						<Input
+							id="reply"
+							onChange={(event) => setText(event.currentTarget.value)}
+						>
+							Your reply
+						</Input>
+					</div>
 					<Typography
 						variant="body-bold-16"
 						style={{
@@ -157,8 +160,20 @@ const ReplyForm = ({
 					</Typography>
 				</div>
 			</div>
-			<div style={{ marginTop: 26 }}>
-				<IconButton variant="cancel" onClick={hideForm} />
+			<div
+				style={{
+					marginTop: 26,
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				<IconButton
+					variant="cancel"
+					onClick={hideForm}
+					style={{ marginRight: 15 }}
+				/>
 				<IconButton
 					variant="confirmAction"
 					onClick={postReply}
@@ -229,11 +244,15 @@ const PayoutItem = ({
 	item,
 	amount,
 	user,
+	seeker,
+	provider,
 }: {
 	marketplace: string
 	item: bigint
 	amount: number
 	user: User
+	seeker: User
+	provider: User
 }) => {
 	const { connector } = useAccount()
 	const tokenName = useMarketplaceTokenName(marketplace)
@@ -287,7 +306,7 @@ const PayoutItem = ({
 				<Typography variant="header-35">
 					<>
 						You're about to pay {amountToString(amount)} {tokenName} to{' '}
-						{formatName(user)}.
+						{formatName(provider)}.
 					</>
 				</Typography>
 				<div style={{ paddingTop: 30 }}>
@@ -300,7 +319,7 @@ const PayoutItem = ({
 	}
 
 	return (
-		<InDeal>
+		<InDeal chat={<Chat user={user} seeker={seeker} provider={provider} />}>
 			<Button
 				style={{ marginTop: 30 }}
 				size="large"
@@ -1095,15 +1114,35 @@ export const MarketplaceItem = () => {
 								seeker={store.request.seeker}
 							/>
 						)}
-						{isMyRequest && status === Status.Funded && (
-							<PayoutItem
-								marketplace={id}
-								item={itemId}
-								amount={tokenToDecimals(store.request.price ?? 0n)}
-								user={store.request.provider!}
-							/>
-						)}
-						{isSelectedReplyMyReply && status === Status.Funded && <InDeal />}
+						{isMyRequest &&
+							status === Status.Funded &&
+							store.request.provider &&
+							store.request.seeker &&
+							store.user && (
+								<PayoutItem
+									marketplace={id}
+									item={itemId}
+									amount={tokenToDecimals(store.request.price ?? 0n)}
+									user={store.user}
+									provider={store.request.provider}
+									seeker={store.request.seeker}
+								/>
+							)}
+						{isSelectedReplyMyReply &&
+							status === Status.Funded &&
+							store.user &&
+							store.request.seeker &&
+							store.request.provider && (
+								<InDeal
+									chat={
+										<Chat
+											user={store.user}
+											seeker={store.request.seeker}
+											provider={store.request.provider}
+										/>
+									}
+								/>
+							)}
 						{status === Status.Open &&
 							!isMyRequest &&
 							!isReplying &&

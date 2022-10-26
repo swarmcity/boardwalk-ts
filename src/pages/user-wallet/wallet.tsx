@@ -167,24 +167,28 @@ const Send = ({ closeModal, tokenName }: Props) => {
 			}}
 			onSubmit={submit}
 		>
-			<Input
-				id="amt-send"
-				type="number"
-				min={0}
-				value={amount}
-				onChange={(event) => setAmount(event.currentTarget.value)}
-				autoFocus
-			>
-				Amount to send
-			</Input>
-			<Input
-				id="rec-address"
-				type="text"
-				value={address}
-				onChange={(event) => setAddress(event.currentTarget.value)}
-			>
-				Receiver's address
-			</Input>
+			<div style={{ marginTop: 20 }}>
+				<Input
+					id="amt-send"
+					type="number"
+					min={0}
+					value={amount}
+					onChange={(event) => setAmount(event.currentTarget.value)}
+					autoFocus
+				>
+					Amount to send
+				</Input>
+			</div>
+			<div style={{ marginTop: 40 }}>
+				<Input
+					id="rec-address"
+					type="text"
+					value={address}
+					onChange={(event) => setAddress(event.currentTarget.value)}
+				>
+					Receiver's address
+				</Input>
+			</div>
 
 			<div
 				style={{

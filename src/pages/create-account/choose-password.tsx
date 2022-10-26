@@ -140,21 +140,25 @@ export const ChoosePassword = () => {
 						Choose a password.
 					</Typography>
 					<form>
-						<Input
-							id="password"
-							type="password"
-							onChange={(e) => setPassword(e.currentTarget.value)}
-							autoFocus
-						>
-							password
-						</Input>
-						<Input
-							id="passwordConfirm"
-							type="password"
-							onChange={(e) => setPassword2(e.currentTarget.value)}
-						>
-							confirm password
-						</Input>
+						<div style={{ marginTop: 40 }}>
+							<Input
+								id="password"
+								type="password"
+								onChange={(e) => setPassword(e.currentTarget.value)}
+								autoFocus
+							>
+								password
+							</Input>
+						</div>
+						<div style={{ marginTop: 40 }}>
+							<Input
+								id="passwordConfirm"
+								type="password"
+								onChange={(e) => setPassword2(e.currentTarget.value)}
+							>
+								confirm password
+							</Input>
+						</div>
 					</form>
 					<div
 						style={{

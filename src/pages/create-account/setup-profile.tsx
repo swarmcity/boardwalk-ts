@@ -81,7 +81,7 @@ export const SetupProfile = () => {
 						</div>
 					</CreateAvatar>
 
-					<form onSubmit={onSubmit} style={{ maxWidth: 300 }}>
+					<form onSubmit={onSubmit} style={{ maxWidth: 300, marginTop: 40 }}>
 						<Input
 							type="text"
 							id="username"
