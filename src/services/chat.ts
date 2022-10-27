@@ -26,14 +26,18 @@ import { KeyExchange } from '../protos/key-exchange'
 const PREFIX = 'chat'
 
 // Types
-type ChatKeys = {
-	theirSigPubKey?: JsonWebKey
-	theirECDHPubKey?: JsonWebKey
+type TheirChatKeys = {
+	theirSigPubKey: JsonWebKey
+	theirECDHPubKey: JsonWebKey
+}
 
+type ChatKeys = Partial<TheirChatKeys> & {
 	mySigPubKey: JsonWebKey
 	mySigPrivKey: JsonWebKey
 	myECDHPubKey: JsonWebKey
 	myECDHPrivKey: JsonWebKey
+
+	temp: Record<string, TheirChatKeys>
 }
 
 type ChatStore = {
@@ -115,7 +119,7 @@ export const generateKeys = async (): Promise<KeyPairs> => {
 export const setChatKey = async (
 	marketplace: string,
 	item: bigint,
-	type: keyof ChatKeys,
+	type: Exclude<keyof ChatKeys, 'temp'>,
 	key: JsonWebKey
 ) => {
 	setStore.keys[getRecordKey(marketplace, item)][type]?.(key)
@@ -131,6 +135,7 @@ export const setChatKeys = async (
 		myECDHPubKey: await crypto.subtle.exportKey('jwk', ecdhKeys.publicKey),
 		mySigPrivKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.privateKey),
 		mySigPubKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.publicKey),
+		temp: {},
 	})
 }
 
@@ -140,12 +145,27 @@ export const setTheirChatKeys = async (
 	keyExchange: KeyExchange
 ) => {
 	const theirECDHPubKey = await ecdh.rawToJson(keyExchange.ecdhPubKey)
-	const theirSigPubKey = await ecdsa.rawToJson(keyExchange.ecdhPubKey)
+	const theirSigPubKey = await ecdsa.rawToJson(keyExchange.sigPubKey)
 
 	setStore.keys[getRecordKey(marketplace, item)]((keys) => ({
 		...keys,
 		theirECDHPubKey,
 		theirSigPubKey,
+	}))
+}
+
+export const setTheirTempChatKeys = async (
+	marketplace: string,
+	item: bigint,
+	address: string,
+	keyExchange: KeyExchange
+) => {
+	const theirECDHPubKey = await ecdh.rawToJson(keyExchange.ecdhPubKey)
+	const theirSigPubKey = await ecdsa.rawToJson(keyExchange.sigPubKey)
+
+	setStore.keys[getRecordKey(marketplace, item)].temp((temp) => ({
+		...temp,
+		[address]: { theirECDHPubKey, theirSigPubKey },
 	}))
 }
 
@@ -156,7 +176,7 @@ export const generateChatKeys = async (
 	item: bigint
 ): Promise<KeyPairs> => {
 	const current = fetchChatKeys(marketplace, item)
-	if (current.myECDHPrivKey || current.mySigPrivKey) {
+	if (current?.myECDHPrivKey || current?.mySigPrivKey) {
 		return {
 			ecdhKeys: {
 				publicKey: await ecdh.importKey(current.myECDHPubKey),

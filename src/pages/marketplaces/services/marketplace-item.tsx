@@ -19,6 +19,7 @@ import type { BigNumber, Signer } from 'ethers'
 
 // Protos
 import { ItemReply } from '../../../protos/item-reply'
+import { KeyExchange } from '../../../protos/key-exchange'
 
 // Hooks
 import {
@@ -41,6 +42,7 @@ export type ItemReplyClean = {
 	text: string
 	from: string
 	signature: string
+	keyExchange: KeyExchange
 }
 
 // EIP-712
@@ -120,6 +122,7 @@ const verifyReplySignature = (reply: ItemReply) => {
 			marketplace: reply.marketplace,
 			item: reply.item,
 			text: reply.text,
+			keyExchange: reply.keyExchange,
 		},
 		reply.signature
 	)
@@ -138,6 +141,7 @@ const decodeWakuReply = async (
 				text: reply.text,
 				from: getAddress('0x' + utils.bytesToHex(reply.from)),
 				signature: '0x' + utils.bytesToHex(reply.signature),
+				keyExchange: reply.keyExchange,
 			}
 		)
 	} catch (err) {

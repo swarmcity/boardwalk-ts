@@ -27,11 +27,11 @@ export const deriveKey = async (
 }
 
 export const importKey = async (key: JsonWebKey) => {
-	return crypto.subtle.importKey('jwk', key, algorithm, false, [])
+	return crypto.subtle.importKey('jwk', key, algorithm, true, [])
 }
 
 export const importRawKey = async (key: BufferSource) => {
-	return crypto.subtle.importKey('raw', key, algorithm, false, [])
+	return crypto.subtle.importKey('raw', key, algorithm, true, [])
 }
 
 export const exportRawKey = async (key: CryptoKey) => {

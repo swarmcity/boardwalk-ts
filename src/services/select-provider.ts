@@ -8,10 +8,12 @@ import type { Signer } from 'ethers'
 
 // Protos
 import { SelectProvider } from '../protos/select-provider'
+import { KeyExchange } from '../protos/key-exchange'
 
 // Services
 import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
+import { setTheirTempChatKeys } from './chat'
 
 type Marketplace = {
 	address: string
@@ -66,7 +68,8 @@ const toArray = <Condition extends boolean>(
 export const createSelectProvider = async (
 	waku: WakuLight,
 	signer: Signer,
-	data: CreateSelectProvider
+	data: CreateSelectProvider,
+	keyExchange: KeyExchange
 ) => {
 	const topic = getSelectProviderTopic(data.marketplace.address, data.item)
 
@@ -93,6 +96,13 @@ export const createSelectProvider = async (
 		(signer: string) => formatData(false, signer),
 		SelectProvider,
 		signer
+	)
+
+	await setTheirTempChatKeys(
+		data.marketplace.address,
+		data.item,
+		data.provider,
+		keyExchange
 	)
 
 	return postWakuMessage(waku, topic, payload)

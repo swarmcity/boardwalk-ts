@@ -233,6 +233,7 @@ const ReplyContainer = ({
 		isMyReply,
 		user,
 		tokenName,
+		keyExchange: replyItem.keyExchange,
 	}
 
 	return (
@@ -826,15 +827,20 @@ export const MarketplaceItem = () => {
 
 			setLoadingSelectProvider(true)
 
-			await createSelectProvider(waku, signer, {
-				marketplace: {
-					address: id,
-					chainId: BigInt(chain.id),
-					name,
+			await createSelectProvider(
+				waku,
+				signer,
+				{
+					marketplace: {
+						address: id,
+						chainId: BigInt(chain.id),
+						name,
+					},
+					provider: selectedReply?.user.address,
+					item: itemId,
 				},
-				provider: selectedReply?.user.address,
-				item: itemId,
-			})
+				selectedReply.keyExchange
+			)
 		} catch (error) {
 			console.error(error)
 			setError(error as Error)
