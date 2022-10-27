@@ -5,7 +5,13 @@ export const generateKey = async () => {
 }
 
 export const importKey = async (key: JsonWebKey) => {
-	return crypto.subtle.importKey('jwk', key, algorithm, true, [])
+	return crypto.subtle.importKey(
+		'jwk',
+		key,
+		algorithm,
+		true,
+		(key.key_ops || []) as ReadonlyArray<KeyUsage>
+	)
 }
 
 export const importRawKey = async (key: BufferSource) => {

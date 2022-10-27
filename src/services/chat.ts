@@ -6,6 +6,7 @@ import {
 	SymDecoder,
 	SymEncoder,
 } from 'js-waku/lib/waku_message/version_1'
+import { fromString } from 'uint8arrays/from-string'
 
 // Lib
 import { readLocalStore, updateLocalStore } from '../lib/store'
@@ -96,7 +97,10 @@ const formatChatKeys = async (
 		symKey: await ecdh.exportRawKey(symKey),
 		mySigPubKey: await ecdsa.jsonToRaw(chatKeys.mySigPubKey),
 		theirSigPubKey: await ecdsa.jsonToRaw(chatKeys.theirSigPubKey),
-		mySigPrivKey: await ecdsa.jsonToRaw(chatKeys.mySigPrivKey),
+		mySigPrivKey: fromString(
+			chatKeys.mySigPrivKey?.d?.replace(/-/g, '+').replace(/_/g, '/') ?? '',
+			'base64'
+		),
 	}
 }
 
