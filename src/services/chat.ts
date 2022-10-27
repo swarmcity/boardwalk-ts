@@ -135,7 +135,6 @@ export const setChatKeys = async (
 		myECDHPubKey: await crypto.subtle.exportKey('jwk', ecdhKeys.publicKey),
 		mySigPrivKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.privateKey),
 		mySigPubKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.publicKey),
-		temp: {},
 	})
 }
 
@@ -269,8 +268,6 @@ export const useChatMessages = (marketplace: string, item: bigint) => {
 		undefined,
 		!keys
 	)
-
-	console.log({ keys })
 
 	useEffect(() => (state.loading ? setItems([]) : undefined), [state.loading])
 
