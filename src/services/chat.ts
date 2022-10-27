@@ -107,6 +107,34 @@ const useChatKeys = (marketplace: string, item: bigint) => {
 	return useAsync(async () => formatChatKeys(chatKeys), [chatKeys])
 }
 
+export const generateKeys = async (): Promise<KeyPairs> => {
+	const ecdhKeys = await ecdh.generateKey()
+	const ecdsaKeys = await ecdsa.generateKey()
+	return { ecdhKeys, ecdsaKeys }
+}
+
+export const setChatKey = async (
+	marketplace: string,
+	item: bigint,
+	type: keyof ChatKeys,
+	key: JsonWebKey
+) => {
+	setStore.keys[getRecordKey(marketplace, item)][type]?.(key)
+}
+
+export const setChatKeys = async (
+	marketplace: string,
+	item: bigint,
+	{ ecdhKeys, ecdsaKeys }: KeyPairs
+) => {
+	setStore.keys[getRecordKey(marketplace, item)]({
+		myECDHPrivKey: await crypto.subtle.exportKey('jwk', ecdhKeys.privateKey),
+		myECDHPubKey: await crypto.subtle.exportKey('jwk', ecdhKeys.publicKey),
+		mySigPrivKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.privateKey),
+		mySigPubKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.publicKey),
+	})
+}
+
 // TODO: Clean this up (maybe only store private keys, maybe only
 // store Uint8Array and get rid of `crypto.subtle` altogether?
 export const generateChatKeys = async (
@@ -127,34 +155,17 @@ export const generateChatKeys = async (
 		}
 	}
 
-	const ecdhKeys = await ecdh.generateKey()
-	const ecdsaKeys = await ecdsa.generateKey()
-
-	setStore.keys[getRecordKey(marketplace, item)]({
-		myECDHPrivKey: await crypto.subtle.exportKey('jwk', ecdhKeys.privateKey),
-		myECDHPubKey: await crypto.subtle.exportKey('jwk', ecdhKeys.publicKey),
-		mySigPrivKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.privateKey),
-		mySigPubKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.publicKey),
-	})
-
-	return { ecdhKeys, ecdsaKeys }
+	const keys = await generateKeys()
+	await setChatKeys(marketplace, item, keys)
+	return keys
 }
 
 export const getKeyExchange = async ({ ecdhKeys, ecdsaKeys }: KeyPairs) => {
-	const exportKey = crypto.subtle.exportKey.bind(null, 'raw')
+	const exportKey = crypto.subtle.exportKey.bind(crypto.subtle, 'raw')
 	return {
 		sigPubKey: new Uint8Array(await exportKey(ecdsaKeys.publicKey)),
 		ecdhPubKey: new Uint8Array(await exportKey(ecdhKeys.publicKey)),
 	}
-}
-
-export const setChatKey = async (
-	marketplace: string,
-	item: bigint,
-	type: keyof ChatKeys,
-	key: JsonWebKey
-) => {
-	setStore.keys[getRecordKey(marketplace, item)][type]?.(key)
 }
 
 export const getChatMessageTopic = (marketplace: string, item: bigint) => {

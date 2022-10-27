@@ -7,6 +7,7 @@ import {
 import { BigNumber, Contract, Event } from 'ethers'
 import { useProvider, useWebSocketProvider } from 'wagmi'
 import { Interface } from 'ethers/lib/utils'
+import { Log } from '@ethersproject/providers'
 
 // Types
 import type { Signer } from 'ethers'
@@ -26,6 +27,11 @@ import { shouldUpdate } from '../../../lib/blockchain'
 
 // Services
 import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
+import {
+	generateKeys,
+	getKeyExchange,
+	setChatKeys,
+} from '../../../services/chat'
 
 // Status
 export enum Status {
@@ -77,8 +83,12 @@ export const createItem = async (
 	{ price, description }: CreateItem,
 	signer: Signer
 ) => {
+	// Chat keys
+	const keys = await generateKeys()
+	const keyExchange = await getKeyExchange(keys)
+
 	// Create the metadata
-	const payload = ItemMetadata.encode({ description })
+	const payload = ItemMetadata.encode({ description, keyExchange })
 	const hash = await crypto.subtle.digest('SHA-256', payload)
 
 	// Get the marketplace contract
@@ -104,7 +114,17 @@ export const createItem = async (
 
 	// Post the item on chain
 	const tx = await contract.newItem(amount, new Uint8Array(hash))
-	await tx.wait()
+	const { logs } = await tx.wait()
+
+	// Get the item ID
+	const newItemTopic = contract.interface.getEventTopic('NewItem')
+	const newItemLog = logs.find((log: Log) => log.topics[0] === newItemTopic)
+	const { args } = contract.interface.parseLog(newItemLog)
+	const id = args.id.toBigInt()
+
+	setChatKeys(marketplace, id, keys)
+
+	return id
 }
 
 const decodeWakuMessage = async (

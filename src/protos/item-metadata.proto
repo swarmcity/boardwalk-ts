@@ -1,5 +1,8 @@
 syntax = "proto3";
 
+import "./key-exchange.proto";
+
 message ItemMetadata {
   string description = 1;
+	KeyExchange keyExchange = 98;
 }
