@@ -14,7 +14,13 @@ import { ChatBubble } from '../ui/components/chat-bubble'
 import { ChatConflictBubble } from '../ui/components/chat-conflict-bubble'
 
 // Services
-import { selectTempChatKey, useChatMessages } from '../services/chat'
+import {
+	postChatMessage,
+	selectTempChatKey,
+	useChatMessages,
+} from '../services/chat'
+import { Protocols } from 'js-waku'
+import { useWaku } from '../hooks/use-waku'
 
 // FIXME: Remove
 const roleMarketplaceOwner: User = {
@@ -122,6 +128,7 @@ function ChatModal({
 	item,
 	...props
 }: Props) {
+	const { waku } = useWaku([Protocols.LightPush])
 	const [messages, setMessages] = useState<Message[]>([])
 	const [scrolled, setScrolled] = useState(false)
 	const [messageText, setMessageText] = useState('')
@@ -135,13 +142,15 @@ function ChatModal({
 
 	const sendMessage = async () => {
 		// Don't send empty messages
-		if (!messageText) {
+		if (!messageText || !waku) {
 			return
 		}
+
 		try {
-			const message = { from: user, text: messageText, date: new Date() }
+			//const message = { from: user, text: messageText, date: new Date() }
 			setIsSubmitting(true)
 
+			/*
 			// FIXME: replace this block with actual implementation
 			const sleep = (time: number): Promise<void> =>
 				new Promise((resolve) => setTimeout(() => resolve(), time))
@@ -156,6 +165,10 @@ function ChatModal({
 			setMessageText('')
 			inputElementRef.current?.focus()
 			//FIXME: after succesfully sending message, should scroll the chat view to bottom, disabled for testing purposes
+			*/
+
+			await postChatMessage(waku, marketplace, item, { message: messageText })
+
 			// scrollElementRef?.current?.scrollIntoView()
 		} catch (err) {
 			setError(err as Error)
@@ -221,8 +234,12 @@ function ChatModal({
 		selectTempChatKey(marketplace, item, provider.address)
 	}, [marketplace, item, provider])
 
-	const chatMessages = useChatMessages(marketplace, item)
-	console.log(chatMessages)
+	const { items } = useChatMessages(marketplace, item)
+	const chatMessages = items.map(({ message }) => ({
+		text: message,
+		date: new Date(),
+		from: seeker,
+	}))
 
 	if (user === undefined) {
 		return <FullscreenLoading>Loading your chat...</FullscreenLoading>
@@ -299,7 +316,7 @@ function ChatModal({
 						}}
 					>
 						<div style={{ flexGrow: 1 }} />
-						{messages.map((message, index) => (
+						{chatMessages.map((message, index) => (
 							<div
 								key={index}
 								style={{
@@ -310,7 +327,8 @@ function ChatModal({
 											: 10,
 								}}
 							>
-								{message.isStartOfConflict ? (
+								{/* eslint-disable-next-line no-constant-condition */}
+								{false /*message.isStartOfConflict*/ ? (
 									<ChatConflictBubble
 										message={message}
 										user={user}

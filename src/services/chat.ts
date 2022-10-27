@@ -278,7 +278,7 @@ export const useChatMessages = (marketplace: string, item: bigint) => {
 	return { ...state, lastUpdate, items }
 }
 
-export const createChatMessage = async (
+export const postChatMessage = async (
 	waku: WakuLight,
 	marketplace: string,
 	item: bigint,
