@@ -7,6 +7,7 @@ import {
 	SymEncoder,
 } from 'js-waku/lib/waku_message/version_1'
 import { fromString } from 'uint8arrays/from-string'
+import { equals } from 'uint8arrays/equals'
 
 // Lib
 import { readLocalStore, updateLocalStore } from '../lib/store'
@@ -46,6 +47,8 @@ type ChatStore = {
 }
 
 type ChatMessage = {
+	date: Date
+	from: string
 	message: string
 }
 
@@ -97,10 +100,7 @@ const formatChatKeys = async (
 		symKey: await ecdh.exportRawKey(symKey),
 		mySigPubKey: await ecdsa.jsonToRaw(chatKeys.mySigPubKey),
 		theirSigPubKey: await ecdsa.jsonToRaw(chatKeys.theirSigPubKey),
-		mySigPrivKey: fromString(
-			chatKeys.mySigPrivKey?.d?.replace(/-/g, '+').replace(/_/g, '/') ?? '',
-			'base64'
-		),
+		mySigPrivKey: fromString(chatKeys.mySigPrivKey?.d ?? '', 'base64url'),
 	}
 }
 
@@ -241,16 +241,27 @@ export const getChatMessageTopic = (marketplace: string, item: bigint) => {
 const decodeWakuMessage = async (
 	message: WithPayload<MessageV1>
 ): Promise<ChatMessage> => {
-	return ChatMessageProto.decode(message.payload)
+	return {
+		date: message.timestamp || new Date(),
+		from: '',
+		...ChatMessageProto.decode(message.payload),
+	}
 }
 
 export const useChatMessages = (marketplace: string, item: bigint) => {
 	const [items, setItems] = useState<ChatMessage[]>([])
 	const [lastUpdate, setLastUpdate] = useState(Date.now())
 
+	const { value: keys } = useChatKeys(marketplace, item)
+	const topic = getChatMessageTopic(marketplace, item)
+
 	const callback = async (msg: Promise<MessageV1 | undefined>) => {
+		if (!keys) {
+			return
+		}
+
 		const message = await msg
-		if (!message?.payload) {
+		if (!message?.payload || !message.signaturePublicKey) {
 			return
 		}
 
@@ -259,12 +270,18 @@ export const useChatMessages = (marketplace: string, item: bigint) => {
 			return
 		}
 
+		if (equals(message.signaturePublicKey, keys.mySigPubKey)) {
+			decoded.from = 'me'
+		} else if (equals(message.signaturePublicKey, keys.theirSigPubKey)) {
+			decoded.from = 'them'
+		} else {
+			return
+		}
+
 		setItems((items) => [...items, decoded])
 		setLastUpdate(Date.now())
 	}
 
-	const { value: keys } = useChatKeys(marketplace, item)
-	const topic = getChatMessageTopic(marketplace, item)
 	const state = useWakuStoreQuery(
 		keys?.symKey ? [new SymDecoder(topic, keys.symKey)] : [],
 		callback,
