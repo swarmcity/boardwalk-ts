@@ -58,6 +58,9 @@ import { StartConflictContainer } from '../../containers/start-conflict'
 import { InConflict } from '../../containers/in-conflict'
 import { ConflictResolutionDetail } from '../../ui/components/conflict-resolution-detail'
 
+// Protos
+import { KeyExchange } from '../../protos/key-exchange'
+
 type ReplyFormProps = {
 	item: Item
 	marketplace: string
@@ -346,6 +349,7 @@ const FundDeal = ({
 	amount,
 	fee,
 	seeker,
+	keyExchange,
 }: {
 	data?: SelectProvider
 	marketplace: string
@@ -353,6 +357,7 @@ const FundDeal = ({
 	amount: number
 	fee: number
 	seeker: User
+	keyExchange: KeyExchange
 }) => {
 	const { connector } = useAccount()
 	const tokenName = useMarketplaceTokenName(marketplace)
@@ -374,7 +379,7 @@ const FundDeal = ({
 			const signer = await connector.getSigner()
 			setLoading('Funding is being processed')
 			setShowFundConfirm(false)
-			await fundItem(signer, marketplace, item, data?.signature)
+			await fundItem(signer, marketplace, item, data.signature, keyExchange)
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
@@ -1212,6 +1217,7 @@ export const MarketplaceItem = () => {
 										amount={tokenToDecimals(store.request.price ?? 0n)}
 										fee={tokenToDecimals(store.request.fee?.toBigInt() ?? 0n)}
 										seeker={store.request.seeker}
+										keyExchange={item.metadata.keyExchange}
 									/>
 								)}
 							{isMyRequest &&

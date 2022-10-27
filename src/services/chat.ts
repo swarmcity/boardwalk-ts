@@ -20,6 +20,7 @@ import type { WakuLight } from 'js-waku/lib/interfaces'
 
 // Protos
 import { ChatMessage as ChatMessageProto } from '../protos/chat-message'
+import { KeyExchange } from '../protos/key-exchange'
 
 // Config
 const PREFIX = 'chat'
@@ -131,6 +132,21 @@ export const setChatKeys = async (
 		mySigPrivKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.privateKey),
 		mySigPubKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.publicKey),
 	})
+}
+
+export const setTheirChatKeys = async (
+	marketplace: string,
+	item: bigint,
+	keyExchange: KeyExchange
+) => {
+	const theirECDHPubKey = await ecdh.rawToJson(keyExchange.ecdhPubKey)
+	const theirSigPubKey = await ecdsa.rawToJson(keyExchange.ecdhPubKey)
+
+	setStore.keys[getRecordKey(marketplace, item)]((keys) => ({
+		...keys,
+		theirECDHPubKey,
+		theirSigPubKey,
+	}))
 }
 
 // TODO: Clean this up (maybe only store private keys, maybe only
