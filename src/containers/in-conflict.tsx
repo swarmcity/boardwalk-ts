@@ -8,6 +8,7 @@ import { formatName } from '../ui/utils'
 
 import type { User } from '../ui/types'
 import { USER } from '../routes'
+import { Button } from '@swarm-city/ui-library'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
 	chat: ReactNode
@@ -58,35 +59,47 @@ export function InConflict({
 					: 'They are'}{' '}
 				<span style={{ color: getColor('red-text') }}>in conflict</span>.
 			</Typography>
-			<>
-				<Typography
-					variant="small-light-12"
-					color="grey4"
-					style={{ marginTop: 5 }}
-				>
-					The marketplace maintainer was added to the chat.
-				</Typography>
+			<Typography
+				variant="small-light-12"
+				color="grey4"
+				style={{ marginTop: 5 }}
+			>
+				{user && user.address === marketplaceOwner.address
+					? 'You were added to the chat.'
+					: 'The marketplace maintainer was added to the chat.'}
+			</Typography>
+			{user && user.address === marketplaceOwner.address && (
 				<div
 					style={{
 						marginTop: 30,
-						display: 'flex',
-						flexDirection: 'row',
-						alignItems: 'center',
-						cursor: 'pointer',
-						width: 'fit-content',
 					}}
-					onClick={() => navigate(USER(marketplaceOwner.address))}
 				>
-					<Avatar avatar={marketplaceOwner.avatar} size={40} />
-					<Typography
-						variant="small-bold-12"
-						color="blue"
-						style={{ marginLeft: 15 }}
-					>
-						{formatName(marketplaceOwner)}
-					</Typography>
+					<Button size='large'>resolve</Button>
 				</div>
-			</>
+			)}
+			{!user ||
+				(user.address !== marketplaceOwner.address && (
+					<div
+						style={{
+							marginTop: 30,
+							display: 'flex',
+							flexDirection: 'row',
+							alignItems: 'center',
+							cursor: 'pointer',
+							width: 'fit-content',
+						}}
+						onClick={() => navigate(USER(marketplaceOwner.address))}
+					>
+						<Avatar avatar={marketplaceOwner.avatar} size={40} />
+						<Typography
+							variant="small-bold-12"
+							color="blue"
+							style={{ marginLeft: 15 }}
+						>
+							{formatName(marketplaceOwner)}
+						</Typography>
+					</div>
+				))}
 		</div>
 	)
 }
