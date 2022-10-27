@@ -26,8 +26,6 @@ const PREFIX = 'chat'
 
 // Types
 type ChatKeys = {
-	symKey?: JsonWebKey
-
 	theirSigPubKey?: JsonWebKey
 	theirECDHPubKey?: JsonWebKey
 
