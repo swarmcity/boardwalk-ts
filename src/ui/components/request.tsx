@@ -1,5 +1,6 @@
 import type { HTMLAttributes } from 'react'
 import { Avatar } from '../avatar'
+import { getColor } from '../colors'
 import { User } from '../types'
 import { Typography } from '../typography'
 import { amountToString, formatDate, formatName } from '../utils'
@@ -10,6 +11,7 @@ interface RequestProps extends HTMLAttributes<HTMLDivElement> {
 	amount: number
 	seeker: User
 	provider?: User
+	marketplaceOwner?: User
 	isMyListing?: boolean
 	isMyDeal?: boolean
 	detail?: boolean
@@ -30,6 +32,7 @@ export const Request = ({
 	amount,
 	seeker,
 	provider,
+	marketplaceOwner,
 	isMyListing,
 	isMyDeal,
 	onClickUser,
@@ -79,11 +82,18 @@ export const Request = ({
 				<Avatar
 					avatar={seeker.avatar}
 					size={detail ? 40 : 25}
-					style={{ zIndex: 1 }}
+					style={{ zIndex: 2 }}
 				/>
-				{status !== 'open' && !detail && provider && (
+				{!detail && provider && (
 					<Avatar
-						avatar={provider.avatar}
+						avatar={provider?.avatar}
+						size={25}
+						style={{ marginLeft: -10, zIndex: 1 }}
+					/>
+				)}
+				{status && ['disputed', 'resolved'].includes(status) && !detail && (
+					<Avatar
+						avatar={marketplaceOwner?.avatar}
 						size={25}
 						style={{ marginLeft: -10, zIndex: 0 }}
 					/>
@@ -105,15 +115,18 @@ export const Request = ({
 						color="grey4"
 						style={{ marginLeft: 8 }}
 					>
-						{status &&
-							!['open', 'funded', 'disputed', 'resolved'].includes(status) && (
-								<>Deal {status}.</>
-							)}
+						{status && !['open', 'funded', 'disputed'].includes(status) && (
+							<>Deal {status}.</>
+						)}
 						{status === 'funded' && (
 							<>{isMyDeal ? "You're in a deal" : "They're in a deal"}.</>
 						)}
 						{status === 'disputed' && (
-							<>{isMyDeal ? "You're in conflict" : "They're in conflict"}.</>
+							<>
+								{isMyDeal ? "You're" : "They're in"}{' '}
+								<span style={{ color: getColor('red-text') }}>in conflict</span>
+								.
+							</>
 						)}
 						{status === 'resolved' && <>Conflict resolved..</>}
 					</Typography>
