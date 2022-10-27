@@ -1,7 +1,10 @@
 import { FullscreenLoading, IconButton, Input } from '@swarm-city/ui-library'
-import React, { HTMLAttributes, useEffect, useState } from 'react'
+import { HTMLAttributes, useEffect, useState, createRef } from 'react'
+
+// Pages
 import { Status } from '../pages/marketplaces/services/marketplace-items'
 
+// UI
 import { Avatar } from '../ui/avatar'
 import { getColor } from '../ui/colors'
 import { ErrorModal } from '../ui/components/error-modal'
@@ -9,6 +12,9 @@ import { Container } from '../ui/container'
 import type { Message, User } from '../ui/types'
 import { ChatBubble } from '../ui/components/chat-bubble'
 import { ChatConflictBubble } from '../ui/components/chat-conflict-bubble'
+
+// Services
+import { selectTempChatKey, useChatMessages } from '../services/chat'
 
 // FIXME: Remove
 const roleMarketplaceOwner: User = {
@@ -102,6 +108,8 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 	seeker: User
 	provider: User
 	marketplaceOwner: User
+	marketplace: string
+	item: bigint
 }
 
 function ChatModal({
@@ -110,6 +118,8 @@ function ChatModal({
 	provider,
 	seeker,
 	marketplaceOwner,
+	marketplace,
+	item,
 	...props
 }: Props) {
 	const [messages, setMessages] = useState<Message[]>([])
@@ -117,8 +127,8 @@ function ChatModal({
 	const [messageText, setMessageText] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [error, setError] = useState<Error | undefined>()
-	const scrollElementRef = React.createRef<HTMLDivElement>()
-	const inputElementRef = React.createRef<HTMLInputElement>()
+	const scrollElementRef = createRef<HTMLDivElement>()
+	const inputElementRef = createRef<HTMLInputElement>()
 
 	// FIXME: remove this, the status should come as prop or something
 	const [status, setStatus] = useState(Status.Funded)
@@ -206,6 +216,13 @@ function ChatModal({
 			}
 		}
 	}, [scrollElementRef.current])
+
+	useEffect(() => {
+		selectTempChatKey(marketplace, item, provider.address)
+	}, [marketplace, item, provider])
+
+	const chatMessages = useChatMessages(marketplace, item)
+	console.log(chatMessages)
 
 	if (user === undefined) {
 		return <FullscreenLoading>Loading your chat...</FullscreenLoading>
@@ -364,12 +381,14 @@ export interface ChatProps {
 	user: User
 	seeker: User
 	provider: User
+	marketplace: string
+	item: bigint
 }
 
 /**
  * This is deliberately a separate component because if the Chat is not shown, it does not load any data from hooks. It's just a button
  */
-export function Chat({ user, seeker, provider }: ChatProps) {
+export function Chat({ user, seeker, provider, marketplace, item }: ChatProps) {
 	const [shown, setShown] = useState(false)
 
 	if (shown)
@@ -380,6 +399,8 @@ export function Chat({ user, seeker, provider }: ChatProps) {
 				seeker={seeker}
 				provider={provider}
 				marketplaceOwner={roleMarketplaceOwner}
+				marketplace={marketplace}
+				item={item}
 			/>
 		)
 

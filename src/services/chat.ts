@@ -37,7 +37,7 @@ type ChatKeys = Partial<TheirChatKeys> & {
 	myECDHPubKey: JsonWebKey
 	myECDHPrivKey: JsonWebKey
 
-	temp: Record<string, TheirChatKeys>
+	temp?: Record<string, TheirChatKeys>
 }
 
 type ChatStore = {
@@ -84,7 +84,7 @@ const fetchChatKeys = (marketplace: string, item: bigint) => {
 const formatChatKeys = async (
 	chatKeys: ChatKeys
 ): Promise<FormattedChatKeys | undefined> => {
-	if (!chatKeys.theirSigPubKey || !chatKeys.theirECDHPubKey) {
+	if (!chatKeys || !chatKeys.theirSigPubKey || !chatKeys.theirECDHPubKey) {
 		return
 	}
 
@@ -163,6 +163,8 @@ export const setTheirTempChatKeys = async (
 	const theirECDHPubKey = await ecdh.rawToJson(keyExchange.ecdhPubKey)
 	const theirSigPubKey = await ecdsa.rawToJson(keyExchange.sigPubKey)
 
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-expect-error
 	setStore.keys[getRecordKey(marketplace, item)].temp((temp) => ({
 		...temp,
 		[address]: { theirECDHPubKey, theirSigPubKey },
@@ -200,6 +202,33 @@ export const getKeyExchange = async ({ ecdhKeys, ecdsaKeys }: KeyPairs) => {
 		sigPubKey: new Uint8Array(await exportKey(ecdsaKeys.publicKey)),
 		ecdhPubKey: new Uint8Array(await exportKey(ecdhKeys.publicKey)),
 	}
+}
+
+export const selectTempChatKey = (
+	marketplace: string,
+	item: bigint,
+	address: string
+) => {
+	setStore.keys[getRecordKey(marketplace, item)]((keys) => {
+		if (!keys) {
+			return keys
+		}
+
+		if (keys.theirECDHPubKey && keys.theirSigPubKey) {
+			return keys
+		}
+
+		const theirKeys = keys.temp?.[address]
+		if (!theirKeys) {
+			return keys
+		}
+
+		delete keys.temp
+		return {
+			...keys,
+			...theirKeys,
+		}
+	})
 }
 
 export const getChatMessageTopic = (marketplace: string, item: bigint) => {
@@ -240,6 +269,8 @@ export const useChatMessages = (marketplace: string, item: bigint) => {
 		undefined,
 		!keys
 	)
+
+	console.log({ keys })
 
 	useEffect(() => (state.loading ? setItems([]) : undefined), [state.loading])
 

@@ -326,7 +326,17 @@ const PayoutItem = ({
 	}
 
 	return (
-		<InDeal chat={<Chat user={user} seeker={seeker} provider={provider} />}>
+		<InDeal
+			chat={
+				<Chat
+					user={user}
+					seeker={seeker}
+					provider={provider}
+					marketplace={marketplace}
+					item={item}
+				/>
+			}
+		>
 			<Button
 				style={{ marginTop: 30 }}
 				size="large"
@@ -1251,6 +1261,8 @@ export const MarketplaceItem = () => {
 												user={store.user}
 												seeker={store.request.seeker}
 												provider={store.request.provider}
+												marketplace={id}
+												item={itemId}
 											/>
 										}
 									/>
@@ -1298,6 +1310,8 @@ export const MarketplaceItem = () => {
 													user={store.user}
 													seeker={store.request.seeker}
 													provider={store.request.provider}
+													marketplace={id}
+													item={itemId}
 												/>
 											) : null
 										}
