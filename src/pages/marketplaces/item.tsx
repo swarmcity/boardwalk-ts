@@ -54,6 +54,7 @@ import { Request } from '../../ui/components/request'
 import { UserAccount } from './user-account'
 import { LOGIN } from '../../routes'
 import { Chat } from '../../containers/chat'
+import { StartConflictContainer } from '../../containers/start-conflict'
 
 type ReplyFormProps = {
 	item: Item
@@ -1170,17 +1171,16 @@ export const MarketplaceItem = () => {
 							itemId={store.request.id}
 						/>
 					)}
-					{(isMyRequest || isSelectedReplyMyReply) && status === Status.Funded && (
-						<div
-							style={{
-								margin: 50,
-								display: 'flex',
-								justifyContent: 'center',
-							}}
-						>
-							<Button>start conflict</Button>
-						</div>
-					)}
+					{(isMyRequest || isSelectedReplyMyReply) &&
+						status === Status.Funded &&
+						typeof store.request.description === 'string' && (
+							<StartConflictContainer
+								description={store.request.description}
+								marketplaceName={store.marketplace.name}
+								marketplaceId={store.marketplace.id}
+								itemId={store.request.id}
+							/>
+						)}
 				</div>
 			</Container>
 		</>
