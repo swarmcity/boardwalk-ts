@@ -55,6 +55,7 @@ import { UserAccount } from './user-account'
 import { LOGIN } from '../../routes'
 import { Chat } from '../../containers/chat'
 import { StartConflictContainer } from '../../containers/start-conflict'
+import { InConflict } from '../../containers/in-conflict'
 
 type ReplyFormProps = {
 	item: Item
@@ -756,12 +757,21 @@ export const MarketplaceItem = () => {
 				avatar: userAvatar,
 		  }
 		: undefined
+
 	const store = {
 		marketplace: {
 			id,
 			name,
 			decimals,
 			tokenName,
+			//FIXME: this should com from contract
+			owner: {
+				address: '0x0',
+				name: 'Baby Yoda',
+				avatar:
+					'https://c4.wallpaperflare.com/wallpaper/525/380/968/the-mandalorian-baby-yoda-hd-wallpaper-preview.jpg',
+				reputation: 9000n,
+			},
 		},
 		request: {
 			id: itemId,
@@ -866,14 +876,13 @@ export const MarketplaceItem = () => {
 		)
 	}
 
-	const { status } = chainItem.item
-
 	const isSelectedReplyMyReply =
 		store.user?.address &&
 		store.request.selectedReply?.user?.address === store.user?.address
 	const isMyRequest =
 		store.user?.address && store.request.seeker?.address === store.user?.address
-	const showSelectProviderBtn = status === Status.Open && !selectedProvider.data
+	const showSelectProviderBtn =
+		store.request.status === Status.Open && !selectedProvider.data
 
 	return (
 		<>
@@ -938,7 +947,7 @@ export const MarketplaceItem = () => {
 					>
 						{store.request.selectedReply &&
 							(isSelectedReplyMyReply || isMyRequest) &&
-							status !== Status.Done && (
+							store.request.status !== Status.Done && (
 								<>
 									{showSelectProviderBtn && (
 										<div
@@ -987,7 +996,7 @@ export const MarketplaceItem = () => {
 										</div>
 									)}
 
-									{status === Status.Open &&
+									{store.request.status === Status.Open &&
 										isMyRequest &&
 										selectedProvider.data && (
 											<SelectProviderContainer
@@ -997,7 +1006,7 @@ export const MarketplaceItem = () => {
 								</>
 							)}
 
-						{status === Status.Done &&
+						{store.request.status === Status.Done &&
 							store.request.seeker &&
 							store.request.provider && (
 								<div
@@ -1028,7 +1037,7 @@ export const MarketplaceItem = () => {
 								</div>
 							)}
 
-						{status === Status.Funded &&
+						{store.request.status === Status.Funded &&
 							!isSelectedReplyMyReply &&
 							!isMyRequest && (
 								<div style={{ padding: 30, textAlign: 'center' }}>
@@ -1055,7 +1064,7 @@ export const MarketplaceItem = () => {
 								</div>
 							)}
 
-						{status === Status.Open &&
+						{store.request.status === Status.Open &&
 							!isSelectedReplyMyReply &&
 							!selectedReply &&
 							(!selectedProvider.data || !isMyRequest) &&
@@ -1070,7 +1079,7 @@ export const MarketplaceItem = () => {
 											}
 											isMyReply={reply.from === store.user?.address}
 											amount={tokenToDecimals(store.request.price ?? 0n)}
-											status={status}
+											status={store.request.status}
 											setSelectedReply={setSelectedReply}
 											tokenName={store.marketplace.tokenName}
 											marketplace={id}
@@ -1089,7 +1098,7 @@ export const MarketplaceItem = () => {
 								</div>
 							)}
 
-						{status === Status.Open &&
+						{store.request.status === Status.Open &&
 							!isMyRequest &&
 							isReplying &&
 							!store.request.myReply && (
@@ -1105,7 +1114,7 @@ export const MarketplaceItem = () => {
 								</div>
 							)}
 
-						{isSelectedReplyMyReply && status === Status.Open && (
+						{isSelectedReplyMyReply && store.request.status === Status.Open && (
 							<FundDeal
 								marketplace={id}
 								item={itemId}
@@ -1116,7 +1125,7 @@ export const MarketplaceItem = () => {
 							/>
 						)}
 						{isMyRequest &&
-							status === Status.Funded &&
+							store.request.status === Status.Funded &&
 							store.request.provider &&
 							store.request.seeker &&
 							store.user && (
@@ -1130,7 +1139,7 @@ export const MarketplaceItem = () => {
 								/>
 							)}
 						{isSelectedReplyMyReply &&
-							status === Status.Funded &&
+							store.request.status === Status.Funded &&
 							store.user &&
 							store.request.seeker &&
 							store.request.provider && (
@@ -1144,7 +1153,7 @@ export const MarketplaceItem = () => {
 									}
 								/>
 							)}
-						{status === Status.Open &&
+						{store.request.status === Status.Open &&
 							!isMyRequest &&
 							!isReplying &&
 							!store.request.myReply && (
@@ -1164,15 +1173,44 @@ export const MarketplaceItem = () => {
 								</div>
 							)}
 					</div>
+					{store.request.status === Status.Disputed && store.request.provider && (
+						<div
+							style={{
+								backgroundColor: getColor('white'),
+								boxShadow: '0px 1px 0px #DFDFDF',
+								marginLeft: 10,
+								marginRight: 10,
+							}}
+						>
+							<InConflict
+								chat={
+									isMyRequest ||
+									isSelectedReplyMyReply ||
+									(store.user &&
+										store.user.address === store.marketplace.owner.address && (
+											<Chat
+												user={store.user}
+												seeker={store.request.seeker}
+												provider={store.request.provider}
+											/>
+										))
+								}
+								user={store.user}
+								marketplaceOwner={store.marketplace.owner}
+								provider={store.request.provider}
+								seeker={store.request.seeker}
+							/>
+						</div>
+					)}
 
-					{isMyRequest && status === Status.Open && (
+					{isMyRequest && store.request.status === Status.Open && (
 						<CancelRequestContainer
 							marketplaceId={store.marketplace.id}
 							itemId={store.request.id}
 						/>
 					)}
 					{(isMyRequest || isSelectedReplyMyReply) &&
-						status === Status.Funded &&
+						store.request.status === Status.Funded &&
 						typeof store.request.description === 'string' && (
 							<StartConflictContainer
 								description={store.request.description}
