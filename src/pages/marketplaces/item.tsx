@@ -758,6 +758,14 @@ export const MarketplaceItem = () => {
 		  }
 		: undefined
 
+	const marketplaceOwner = {
+		address: '0x0000',
+		name: 'Baby Yoda',
+		avatar:
+			'https://c4.wallpaperflare.com/wallpaper/525/380/968/the-mandalorian-baby-yoda-hd-wallpaper-preview.jpg',
+		reputation: 9000n,
+	}
+
 	const store = {
 		marketplace: {
 			id,
@@ -765,13 +773,7 @@ export const MarketplaceItem = () => {
 			decimals,
 			tokenName,
 			//FIXME: this should com from contract
-			owner: {
-				address: '0x0',
-				name: 'Baby Yoda',
-				avatar:
-					'https://c4.wallpaperflare.com/wallpaper/525/380/968/the-mandalorian-baby-yoda-hd-wallpaper-preview.jpg',
-				reputation: 9000n,
-			},
+			owner: marketplaceOwner,
 		},
 		request: {
 			id: itemId,
@@ -881,6 +883,9 @@ export const MarketplaceItem = () => {
 		store.request.selectedReply?.user?.address === store.user?.address
 	const isMyRequest =
 		store.user?.address && store.request.seeker?.address === store.user?.address
+	const isMarketplaceOwner =
+		store.user?.address &&
+		store.marketplace.owner?.address === store.user?.address
 	const showSelectProviderBtn =
 		store.request.status === Status.Open && !selectedProvider.data
 
@@ -946,8 +951,10 @@ export const MarketplaceItem = () => {
 						}}
 					>
 						{store.request.selectedReply &&
-							(isSelectedReplyMyReply || isMyRequest) &&
-							store.request.status !== Status.Done && (
+							(((isSelectedReplyMyReply || isMyRequest) &&
+								store.request.status !== Status.Done) ||
+								(isMarketplaceOwner &&
+									store.request.status === Status.Disputed)) && (
 								<>
 									{showSelectProviderBtn && (
 										<div
@@ -1188,17 +1195,16 @@ export const MarketplaceItem = () => {
 							>
 								<InConflict
 									chat={
-										isMyRequest ||
-										isSelectedReplyMyReply ||
-										(store.user &&
-											store.user.address ===
-												store.marketplace.owner.address && (
-												<Chat
-													user={store.user}
-													seeker={store.request.seeker}
-													provider={store.request.provider}
-												/>
-											))
+										(isMyRequest ||
+											isSelectedReplyMyReply ||
+											isMarketplaceOwner) &&
+										store.user ? (
+											<Chat
+												user={store.user}
+												seeker={store.request.seeker}
+												provider={store.request.provider}
+											/>
+										) : null
 									}
 									user={store.user}
 									marketplaceOwner={store.marketplace.owner}

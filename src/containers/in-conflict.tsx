@@ -32,6 +32,9 @@ export function InConflict({
 	...props
 }: Props) {
 	const navigate = useNavigate()
+	const isMarketplaceOwner =
+		user?.address && user.address === marketplaceOwner.address
+
 	return (
 		<div
 			style={{
@@ -72,7 +75,7 @@ export function InConflict({
 					? 'You were added to the chat.'
 					: 'The marketplace maintainer was added to the chat.'}
 			</Typography>
-			{user && user.address === marketplaceOwner.address && (
+			{isMarketplaceOwner && (
 				<div
 					style={{
 						marginTop: 30,
@@ -86,29 +89,28 @@ export function InConflict({
 					/>
 				</div>
 			)}
-			{!user ||
-				(user.address !== marketplaceOwner.address && (
-					<div
-						style={{
-							marginTop: 30,
-							display: 'flex',
-							flexDirection: 'row',
-							alignItems: 'center',
-							cursor: 'pointer',
-							width: 'fit-content',
-						}}
-						onClick={() => navigate(USER(marketplaceOwner.address))}
+			{(!user || !isMarketplaceOwner) && (
+				<div
+					style={{
+						marginTop: 30,
+						display: 'flex',
+						flexDirection: 'row',
+						alignItems: 'center',
+						cursor: 'pointer',
+						width: 'fit-content',
+					}}
+					onClick={() => navigate(USER(marketplaceOwner.address))}
+				>
+					<Avatar avatar={marketplaceOwner.avatar} size={40} />
+					<Typography
+						variant="small-bold-12"
+						color="blue"
+						style={{ marginLeft: 15 }}
 					>
-						<Avatar avatar={marketplaceOwner.avatar} size={40} />
-						<Typography
-							variant="small-bold-12"
-							color="blue"
-							style={{ marginLeft: 15 }}
-						>
-							{formatName(marketplaceOwner)}
-						</Typography>
-					</div>
-				))}
+						{formatName(marketplaceOwner)}
+					</Typography>
+				</div>
+			)}
 		</div>
 	)
 }
