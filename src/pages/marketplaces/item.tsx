@@ -56,6 +56,7 @@ import { LOGIN } from '../../routes'
 import { Chat } from '../../containers/chat'
 import { StartConflictContainer } from '../../containers/start-conflict'
 import { InConflict } from '../../containers/in-conflict'
+import { ConflictResolutionDetail } from '../../ui/components/conflict-resolution-detail'
 
 type ReplyFormProps = {
 	item: Item
@@ -951,8 +952,10 @@ export const MarketplaceItem = () => {
 						}}
 					>
 						{store.request.selectedReply &&
-							(((isSelectedReplyMyReply || isMyRequest) &&
-								store.request.status !== Status.Done) ||
+							store.request.status &&
+							![Status.Done, Status.Resolved].includes(store.request.status) &&
+							(isSelectedReplyMyReply ||
+								isMyRequest ||
 								(isMarketplaceOwner &&
 									store.request.status === Status.Disputed)) && (
 								<>
@@ -1039,6 +1042,39 @@ export const MarketplaceItem = () => {
 										marketplace={store.marketplace.name ?? ''}
 										amount={tokenToDecimals(store.request.price ?? 0n)}
 										reputation={5}
+										tokenName={store.marketplace.tokenName}
+									/>
+								</div>
+							)}
+
+						{store.request.status === Status.Resolved &&
+							store.request.seeker &&
+							store.request.provider &&
+							store.marketplace.owner && (
+								<div
+									style={{
+										padding: 30,
+										display: 'flex',
+										flexDirection: 'column',
+										textAlign: 'center',
+									}}
+								>
+									<Typography variant="small-light-12" color="grey2-light-text">
+										{new Date().toLocaleDateString()}
+									</Typography>
+									<Typography
+										variant="body-bold-16"
+										style={{ marginBottom: 20, marginTop: 10 }}
+									>
+										Conflict resolved.
+									</Typography>
+									<ConflictResolutionDetail
+										seeker={store.request.seeker}
+										provider={store.request.provider}
+										user={store.user}
+										marketplaceOwner={store.marketplace.owner}
+										amountPaidProvider={0}
+										amountPaidSeeker={0}
 										tokenName={store.marketplace.tokenName}
 									/>
 								</div>
