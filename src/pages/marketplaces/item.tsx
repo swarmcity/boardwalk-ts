@@ -199,7 +199,7 @@ const ReplyContainer = ({
 	reply: ItemReplyClean
 	isMyReply: boolean
 	isMyRequest: boolean
-	status: Status
+	status?: Status
 	setSelectedReply: (reply: Reply | undefined) => void
 	amount: number
 	tokenName?: string
@@ -1173,35 +1173,42 @@ export const MarketplaceItem = () => {
 								</div>
 							)}
 					</div>
-					{store.request.status === Status.Disputed && store.request.provider && (
-						<div
-							style={{
-								backgroundColor: getColor('white'),
-								boxShadow: '0px 1px 0px #DFDFDF',
-								marginLeft: 10,
-								marginRight: 10,
-							}}
-						>
-							<InConflict
-								chat={
-									isMyRequest ||
-									isSelectedReplyMyReply ||
-									(store.user &&
-										store.user.address === store.marketplace.owner.address && (
-											<Chat
-												user={store.user}
-												seeker={store.request.seeker}
-												provider={store.request.provider}
-											/>
-										))
-								}
-								user={store.user}
-								marketplaceOwner={store.marketplace.owner}
-								provider={store.request.provider}
-								seeker={store.request.seeker}
-							/>
-						</div>
-					)}
+					{store.request.status === Status.Disputed &&
+						store.request.provider &&
+						store.request.price &&
+						store.marketplace.tokenName && (
+							<div
+								style={{
+									backgroundColor: getColor('white'),
+									boxShadow: '0px 1px 0px #DFDFDF',
+									marginLeft: 10,
+									marginRight: 10,
+									marginBottom: 50,
+								}}
+							>
+								<InConflict
+									chat={
+										isMyRequest ||
+										isSelectedReplyMyReply ||
+										(store.user &&
+											store.user.address ===
+												store.marketplace.owner.address && (
+												<Chat
+													user={store.user}
+													seeker={store.request.seeker}
+													provider={store.request.provider}
+												/>
+											))
+									}
+									user={store.user}
+									marketplaceOwner={store.marketplace.owner}
+									provider={store.request.provider}
+									seeker={store.request.seeker}
+									amount={store.request.price.toBigInt()}
+									tokenName={store.marketplace.tokenName}
+								/>
+							</div>
+						)}
 
 					{isMyRequest && store.request.status === Status.Open && (
 						<CancelRequestContainer

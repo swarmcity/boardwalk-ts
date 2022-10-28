@@ -8,7 +8,7 @@ import { formatName } from '../ui/utils'
 
 import type { User } from '../ui/types'
 import { USER } from '../routes'
-import { Button } from '@swarm-city/ui-library'
+import { ResolveConflict } from './resolve-conflict'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
 	chat: ReactNode
@@ -16,6 +16,8 @@ type Props = HTMLAttributes<HTMLDivElement> & {
 	provider: User
 	seeker: User
 	marketplaceOwner: User
+	amount: bigint
+	tokenName: string
 }
 
 export function InConflict({
@@ -25,6 +27,8 @@ export function InConflict({
 	provider,
 	seeker,
 	marketplaceOwner,
+	amount,
+	tokenName,
 	...props
 }: Props) {
 	const navigate = useNavigate()
@@ -74,7 +78,12 @@ export function InConflict({
 						marginTop: 30,
 					}}
 				>
-					<Button size='large'>resolve</Button>
+					<ResolveConflict
+						seeker={seeker}
+						provider={provider}
+						amount={amount}
+						tokenName={tokenName}
+					/>
 				</div>
 			)}
 			{!user ||
