@@ -299,7 +299,7 @@ export const postChatMessage = async (
 	waku: WakuLight,
 	marketplace: string,
 	item: bigint,
-	message: ChatMessage
+	message: { message: string }
 ) => {
 	const keys = await getChatKeys(marketplace, item)
 	if (!keys) {
