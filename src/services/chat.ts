@@ -7,7 +7,9 @@ import {
 	SymEncoder,
 } from 'js-waku/lib/waku_message/version_1'
 import { fromString } from 'uint8arrays/from-string'
+import { toString } from 'uint8arrays/to-string'
 import { equals } from 'uint8arrays/equals'
+import { getPublicKey } from 'js-waku'
 
 // Lib
 import { readLocalStore, updateLocalStore } from '../lib/store'
@@ -88,6 +90,8 @@ const fetchChatKeys = (marketplace: string, item: bigint) => {
 const formatChatKeys = async (
 	chatKeys: ChatKeys
 ): Promise<FormattedChatKeys | undefined> => {
+	console.log({ chatKeys })
+
 	if (!chatKeys || !chatKeys.theirSigPubKey || !chatKeys.theirECDHPubKey) {
 		return
 	}
@@ -95,6 +99,25 @@ const formatChatKeys = async (
 	const privKey = await ecdh.importKey(chatKeys.myECDHPrivKey)
 	const pubKey = await ecdh.importKey(chatKeys.theirECDHPubKey)
 	const symKey = await ecdh.deriveKey(privKey, pubKey)
+
+	try {
+		const mySigPrivKey = fromString(chatKeys.mySigPrivKey?.d ?? '', 'base64url')
+		const wakuPublicKey = getPublicKey(mySigPrivKey)
+		const mySigPubKey = await ecdsa.jsonToRaw(chatKeys.mySigPubKey)
+		const privateKey = new Uint8Array([
+			109, 9, 223, 237, 118, 167, 26, 157, 151, 89, 233, 251, 217, 103, 121,
+			156, 96, 165, 165, 52, 121, 135, 12, 98, 6, 16, 212, 163, 86, 250, 189,
+			172,
+		])
+
+		console.log(
+			{ mySigPrivKey, wakuPublicKey, mySigPubKey },
+			chatKeys.mySigPrivKey?.d,
+			toString(privateKey, 'base64url')
+		)
+	} catch (err) {
+		console.error(err)
+	}
 
 	return {
 		symKey: await ecdh.exportRawKey(symKey),
