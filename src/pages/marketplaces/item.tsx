@@ -845,7 +845,15 @@ export const MarketplaceItem = () => {
 				: 'Item not found...'
 
 		return (
-			<>
+			<div
+				style={{
+					backgroundColor: getColor('grey1'),
+					width: '100vw',
+					height: '100vh',
+					overflowY: 'scroll',
+					overflowX: 'hidden',
+				}}
+			>
 				<UserAccount />
 				<Container>
 					<div
@@ -861,7 +869,7 @@ export const MarketplaceItem = () => {
 						</Typography>
 					</div>
 				</Container>
-			</>
+			</div>
 		)
 	}
 
@@ -891,389 +899,425 @@ export const MarketplaceItem = () => {
 		store.request.status === Status.Open && !selectedProvider.data
 
 	return (
-		<>
+		<div
+			style={{
+				backgroundColor: getColor('grey1'),
+				width: '100vw',
+				height: '100vh',
+				overflow: 'hidden',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'stretch',
+			}}
+		>
 			<UserAccount />
 			<Container>
-				<div
+				<Typography
+					variant="header-28"
+					color="grey4"
 					style={{
-						display: 'flex',
-						alignItems: 'stretch',
-						justifyContent: 'center',
-						flexDirection: 'column',
-						textAlign: 'left',
+						marginLeft: 40,
+						marginRight: 40,
 					}}
 				>
-					<Typography
-						variant="header-28"
-						color="grey4"
-						style={{
-							marginLeft: 40,
-							marginRight: 40,
-						}}
-					>
-						{name ?? 'Loading...'}
-					</Typography>
+					{name ?? 'Loading...'}
+				</Typography>
+			</Container>
+			<div
+				style={{
+					flexGrow: 1,
+					overflowY: 'auto',
+					overflowX: 'hidden',
+					marginTop: 22,
+				}}
+			>
+				<Container>
 					<div
 						style={{
-							backgroundColor: '#FAFAFA',
-							borderBottom: '1px dashed #DFDFDF',
-							position: 'relative',
-							padding: 30,
-							marginLeft: 10,
-							marginRight: 10,
-							marginTop: 22,
+							display: 'flex',
+							alignItems: 'stretch',
+							justifyContent: 'center',
+							flexDirection: 'column',
+							textAlign: 'left',
 						}}
 					>
-						<div style={{ position: 'absolute', right: 15, top: 15 }}>
-							<IconButton
-								variant="close"
-								onClick={() => navigate(`/marketplace/${id}`)}
+						<div
+							style={{
+								backgroundColor: getColor('white'),
+								borderBottom: '1px dashed #DFDFDF',
+								position: 'relative',
+								padding: 30,
+								marginLeft: 10,
+								marginRight: 10,
+							}}
+						>
+							<div style={{ position: 'absolute', right: 15, top: 15 }}>
+								<IconButton
+									variant="close"
+									onClick={() => navigate(`/marketplace/${id}`)}
+								/>
+							</div>
+							<Request
+								detail
+								title={store.request.description || ''}
+								date={store.request.date}
+								amount={tokenToDecimals(store.request.price ?? 0n)}
+								seeker={store.request.seeker}
+								onClickUser={(user) => navigate(`/user/${user.address}`)}
+								tokenName={store.marketplace.tokenName}
+								isMyListing={item.owner === address}
 							/>
 						</div>
-						<Request
-							detail
-							title={store.request.description || ''}
-							date={store.request.date}
-							amount={tokenToDecimals(store.request.price ?? 0n)}
-							seeker={store.request.seeker}
-							onClickUser={(user) => navigate(`/user/${user.address}`)}
-							tokenName={store.marketplace.tokenName}
-							isMyListing={item.owner === address}
-						/>
-					</div>
-					<div
-						style={{
-							backgroundColor: getColor('white'),
-							boxShadow: '0px 1px 0px #DFDFDF',
-							borderTop: '1px dashed #DFDFDF',
-							position: 'relative',
-							marginLeft: 10,
-							marginRight: 10,
-						}}
-					>
-						{store.request.selectedReply &&
-							store.request.status &&
-							![Status.Done, Status.Resolved].includes(store.request.status) &&
-							(isSelectedReplyMyReply ||
-								isMyRequest ||
-								(isMarketplaceOwner &&
-									store.request.status === Status.Disputed)) && (
-								<>
-									{showSelectProviderBtn && (
-										<div
-											style={{
-												backgroundColor: getColor('white'),
-												borderRadius: '50%',
-												width: 37,
-												height: 37,
-												boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
-												display: 'flex',
-												alignItems: 'center',
-												justifyContent: 'center',
-												cursor: 'pointer',
-												marginLeft: 30,
-												marginTop: 30,
-												marginRight: 2,
-												marginBottom: 2,
-											}}
-										>
-											<IconButton
-												variant="back"
-												onClick={() => setSelectedReply(undefined)}
-											/>
-										</div>
-									)}
-
-									<ReplyUI
-										selected
-										reply={store.request.selectedReply}
-										onClickUser={(user) => navigate(`/user/${user.address}`)}
-									/>
-
-									{/* Show select provider button */}
-									{showSelectProviderBtn && (
-										<div
-											style={{
-												padding: 30,
-												backgroundColor: getColor('white'),
-												display: 'flex',
-												justifyContent: 'center',
-											}}
-										>
-											<Button
-												size="large"
-												onClick={selectProvider}
-												disabled={loadingSelectProvider}
+						<div
+							style={{
+								backgroundColor: getColor('white'),
+								boxShadow: '0px 1px 0px #DFDFDF',
+								borderTop: '1px dashed #DFDFDF',
+								position: 'relative',
+								marginLeft: 10,
+								marginRight: 10,
+							}}
+						>
+							{store.request.selectedReply &&
+								store.request.status &&
+								![Status.Done, Status.Resolved].includes(
+									store.request.status
+								) &&
+								(isSelectedReplyMyReply ||
+									isMyRequest ||
+									(isMarketplaceOwner &&
+										store.request.status === Status.Disputed)) && (
+									<>
+										{showSelectProviderBtn && (
+											<div
+												style={{
+													backgroundColor: getColor('white'),
+													borderRadius: '50%',
+													width: 37,
+													height: 37,
+													boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.25)',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													cursor: 'pointer',
+													marginLeft: 30,
+													marginTop: 30,
+													marginRight: 2,
+													marginBottom: 2,
+												}}
 											>
-												select {formatName(store.request.selectedReply.user)}
-											</Button>
-										</div>
-									)}
-
-									{store.request.status === Status.Open &&
-										isMyRequest &&
-										selectedProvider.data && (
-											<SelectProviderContainer
-												provider={store.request.selectedReply.user}
-											/>
+												<IconButton
+													variant="back"
+													onClick={() => setSelectedReply(undefined)}
+												/>
+											</div>
 										)}
-								</>
-							)}
 
-						{store.request.status === Status.Done &&
-							store.request.seeker &&
-							store.request.provider && (
-								<div
-									style={{
-										padding: 30,
-										display: 'flex',
-										flexDirection: 'column',
-									}}
-								>
-									<Typography variant="small-light-12" color="grey2-light-text">
-										{new Date().toLocaleDateString()}
-									</Typography>
-									<Typography
-										variant="body-bold-16"
-										style={{ marginBottom: 20, marginTop: 10 }}
-									>
-										This deal has been completed.
-									</Typography>
-									<PaymentDetail
-										seeker={store.request.seeker}
-										provider={store.request.provider}
-										user={store.user}
-										marketplace={store.marketplace.name ?? ''}
-										amount={tokenToDecimals(store.request.price ?? 0n)}
-										reputation={5}
-										tokenName={store.marketplace.tokenName}
-									/>
-								</div>
-							)}
-
-						{store.request.status === Status.Resolved &&
-							store.request.seeker &&
-							store.request.provider &&
-							store.marketplace.owner && (
-								<div
-									style={{
-										padding: 30,
-										display: 'flex',
-										flexDirection: 'column',
-										textAlign: 'center',
-									}}
-								>
-									<Typography variant="small-light-12" color="grey2-light-text">
-										{new Date().toLocaleDateString()}
-									</Typography>
-									<Typography
-										variant="body-bold-16"
-										style={{ marginBottom: 20, marginTop: 10 }}
-									>
-										Conflict resolved.
-									</Typography>
-									<ConflictResolutionDetail
-										seeker={store.request.seeker}
-										provider={store.request.provider}
-										user={store.user}
-										marketplaceOwner={store.marketplace.owner}
-										amountPaidProvider={0}
-										amountPaidSeeker={0}
-										tokenName={store.marketplace.tokenName}
-									/>
-								</div>
-							)}
-
-						{store.request.status === Status.Funded &&
-							!isSelectedReplyMyReply &&
-							!isMyRequest && (
-								<div style={{ padding: 30, textAlign: 'center' }}>
-									{store.request.myReply && (
-										<>
-											<Typography variant="body-light-16">
-												{formatName(store.request.seeker)} selected
-											</Typography>{' '}
-											<Typography variant="body-bold-16">
-												a different provider.
-											</Typography>
-										</>
-									)}
-									{!store.request.myReply && (
-										<>
-											<Typography variant="body-light-16">
-												{formatName(store.request.seeker)} already selected
-											</Typography>{' '}
-											<Typography variant="body-bold-16">
-												a provider.
-											</Typography>
-										</>
-									)}
-								</div>
-							)}
-
-						{store.request.status === Status.Open &&
-							!isSelectedReplyMyReply &&
-							!selectedReply &&
-							(!selectedProvider.data || !isMyRequest) &&
-							replies.length > 0 && (
-								<>
-									{store.request.replies.map((reply) => (
-										<ReplyContainer
-											key={reply.signature}
-											reply={reply}
-											isMyRequest={
-												store.request.seeker?.address === store.user?.address
-											}
-											isMyReply={reply.from === store.user?.address}
-											amount={tokenToDecimals(store.request.price ?? 0n)}
-											status={store.request.status}
-											setSelectedReply={setSelectedReply}
-											tokenName={store.marketplace.tokenName}
-											marketplace={id}
+										<ReplyUI
+											selected
+											reply={store.request.selectedReply}
+											onClickUser={(user) => navigate(`/user/${user.address}`)}
 										/>
-									))}
-								</>
-							)}
 
-						{!store.request.selectedReply &&
-							replies.length === 0 &&
-							!isReplying && (
-								<div style={{ padding: 30, textAlign: 'center' }}>
-									<Typography variant="small-light-12" color="grey2-light-text">
-										No replies yet.
-									</Typography>
-								</div>
-							)}
+										{/* Show select provider button */}
+										{showSelectProviderBtn && (
+											<div
+												style={{
+													padding: 30,
+													backgroundColor: getColor('white'),
+													display: 'flex',
+													justifyContent: 'center',
+												}}
+											>
+												<Button
+													size="large"
+													onClick={selectProvider}
+													disabled={loadingSelectProvider}
+												>
+													select {formatName(store.request.selectedReply.user)}
+												</Button>
+											</div>
+										)}
 
-						{store.request.status === Status.Open &&
-							!isMyRequest &&
-							isReplying &&
-							!store.request.myReply && (
-								<div
-									style={{ marginLeft: 30, marginRight: 30, marginBottom: 30 }}
-								>
-									<ReplyForm
-										item={item}
-										marketplace={id}
-										decimals={decimals}
-										hideForm={() => setIsReplying(false)}
-									/>
-								</div>
-							)}
+										{store.request.status === Status.Open &&
+											isMyRequest &&
+											selectedProvider.data && (
+												<SelectProviderContainer
+													provider={store.request.selectedReply.user}
+												/>
+											)}
+									</>
+								)}
 
-						{isSelectedReplyMyReply && store.request.status === Status.Open && (
-							<FundDeal
-								marketplace={id}
-								item={itemId}
-								data={selectedProvider.data}
-								amount={tokenToDecimals(store.request.price ?? 0n)}
-								fee={tokenToDecimals(store.request.fee?.toBigInt() ?? 0n)}
-								seeker={store.request.seeker}
-							/>
-						)}
-						{isMyRequest &&
-							store.request.status === Status.Funded &&
-							store.request.provider &&
-							store.request.seeker &&
-							store.user && (
-								<PayoutItem
-									marketplace={id}
-									item={itemId}
-									amount={tokenToDecimals(store.request.price ?? 0n)}
-									user={store.user}
-									provider={store.request.provider}
-									seeker={store.request.seeker}
-								/>
-							)}
-						{isSelectedReplyMyReply &&
-							store.request.status === Status.Funded &&
-							store.user &&
-							store.request.seeker &&
-							store.request.provider && (
-								<InDeal
-									chat={
-										<Chat
-											user={store.user}
+							{store.request.status === Status.Done &&
+								store.request.seeker &&
+								store.request.provider && (
+									<div
+										style={{
+											padding: 30,
+											display: 'flex',
+											flexDirection: 'column',
+										}}
+									>
+										<Typography
+											variant="small-light-12"
+											color="grey2-light-text"
+										>
+											{new Date().toLocaleDateString()}
+										</Typography>
+										<Typography
+											variant="body-bold-16"
+											style={{ marginBottom: 20, marginTop: 10 }}
+										>
+											This deal has been completed.
+										</Typography>
+										<PaymentDetail
 											seeker={store.request.seeker}
 											provider={store.request.provider}
+											user={store.user}
+											marketplace={store.marketplace.name ?? ''}
+											amount={tokenToDecimals(store.request.price ?? 0n)}
+											reputation={5}
+											tokenName={store.marketplace.tokenName}
 										/>
-									}
-								/>
-							)}
-						{store.request.status === Status.Open &&
-							!isMyRequest &&
-							!isReplying &&
-							!store.request.myReply && (
-								<div
-									style={{
-										position: 'absolute',
-										bottom: -30,
-										right: 46,
-									}}
-								>
-									<IconButton
-										variant="reply"
-										onClick={() =>
-											user?.address ? setIsReplying(true) : navigate(LOGIN)
-										}
+									</div>
+								)}
+
+							{store.request.status === Status.Resolved &&
+								store.request.seeker &&
+								store.request.provider &&
+								store.marketplace.owner && (
+									<div
+										style={{
+											padding: 30,
+											display: 'flex',
+											flexDirection: 'column',
+											textAlign: 'center',
+										}}
+									>
+										<Typography
+											variant="small-light-12"
+											color="grey2-light-text"
+										>
+											{new Date().toLocaleDateString()}
+										</Typography>
+										<Typography
+											variant="body-bold-16"
+											style={{ marginBottom: 20, marginTop: 10 }}
+										>
+											Conflict resolved.
+										</Typography>
+										<ConflictResolutionDetail
+											seeker={store.request.seeker}
+											provider={store.request.provider}
+											user={store.user}
+											marketplaceOwner={store.marketplace.owner}
+											amountPaidProvider={0}
+											amountPaidSeeker={0}
+											tokenName={store.marketplace.tokenName}
+										/>
+									</div>
+								)}
+
+							{store.request.status === Status.Funded &&
+								!isSelectedReplyMyReply &&
+								!isMyRequest && (
+									<div style={{ padding: 30, textAlign: 'center' }}>
+										{store.request.myReply && (
+											<>
+												<Typography variant="body-light-16">
+													{formatName(store.request.seeker)} selected
+												</Typography>{' '}
+												<Typography variant="body-bold-16">
+													a different provider.
+												</Typography>
+											</>
+										)}
+										{!store.request.myReply && (
+											<>
+												<Typography variant="body-light-16">
+													{formatName(store.request.seeker)} already selected
+												</Typography>{' '}
+												<Typography variant="body-bold-16">
+													a provider.
+												</Typography>
+											</>
+										)}
+									</div>
+								)}
+
+							{store.request.status === Status.Open &&
+								!isSelectedReplyMyReply &&
+								!selectedReply &&
+								(!selectedProvider.data || !isMyRequest) &&
+								replies.length > 0 && (
+									<>
+										{store.request.replies.map((reply) => (
+											<ReplyContainer
+												key={reply.signature}
+												reply={reply}
+												isMyRequest={
+													store.request.seeker?.address === store.user?.address
+												}
+												isMyReply={reply.from === store.user?.address}
+												amount={tokenToDecimals(store.request.price ?? 0n)}
+												status={store.request.status}
+												setSelectedReply={setSelectedReply}
+												tokenName={store.marketplace.tokenName}
+												marketplace={id}
+											/>
+										))}
+									</>
+								)}
+
+							{!store.request.selectedReply &&
+								replies.length === 0 &&
+								!isReplying && (
+									<div style={{ padding: 30, textAlign: 'center' }}>
+										<Typography
+											variant="small-light-12"
+											color="grey2-light-text"
+										>
+											No replies yet.
+										</Typography>
+									</div>
+								)}
+
+							{store.request.status === Status.Open &&
+								!isMyRequest &&
+								isReplying &&
+								!store.request.myReply && (
+									<div
+										style={{
+											marginLeft: 30,
+											marginRight: 30,
+											marginBottom: 30,
+										}}
+									>
+										<ReplyForm
+											item={item}
+											marketplace={id}
+											decimals={decimals}
+											hideForm={() => setIsReplying(false)}
+										/>
+									</div>
+								)}
+
+							{isSelectedReplyMyReply &&
+								store.request.status === Status.Open && (
+									<FundDeal
+										marketplace={id}
+										item={itemId}
+										data={selectedProvider.data}
+										amount={tokenToDecimals(store.request.price ?? 0n)}
+										fee={tokenToDecimals(store.request.fee?.toBigInt() ?? 0n)}
+										seeker={store.request.seeker}
 									/>
-								</div>
-							)}
-					</div>
-					{store.request.status === Status.Disputed &&
-						store.request.provider &&
-						store.request.price &&
-						store.marketplace.tokenName && (
-							<div
-								style={{
-									backgroundColor: getColor('white'),
-									boxShadow: '0px 1px 0px #DFDFDF',
-									marginLeft: 10,
-									marginRight: 10,
-									marginBottom: 50,
-								}}
-							>
-								<InConflict
-									chat={
-										(isMyRequest ||
-											isSelectedReplyMyReply ||
-											isMarketplaceOwner) &&
-										store.user ? (
+								)}
+							{isMyRequest &&
+								store.request.status === Status.Funded &&
+								store.request.provider &&
+								store.request.seeker &&
+								store.user && (
+									<PayoutItem
+										marketplace={id}
+										item={itemId}
+										amount={tokenToDecimals(store.request.price ?? 0n)}
+										user={store.user}
+										provider={store.request.provider}
+										seeker={store.request.seeker}
+									/>
+								)}
+							{isSelectedReplyMyReply &&
+								store.request.status === Status.Funded &&
+								store.user &&
+								store.request.seeker &&
+								store.request.provider && (
+									<InDeal
+										chat={
 											<Chat
 												user={store.user}
 												seeker={store.request.seeker}
 												provider={store.request.provider}
 											/>
-										) : null
-									}
-									user={store.user}
-									marketplaceOwner={store.marketplace.owner}
-									provider={store.request.provider}
-									seeker={store.request.seeker}
-									amount={store.request.price.toBigInt()}
-									tokenName={store.marketplace.tokenName}
-								/>
-							</div>
-						)}
+										}
+									/>
+								)}
+							{store.request.status === Status.Open &&
+								!isMyRequest &&
+								!isReplying &&
+								!store.request.myReply && (
+									<div
+										style={{
+											position: 'absolute',
+											bottom: -30,
+											right: 46,
+										}}
+									>
+										<IconButton
+											variant="reply"
+											onClick={() =>
+												user?.address ? setIsReplying(true) : navigate(LOGIN)
+											}
+										/>
+									</div>
+								)}
+						</div>
+						{store.request.status === Status.Disputed &&
+							store.request.provider &&
+							store.request.price &&
+							store.marketplace.tokenName && (
+								<div
+									style={{
+										backgroundColor: getColor('white'),
+										boxShadow: '0px 1px 0px #DFDFDF',
+										marginLeft: 10,
+										marginRight: 10,
+										marginBottom: 50,
+									}}
+								>
+									<InConflict
+										chat={
+											(isMyRequest ||
+												isSelectedReplyMyReply ||
+												isMarketplaceOwner) &&
+											store.user ? (
+												<Chat
+													user={store.user}
+													seeker={store.request.seeker}
+													provider={store.request.provider}
+												/>
+											) : null
+										}
+										user={store.user}
+										marketplaceOwner={store.marketplace.owner}
+										provider={store.request.provider}
+										seeker={store.request.seeker}
+										amount={store.request.price.toBigInt()}
+										tokenName={store.marketplace.tokenName}
+									/>
+								</div>
+							)}
 
-					{isMyRequest && store.request.status === Status.Open && (
-						<CancelRequestContainer
-							marketplaceId={store.marketplace.id}
-							itemId={store.request.id}
-						/>
-					)}
-					{(isMyRequest || isSelectedReplyMyReply) &&
-						store.request.status === Status.Funded &&
-						typeof store.request.description === 'string' && (
-							<StartConflictContainer
-								description={store.request.description}
-								marketplaceName={store.marketplace.name}
+						{isMyRequest && store.request.status === Status.Open && (
+							<CancelRequestContainer
 								marketplaceId={store.marketplace.id}
 								itemId={store.request.id}
 							/>
 						)}
-				</div>
-			</Container>
-		</>
+						{(isMyRequest || isSelectedReplyMyReply) &&
+							store.request.status === Status.Funded &&
+							typeof store.request.description === 'string' && (
+								<StartConflictContainer
+									description={store.request.description}
+									marketplaceName={store.marketplace.name}
+									marketplaceId={store.marketplace.id}
+									itemId={store.request.id}
+								/>
+							)}
+					</div>
+				</Container>
+			</div>
+		</div>
 	)
 }

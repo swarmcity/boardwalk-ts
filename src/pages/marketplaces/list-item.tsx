@@ -84,27 +84,39 @@ export const MarketplaceListItem = () => {
 		)
 	}
 
+	if (confirmationReq && price)
+		return (
+			<ConfirmModal
+				cancel={{ onClick: () => setConfirmationReq(false) }}
+				confirm={{ onClick: submit, disabled: waiting }}
+			>
+				<div style={{ padding: 20 }}>
+					<Typography variant="header-35" style={{ marginBottom: 12 }}>
+						You are about to post this request for {amountToString(price + fee)}{' '}
+						{tokenName}.
+					</Typography>
+					<Typography>This can not be undone.</Typography>
+					<br />
+					<Typography>
+						{amountToString(fee)} {tokenName} fee is included.
+					</Typography>
+				</div>
+			</ConfirmModal>
+		)
+
 	return (
-		<>
+		<div
+			style={{
+				backgroundColor: getColor('grey1'),
+				width: '100vw',
+				height: '100vh',
+				overflow: 'hidden',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'stretch',
+			}}
+		>
 			<UserAccount />
-			{confirmationReq && price && (
-				<ConfirmModal
-					cancel={{ onClick: () => setConfirmationReq(false) }}
-					confirm={{ onClick: submit, disabled: waiting }}
-				>
-					<div style={{ padding: 20 }}>
-						<Typography variant="header-35" style={{ marginBottom: 12 }}>
-							You are about to post this request for{' '}
-							{amountToString(price + fee)} {tokenName}.
-						</Typography>
-						<Typography>This can not be undone.</Typography>
-						<br />
-						<Typography>
-							{amountToString(fee)} {tokenName} fee is included.
-						</Typography>
-					</div>
-				</ConfirmModal>
-			)}
 			<Container>
 				<Typography
 					variant="header-28"
@@ -117,129 +129,139 @@ export const MarketplaceListItem = () => {
 					{name ?? 'Loading...'}
 				</Typography>
 			</Container>
-			<Container>
-				<div
-					style={{
-						flexGrow: 1,
-						marginLeft: 10,
-						marginRight: 10,
-						marginTop: 30,
-					}}
-				>
+
+			<div
+				style={{
+					flexGrow: 1,
+					overflowY: 'auto',
+					overflowX: 'hidden',
+					marginTop: 22,
+				}}
+			>
+				<Container>
 					<div
 						style={{
-							backgroundColor: getColor('white'),
-							boxShadow: '0px 1px 0px #DFDFDF',
-							position: 'relative',
+							flexGrow: 1,
+							marginLeft: 10,
+							marginRight: 10,
+							marginBottom: 50,
 						}}
 					>
-						<div style={{ position: 'absolute', right: 15, top: 15 }}>
-							<IconButton
-								variant="close"
-								onClick={() => navigate(`/marketplace/${id}`)}
-							/>
-						</div>
-						<div style={{ padding: 30 }}>
-							<div style={{ marginTop: 40 }}>
-								<Input
-									id="what"
-									onChange={(event) =>
-										setDescription(event.currentTarget.value)
-									}
-								>
-									What are you looking for?
-								</Input>
-							</div>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'flex-end',
-								}}
-							>
-								<div style={{ flexGrow: 1, marginTop: 40 }}>
-									<Input
-										id="amount"
-										onChange={(event) =>
-											setPrice(Number(event.currentTarget.value))
-										}
-									>
-										What is your offer?
-									</Input>
-								</div>
-								<Typography
-									variant="body-bold-16"
-									color="yellow"
-									style={{
-										width: 100,
-										marginLeft: 10,
-									}}
-								>
-									{tokenName}
-								</Typography>
-							</div>
-							<div
-								style={{
-									fontFamily: 'Montserrat',
-									fontStyle: 'normal',
-									fontWeight: 300,
-									fontSize: 12,
-									lineHeight: '15px',
-									color: '#ACACAC',
-									marginTop: 7,
-								}}
-							>
-								+ {fee} {tokenName} fee
-							</div>
-						</div>
 						<div
 							style={{
+								backgroundColor: getColor('white'),
+								boxShadow: '0px 1px 0px #DFDFDF',
 								position: 'relative',
-								textAlign: 'right',
-								borderTop: '1px solid #DFDFDF',
 							}}
 						>
-							{price && price > 0 ? (
+							<div style={{ position: 'absolute', right: 15, top: 15 }}>
+								<IconButton
+									variant="close"
+									onClick={() => navigate(`/marketplace/${id}`)}
+								/>
+							</div>
+							<div style={{ padding: 30 }}>
+								<div style={{ marginTop: 40 }}>
+									<Input
+										id="what"
+										onChange={(event) =>
+											setDescription(event.currentTarget.value)
+										}
+									>
+										What are you looking for?
+									</Input>
+								</div>
 								<div
 									style={{
 										display: 'flex',
-										justifyContent: 'end',
-										alignItems: 'center',
-										marginRight: 30,
-										marginTop: 21,
+										justifyContent: 'space-between',
+										alignItems: 'flex-end',
 									}}
 								>
-									<Typography variant="small-light-12" color="grey3">
-										Total cost:
-									</Typography>
+									<div style={{ flexGrow: 1, marginTop: 40 }}>
+										<Input
+											id="amount"
+											onChange={(event) =>
+												setPrice(Number(event.currentTarget.value))
+											}
+										>
+											What is your offer?
+										</Input>
+									</div>
 									<Typography
-										variant="header-22"
-										color="grey4"
-										style={{ marginLeft: 12 }}
+										variant="body-bold-16"
+										color="yellow"
+										style={{
+											width: 100,
+											marginLeft: 10,
+										}}
 									>
-										{amountToString(price + fee)} {tokenName}
+										{tokenName}
 									</Typography>
 								</div>
-							) : null}
+								<div
+									style={{
+										fontFamily: 'Montserrat',
+										fontStyle: 'normal',
+										fontWeight: 300,
+										fontSize: 12,
+										lineHeight: '15px',
+										color: '#ACACAC',
+										marginTop: 7,
+									}}
+								>
+									+ {fee} {tokenName} fee
+								</div>
+							</div>
 							<div
 								style={{
 									position: 'relative',
 									textAlign: 'right',
+									borderTop: '1px solid #DFDFDF',
 								}}
 							>
-								<IconButton
-									disabled={!price || !description}
-									style={{ bottom: -13, right: 46 }}
-									variant="requestNext"
-									onClick={() => setConfirmationReq(true)}
+								{price && price > 0 ? (
+									<div
+										style={{
+											display: 'flex',
+											justifyContent: 'end',
+											alignItems: 'center',
+											marginRight: 30,
+											marginTop: 21,
+										}}
+									>
+										<Typography variant="small-light-12" color="grey3">
+											Total cost:
+										</Typography>
+										<Typography
+											variant="header-22"
+											color="grey4"
+											style={{ marginLeft: 12 }}
+										>
+											{amountToString(price + fee)} {tokenName}
+										</Typography>
+									</div>
+								) : null}
+								<div
+									style={{
+										position: 'relative',
+										textAlign: 'right',
+									}}
 								>
-									Next
-								</IconButton>
+									<IconButton
+										disabled={!price || !description}
+										style={{ bottom: -13, right: 46 }}
+										variant="requestNext"
+										onClick={() => setConfirmationReq(true)}
+									>
+										Next
+									</IconButton>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</Container>
-		</>
+				</Container>
+			</div>
+		</div>
 	)
 }
