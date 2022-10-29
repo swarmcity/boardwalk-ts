@@ -12,7 +12,7 @@ import {
 	useMarketplaceTokenDecimals,
 	useMarketplaceTokenName,
 } from './services/marketplace'
-import { Item, useMarketplaceItems } from './services/marketplace-items'
+import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 
 // UI
 import { Container } from '../../ui/container'
@@ -134,7 +134,10 @@ export const Marketplace = () => {
 		() =>
 			items.reduce(
 				([own, other]: Item[][], item) => {
-					return item.owner === address
+					return item.owner === address &&
+						![Status.Done, Status.Resolved, Status.Cancelled].includes(
+							item.status
+						)
 						? [[...own, item], other]
 						: [own, [...other, item]]
 				},
