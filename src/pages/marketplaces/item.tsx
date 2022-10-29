@@ -984,7 +984,11 @@ export const MarketplaceItem = () => {
 										</div>
 									)}
 
-									<ReplyUI selected reply={store.request.selectedReply} />
+									<ReplyUI
+										selected
+										reply={store.request.selectedReply}
+										onClickUser={(user) => navigate(`/user/${user.address}`)}
+									/>
 
 									{/* Show select provider button */}
 									{showSelectProviderBtn && (
