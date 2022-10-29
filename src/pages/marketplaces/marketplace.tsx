@@ -232,21 +232,25 @@ export const Marketplace = () => {
 							</div>
 						) : (
 							<>
-								<div style={{ marginBottom: 32 }}>
-									<DisplayItems
-										marketplace={id}
-										items={own}
-										decimals={decimals}
-									/>
-								</div>
+								{own.length > 0 && (
+									<div style={{ marginBottom: 32 }}>
+										<DisplayItems
+											marketplace={id}
+											items={own}
+											decimals={decimals}
+										/>
+									</div>
+								)}
 
-								<div style={{ marginTop: 22 }}>
-									<DisplayItems
-										marketplace={id}
-										items={other}
-										decimals={decimals}
-									/>
-								</div>
+								{other.length > 0 && (
+									<div style={{ marginBottom: 32 }}>
+										<DisplayItems
+											marketplace={id}
+											items={other}
+											decimals={decimals}
+										/>
+									</div>
+								)}
 							</>
 						)}
 					</div>
