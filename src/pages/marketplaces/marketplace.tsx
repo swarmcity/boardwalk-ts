@@ -30,6 +30,7 @@ import { getStatus } from '../../types'
 import { User } from '../../ui/types'
 import { UserAccount } from './user-account'
 import { Back } from '../../ui/icons/back'
+import { getColor } from '../../ui/colors'
 
 type DisplayItemProps = {
 	marketplace: string
@@ -156,7 +157,17 @@ export const Marketplace = () => {
 
 	if (waiting) {
 		return (
-			<>
+			<div
+				style={{
+					backgroundColor: getColor('grey1'),
+					width: '100vw',
+					height: '100vh',
+					overflow: 'hidden',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'stretch',
+				}}
+			>
 				<UserAccount>{goBack}</UserAccount>
 				<Container>
 					<Typography
@@ -170,12 +181,22 @@ export const Marketplace = () => {
 						Connecting to waku...
 					</Typography>
 				</Container>
-			</>
+			</div>
 		)
 	}
 
 	return (
-		<>
+		<div
+			style={{
+				backgroundColor: getColor('grey1'),
+				width: '100vw',
+				height: '100vh',
+				overflow: 'hidden',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'stretch',
+			}}
+		>
 			<UserAccount>{goBack}</UserAccount>
 			<div style={{ position: 'fixed', right: 50, zIndex: 50, bottom: 60 }}>
 				<IconButton
@@ -195,33 +216,46 @@ export const Marketplace = () => {
 					{name ?? 'Loading...'}
 				</Typography>
 			</Container>
-			<Container>
-				<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
-					{loading ? (
-						<div style={{ paddingLeft: 30, marginTop: 22, marginBottom: 32 }}>
-							<Typography>Fetching your marketplace data...</Typography>
-						</div>
-					) : (
-						<>
-							<div style={{ marginTop: 22, marginBottom: 32 }}>
-								<DisplayItems
-									marketplace={id}
-									items={own}
-									decimals={decimals}
-								/>
+			<div
+				style={{
+					flexGrow: 1,
+					overflowY: 'auto',
+					overflowX: 'hidden',
+					marginTop: 22,
+				}}
+			>
+				<Container>
+					<div style={{ flexGrow: 1, marginLeft: 10, marginRight: 10 }}>
+						{loading ? (
+							<div style={{ paddingLeft: 30, marginBottom: 32 }}>
+								<Typography>Fetching your marketplace data...</Typography>
 							</div>
+						) : (
+							<>
+								{own.length > 0 && (
+									<div style={{ marginBottom: 32 }}>
+										<DisplayItems
+											marketplace={id}
+											items={own}
+											decimals={decimals}
+										/>
+									</div>
+								)}
 
-							<div style={{ marginTop: 22 }}>
-								<DisplayItems
-									marketplace={id}
-									items={other}
-									decimals={decimals}
-								/>
-							</div>
-						</>
-					)}
-				</div>
-			</Container>
-		</>
+								{other.length > 0 && (
+									<div style={{ marginBottom: 32 }}>
+										<DisplayItems
+											marketplace={id}
+											items={other}
+											decimals={decimals}
+										/>
+									</div>
+								)}
+							</>
+						)}
+					</div>
+				</Container>
+			</div>
+		</div>
 	)
 }

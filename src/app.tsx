@@ -10,13 +10,16 @@ import { SetupProfile } from './pages/create-account/setup-profile'
 import { AccountCreated } from './pages/create-account/created'
 import { ChoosePassword } from './pages/create-account/choose-password'
 import { Backup } from './pages/create-account/backup'
-import { Marketplaces } from './pages/marketplaces'
 import { AccountRestore } from './pages/account-restore'
 import { AccountWallet } from './pages/user-wallet/wallet'
 import { AccountPrivateWallet } from './pages/user-wallet/private'
 import { Account } from './pages/account'
 import { User } from './pages/user'
 import { AccountPublicWallet } from './pages/user-wallet/public'
+import { Marketplace } from './pages/marketplaces/marketplace'
+import { MarketplaceList } from './pages/marketplaces/list'
+import { MarketplaceListItem } from './pages/marketplaces/list-item'
+import { MarketplaceItem } from './pages/marketplaces/item'
 
 // Components
 import { PasswordSigner } from './components/modals/password-signer'
@@ -118,9 +121,18 @@ export const App = () => {
 								path={ROUTES.ACCOUNT_PASSWORD}
 							/>
 							<Route element={<Backup />} path={ROUTES.ACCOUNT_BACKUP} />
+							<Route element={<MarketplaceList />} path={ROUTES.MARKETPLACES} />
 							<Route
-								element={<Marketplaces />}
-								path={`${ROUTES.MARKETPLACES}/*`}
+								element={<Marketplace />}
+								path={ROUTES.MARKETPLACE(':id')}
+							/>
+							<Route
+								element={<MarketplaceListItem />}
+								path={ROUTES.MARKETPLACE_ADD(':id')}
+							/>
+							<Route
+								element={<MarketplaceItem />}
+								path={ROUTES.MARKETPLACE_ITEM(':id', ':item')}
 							/>
 							<Route
 								element={<AccountRestore />}

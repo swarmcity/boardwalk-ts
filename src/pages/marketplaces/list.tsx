@@ -15,6 +15,7 @@ import { MarketplaceItem } from '../../ui/components/marketplace-item'
 
 // Assets
 import exit from '../../assets/imgs/exit.svg?url'
+import { getColor } from '../../ui/colors'
 
 export const Item = ({ address, name }: MarketplaceListItem) => {
 	const navigate = useNavigate()
@@ -39,17 +40,36 @@ export const MarketplaceList = () => {
 	}
 
 	return (
-		<div>
+		<div
+			style={{
+				backgroundColor: getColor('grey1'),
+				width: '100vw',
+				height: '100vh',
+				overflow: 'hidden',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'stretch',
+			}}
+		>
 			<UserAccount>
 				<div style={{ cursor: 'pointer' }} onClick={() => navigate(HOME)}>
 					<img src={exit} />
 				</div>
 			</UserAccount>
-			{Object.values(marketplaces)
-				.filter(({ deleted }) => !deleted)
-				.map((marketplace) => (
-					<Item key={marketplace.address} {...marketplace} />
-				))}
+
+			<div
+				style={{
+					flexGrow: 1,
+					overflowY: 'auto',
+					overflowX: 'hidden',
+				}}
+			>
+				{Object.values(marketplaces)
+					.filter(({ deleted }) => !deleted)
+					.map((marketplace) => (
+						<Item key={marketplace.address} {...marketplace} />
+					))}
+			</div>
 		</div>
 	)
 }
