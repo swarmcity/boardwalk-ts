@@ -61,7 +61,7 @@ export const useWakuFilter = <Msg extends Message>(
 			cancelled = true
 			unsubscribe.then((fn) => fn && fn())
 		}
-	}, [waiting, ...dependencies])
+	}, [waiting, enable, ...dependencies])
 
 	return { waiting, error }
 }

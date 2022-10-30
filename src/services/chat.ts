@@ -17,7 +17,12 @@ import { toString } from 'uint8arrays/to-string'
 import { readLocalStore, updateLocalStore } from '../lib/store'
 
 // Services
-import { useWakuStoreQuery, WithPayload } from './waku'
+import {
+	useWakuFilter,
+	useWakuStoreQuery,
+	WithPayload,
+	wrapFilterCallback,
+} from './waku'
 
 // Types
 import type { WakuLight } from 'js-waku/lib/interfaces'
@@ -274,8 +279,6 @@ export const useChatMessages = (marketplace: string, item: bigint) => {
 	const { value: keys } = useChatKeys(marketplace, item)
 	const topic = getChatMessageTopic(marketplace, item)
 
-	console.log({ keys })
-
 	const callback = async (msg: Promise<MessageV1 | undefined>) => {
 		if (!keys) {
 			return
@@ -303,13 +306,9 @@ export const useChatMessages = (marketplace: string, item: bigint) => {
 		setLastUpdate(Date.now())
 	}
 
-	const state = useWakuStoreQuery(
-		keys?.symKey ? [new SymDecoder(topic, keys.symKey)] : [],
-		callback,
-		[topic],
-		undefined,
-		!keys
-	)
+	const decoders = keys?.symKey ? [new SymDecoder(topic, keys.symKey)] : []
+	const state = useWakuStoreQuery(decoders, callback, [topic], undefined, !keys)
+	useWakuFilter(decoders, wrapFilterCallback(callback), [topic], {}, !!keys)
 
 	useEffect(() => (state.loading ? setItems([]) : undefined), [state.loading])
 
