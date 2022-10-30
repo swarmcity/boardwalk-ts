@@ -106,9 +106,9 @@ function ChatModal({
 	const { items } = useChatMessages(marketplace, item)
 	const messages = useMemo(
 		() =>
-			items.map(({ message, from }) => ({
+			items.map(({ message, from, date }) => ({
 				text: message,
-				date: new Date(),
+				date,
 				from: from === 'me' ? user : them,
 			})),
 		[items]
