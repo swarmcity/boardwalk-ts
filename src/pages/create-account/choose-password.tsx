@@ -28,6 +28,7 @@ export const ChoosePassword = () => {
 				encryptedWallet,
 				address: wallet.address,
 				lastUpdate: new Date(),
+				chatBaseKey: crypto.getRandomValues(new Uint8Array(32)),
 			})
 			setLoading(false)
 			navigate(ACCOUNT_CREATED)

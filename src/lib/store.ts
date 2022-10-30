@@ -10,14 +10,17 @@ export function setLocalStore(key: string, value?: string) {
 	}
 }
 
-export function updateLocalStore<Store extends Record<string, unknown>>(
-	store: Store,
-	prevStore: Store,
-	key: keyof Store,
-	prefix?: string
-) {
+// TODO: Figure out types
+export function updateLocalStore<
+	Store extends Record<string, unknown>,
+	Key extends keyof Store
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+>(store: Store, prevStore: Store, key: Key, prefix?: string, replacer?: any) {
 	if (store[key] !== prevStore[key]) {
-		setLocalStore(getKey(key as string, prefix), JSON.stringify(store[key]))
+		setLocalStore(
+			getKey(key as string, prefix),
+			JSON.stringify(store[key], replacer)
+		)
 	}
 }
 

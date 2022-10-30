@@ -7,6 +7,7 @@ export type Profile = {
 	avatar?: string
 	lastUpdate: Date
 	lastSync?: Date
+	chatBaseKey: Uint8Array
 }
 
 export function getStatus(
