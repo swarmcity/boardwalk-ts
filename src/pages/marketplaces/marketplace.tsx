@@ -8,7 +8,6 @@ import { LOGIN, MARKETPLACES, MARKETPLACE_ADD } from '../../routes'
 
 // Services
 import {
-	useMarketplaceItem,
 	useMarketplaceName,
 	useMarketplaceTokenDecimals,
 	useMarketplaceTokenName,
@@ -53,23 +52,18 @@ const DisplayItem = ({ item, decimals, marketplace }: DisplayItemProps) => {
 	const { profile } = useProfile(item.owner)
 	const avatar = useProfilePictureURL(profile?.pictureHash)
 
-	const chainItem = useMarketplaceItem(marketplace, item.id.toBigInt())
-
-	const providerProfile = useProfile(chainItem.item?.providerAddress)
+	const providerProfile = useProfile(item?.provider)
 	const providerAvatar = useProfilePictureURL(
 		providerProfile.profile?.pictureHash
 	)
-	const provider: User | undefined =
-		chainItem.item?.providerAddress &&
-		chainItem.item.providerAddress !==
-			'0x0000000000000000000000000000000000000000'
-			? {
-					address: chainItem.item.providerAddress,
-					reputation: chainItem.item?.providerRep ?? 0n,
-					name: providerProfile.profile?.username,
-					avatar: providerAvatar,
-			  }
-			: undefined
+	const provider: User | undefined = item.provider
+		? {
+				address: item.provider,
+				reputation: 0n, // not used
+				name: providerProfile.profile?.username,
+				avatar: providerAvatar,
+		  }
+		: undefined
 
 	return (
 		<div
