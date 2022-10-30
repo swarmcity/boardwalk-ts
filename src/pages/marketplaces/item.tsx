@@ -368,7 +368,7 @@ const FundDeal = ({
 	amount: number
 	fee: number
 	seeker: User
-	keyExchange: KeyExchange
+	keyExchange?: KeyExchange
 }) => {
 	const { connector } = useAccount()
 	const tokenName = useMarketplaceTokenName(marketplace)
@@ -380,7 +380,7 @@ const FundDeal = ({
 	const [showRejectConfirm, setShowRejectConfirm] = useState(false)
 
 	// Fund function
-	const canFund = connector && data?.signature
+	const canFund = connector && data && keyExchange
 	const fund = async () => {
 		if (!canFund) {
 			return
@@ -390,7 +390,13 @@ const FundDeal = ({
 			const signer = await connector.getSigner()
 			setLoading('Funding is being processed')
 			setShowFundConfirm(false)
-			await fundItem(signer, marketplace, item, data.signature, keyExchange)
+			await fundItem(
+				signer,
+				marketplace,
+				item,
+				data.permitProvider.signature,
+				keyExchange
+			)
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
@@ -702,7 +708,7 @@ export const MarketplaceItem = () => {
 	const { replies } = useItemReplies(id, itemId)
 	const selectedProvider = useSelectProvider(id, itemId)
 	const provider = useMemo(() => {
-		const address = selectedProvider.data?.provider
+		const address = selectedProvider.data?.permitProvider.provider
 		return address && getAddress(hexlify(address))
 	}, [selectedProvider.lastUpdate])
 
@@ -1233,7 +1239,7 @@ export const MarketplaceItem = () => {
 										amount={tokenToDecimals(store.request.price ?? 0n)}
 										fee={tokenToDecimals(store.request.fee?.toBigInt() ?? 0n)}
 										seeker={store.request.seeker}
-										keyExchange={item.metadata.keyExchange}
+										keyExchange={selectedProvider.data?.keyExchange}
 									/>
 								)}
 							{isMyRequest &&

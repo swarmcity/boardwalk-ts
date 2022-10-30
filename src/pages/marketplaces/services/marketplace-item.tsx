@@ -30,7 +30,7 @@ import {
 } from '../../../services/waku'
 
 // Services
-import { generateChatKeys, getKeyExchange } from '../../../services/chat'
+import { getKeyExchange } from '../../../services/chat'
 
 export type CreateReply = {
 	text: string
@@ -88,8 +88,7 @@ export const createReply = async (
 	}
 
 	// Generate chat keys
-	const keys = await generateChatKeys(marketplace, item.toBigInt())
-	const keyExchange = await getKeyExchange(keys)
+	const keyExchange = await getKeyExchange(marketplace, item.toBigInt())
 
 	// Data to sign and in the Waku message
 	const data = { from, marketplace, item: item.toBigInt(), text, keyExchange }

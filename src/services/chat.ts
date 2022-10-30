@@ -7,17 +7,17 @@ import {
 	SymEncoder,
 } from 'js-waku/lib/waku_message/version_1'
 import { fromString } from 'uint8arrays/from-string'
-import { toString } from 'uint8arrays/to-string'
 import { equals } from 'uint8arrays/equals'
 import { getPublicKey } from 'js-waku'
+import { bigintToBuf } from 'bigint-conversion'
+import { getSharedSecret } from 'noble-secp256k1'
+import { toString } from 'uint8arrays/to-string'
 
 // Lib
 import { readLocalStore, updateLocalStore } from '../lib/store'
 
 // Services
 import { useWakuStoreQuery, WithPayload } from './waku'
-import * as ecdh from './ecdh'
-import * as ecdsa from './ecdsa'
 
 // Types
 import type { WakuLight } from 'js-waku/lib/interfaces'
@@ -26,21 +26,29 @@ import type { WakuLight } from 'js-waku/lib/interfaces'
 import { ChatMessage as ChatMessageProto } from '../protos/chat-message'
 import { KeyExchange } from '../protos/key-exchange'
 
+// Store
+import { getStore as getMainStore } from '../store'
+
 // Config
 const PREFIX = 'chat'
+const KEY_TYPES = {
+	ecdh: {
+		size: 256,
+		prefix: new Uint8Array(0),
+	},
+	ecdsa: {
+		size: 256,
+		prefix: new Uint8Array(1),
+	},
+}
 
 // Types
 type TheirChatKeys = {
-	theirSigPubKey: JsonWebKey
-	theirECDHPubKey: JsonWebKey
+	theirSigPubKey: Uint8Array
+	theirECDHPubKey: Uint8Array
 }
 
 type ChatKeys = Partial<TheirChatKeys> & {
-	mySigPubKey: JsonWebKey
-	mySigPrivKey: JsonWebKey
-	myECDHPubKey: JsonWebKey
-	myECDHPrivKey: JsonWebKey
-
 	temp?: Record<string, TheirChatKeys>
 }
 
@@ -61,122 +69,133 @@ type FormattedChatKeys = {
 	mySigPrivKey: Uint8Array
 }
 
-type KeyPairs = {
-	ecdhKeys: CryptoKeyPair
-	ecdsaKeys: CryptoKeyPair
-}
-
 // Store
 const store = createStore<ChatStore>(
 	{
-		keys: readLocalStore('keys', PREFIX) ?? {},
+		keys:
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			readLocalStore('keys', PREFIX, (key: any, value: any) => {
+				if (key === 'theirSigPubKey' || key === 'theirECDHPubKey') {
+					return fromString(value, 'base64url')
+				}
+				return value
+			}) ?? {},
 	},
 	({ store, prevStore }) => {
-		updateLocalStore(store, prevStore, 'keys', PREFIX)
+		updateLocalStore(
+			store,
+			prevStore,
+			'keys',
+			PREFIX,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(key: any, value: any) => {
+				if (key === 'theirSigPubKey' || key === 'theirECDHPubKey') {
+					return toString(value, 'base64url')
+				}
+				return value
+			}
+		)
 	}
 )
 
 export const { useStore, getStore, withStore, setStore } = store
 
+export const deriveChatPrivateKey = async (
+	marketplace: string,
+	item: bigint,
+	type: keyof typeof KEY_TYPES
+): Promise<Uint8Array> => {
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-expect-error
+	const [baseKey] = getMainStore.profile.chatBaseKey()
+	const base = await crypto.subtle.importKey(
+		'raw',
+		baseKey,
+		{ name: 'HKDF' },
+		false,
+		['deriveKey', 'deriveBits']
+	)
+
+	const address = marketplace.substring(2, Infinity).toLocaleLowerCase()
+	const salt = new Uint8Array([
+		...KEY_TYPES[type].prefix,
+		...fromString(address, 'hex'),
+		...new Uint8Array(bigintToBuf(item)),
+	])
+
+	return new Uint8Array(
+		await crypto.subtle.deriveBits(
+			{
+				name: 'HKDF',
+				hash: 'SHA-256',
+				salt: salt,
+				info: new Uint8Array(),
+			},
+			base,
+			KEY_TYPES[type].size
+		)
+	)
+}
+
 export const getRecordKey = (marketplace: string, item: bigint) => {
 	return `${marketplace}:${item}`
 }
 
-const fetchChatKeys = (marketplace: string, item: bigint) => {
-	const [key] = getStore.keys[getRecordKey(marketplace, item)]()
-	return key
-}
-
 const formatChatKeys = async (
+	marketplace: string,
+	item: bigint,
 	chatKeys: ChatKeys
 ): Promise<FormattedChatKeys | undefined> => {
-	console.log({ chatKeys })
-
-	if (!chatKeys || !chatKeys.theirSigPubKey || !chatKeys.theirECDHPubKey) {
+	if (!chatKeys?.theirSigPubKey || !chatKeys?.theirECDHPubKey) {
 		return
 	}
 
-	const privKey = await ecdh.importKey(chatKeys.myECDHPrivKey)
-	const pubKey = await ecdh.importKey(chatKeys.theirECDHPubKey)
-	const symKey = await ecdh.deriveKey(privKey, pubKey)
-
-	try {
-		const mySigPrivKey = fromString(chatKeys.mySigPrivKey?.d ?? '', 'base64url')
-		const wakuPublicKey = getPublicKey(mySigPrivKey)
-		const mySigPubKey = await ecdsa.jsonToRaw(chatKeys.mySigPubKey)
-		const privateKey = new Uint8Array([
-			109, 9, 223, 237, 118, 167, 26, 157, 151, 89, 233, 251, 217, 103, 121,
-			156, 96, 165, 165, 52, 121, 135, 12, 98, 6, 16, 212, 163, 86, 250, 189,
-			172,
-		])
-
-		console.log(
-			{ mySigPrivKey, wakuPublicKey, mySigPubKey },
-			chatKeys.mySigPrivKey?.d,
-			toString(privateKey, 'base64url')
-		)
-	} catch (err) {
-		console.error(err)
-	}
+	const ecdhPrivateKey = await deriveChatPrivateKey(marketplace, item, 'ecdh')
+	const ecdsaPrivateKey = await deriveChatPrivateKey(marketplace, item, 'ecdsa')
+	const symKey = await crypto.subtle.digest(
+		'SHA-256',
+		getSharedSecret(ecdhPrivateKey, chatKeys.theirECDHPubKey) as Uint8Array
+	)
 
 	return {
-		symKey: await ecdh.exportRawKey(symKey),
-		mySigPubKey: await ecdsa.jsonToRaw(chatKeys.mySigPubKey),
-		theirSigPubKey: await ecdsa.jsonToRaw(chatKeys.theirSigPubKey),
-		mySigPrivKey: fromString(chatKeys.mySigPrivKey?.d ?? '', 'base64url'),
+		symKey: new Uint8Array(symKey),
+		mySigPubKey: getPublicKey(ecdsaPrivateKey),
+		theirSigPubKey: chatKeys.theirSigPubKey,
+		mySigPrivKey: ecdsaPrivateKey,
 	}
 }
 
 const getChatKeys = async (marketplace: string, item: bigint) => {
 	const [chatKeys] = getStore.keys[getRecordKey(marketplace, item)]()
-	return formatChatKeys(chatKeys)
+	return formatChatKeys(marketplace, item, chatKeys)
 }
 
 const useChatKeys = (marketplace: string, item: bigint) => {
 	const [chatKeys] = useStore.keys[getRecordKey(marketplace, item)]()
-	return useAsync(async () => formatChatKeys(chatKeys), [chatKeys])
-}
-
-export const generateKeys = async (): Promise<KeyPairs> => {
-	const ecdhKeys = await ecdh.generateKey()
-	const ecdsaKeys = await ecdsa.generateKey()
-	return { ecdhKeys, ecdsaKeys }
+	return useAsync(
+		async () => formatChatKeys(marketplace, item, chatKeys),
+		[chatKeys]
+	)
 }
 
 export const setChatKey = async (
 	marketplace: string,
 	item: bigint,
 	type: Exclude<keyof ChatKeys, 'temp'>,
-	key: JsonWebKey
+	key: Uint8Array
 ) => {
 	setStore.keys[getRecordKey(marketplace, item)][type]?.(key)
-}
-
-export const setChatKeys = async (
-	marketplace: string,
-	item: bigint,
-	{ ecdhKeys, ecdsaKeys }: KeyPairs
-) => {
-	setStore.keys[getRecordKey(marketplace, item)]({
-		myECDHPrivKey: await crypto.subtle.exportKey('jwk', ecdhKeys.privateKey),
-		myECDHPubKey: await crypto.subtle.exportKey('jwk', ecdhKeys.publicKey),
-		mySigPrivKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.privateKey),
-		mySigPubKey: await crypto.subtle.exportKey('jwk', ecdsaKeys.publicKey),
-	})
 }
 
 export const setTheirChatKeys = async (
 	marketplace: string,
 	item: bigint,
-	keyExchange: KeyExchange
+	{ sigPubKey, ecdhPubKey }: KeyExchange
 ) => {
-	const theirECDHPubKey = await ecdh.rawToJson(keyExchange.ecdhPubKey)
-	const theirSigPubKey = await ecdsa.rawToJson(keyExchange.sigPubKey)
-
 	setStore.keys[getRecordKey(marketplace, item)]((keys) => ({
 		...keys,
-		theirECDHPubKey,
-		theirSigPubKey,
+		theirECDHPubKey: ecdhPubKey,
+		theirSigPubKey: sigPubKey,
 	}))
 }
 
@@ -186,47 +205,24 @@ export const setTheirTempChatKeys = async (
 	address: string,
 	keyExchange: KeyExchange
 ) => {
-	const theirECDHPubKey = await ecdh.rawToJson(keyExchange.ecdhPubKey)
-	const theirSigPubKey = await ecdsa.rawToJson(keyExchange.sigPubKey)
-
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-expect-error
 	setStore.keys[getRecordKey(marketplace, item)].temp((temp) => ({
 		...temp,
-		[address]: { theirECDHPubKey, theirSigPubKey },
+		[address]: {
+			theirECDHPubKey: keyExchange.ecdhPubKey,
+			theirSigPubKey: keyExchange.sigPubKey,
+		},
 	}))
 }
 
-// TODO: Clean this up (maybe only store private keys, maybe only
-// store Uint8Array and get rid of `crypto.subtle` altogether?
-export const generateChatKeys = async (
-	marketplace: string,
-	item: bigint
-): Promise<KeyPairs> => {
-	const current = fetchChatKeys(marketplace, item)
-	if (current?.myECDHPrivKey || current?.mySigPrivKey) {
-		return {
-			ecdhKeys: {
-				publicKey: await ecdh.importKey(current.myECDHPubKey),
-				privateKey: await ecdh.importKey(current.myECDHPrivKey),
-			},
-			ecdsaKeys: {
-				publicKey: await ecdsa.importKey(current.mySigPubKey),
-				privateKey: await ecdsa.importKey(current.mySigPrivKey),
-			},
-		}
-	}
+export const getKeyExchange = async (marketplace: string, item: bigint) => {
+	const ecdhPrivateKey = await deriveChatPrivateKey(marketplace, item, 'ecdh')
+	const ecdsaPrivateKey = await deriveChatPrivateKey(marketplace, item, 'ecdsa')
 
-	const keys = await generateKeys()
-	await setChatKeys(marketplace, item, keys)
-	return keys
-}
-
-export const getKeyExchange = async ({ ecdhKeys, ecdsaKeys }: KeyPairs) => {
-	const exportKey = crypto.subtle.exportKey.bind(crypto.subtle, 'raw')
 	return {
-		sigPubKey: new Uint8Array(await exportKey(ecdsaKeys.publicKey)),
-		ecdhPubKey: new Uint8Array(await exportKey(ecdhKeys.publicKey)),
+		sigPubKey: getPublicKey(ecdsaPrivateKey),
+		ecdhPubKey: getPublicKey(ecdhPrivateKey),
 	}
 }
 
@@ -277,6 +273,8 @@ export const useChatMessages = (marketplace: string, item: bigint) => {
 
 	const { value: keys } = useChatKeys(marketplace, item)
 	const topic = getChatMessageTopic(marketplace, item)
+
+	console.log({ keys })
 
 	const callback = async (msg: Promise<MessageV1 | undefined>) => {
 		if (!keys) {

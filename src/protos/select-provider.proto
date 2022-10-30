@@ -1,15 +1,23 @@
 syntax = "proto3";
 
+import "./key-exchange.proto";
+
 message Marketplace {
 	bytes address = 1;
 	string name = 2;
 	uint64 chainId = 3;
 }
 
-message SelectProvider {
+message PermitProvider {
 	Marketplace marketplace = 1;
 	bytes seeker = 2;
 	bytes provider = 3;
 	uint64 item = 4;
+	bytes signature = 99;
+}
+
+message SelectProvider {
+	PermitProvider permitProvider = 1;
+	KeyExchange keyExchange = 98;
 	bytes signature = 99;
 }

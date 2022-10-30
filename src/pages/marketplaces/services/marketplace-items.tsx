@@ -27,11 +27,6 @@ import { shouldUpdate } from '../../../lib/blockchain'
 
 // Services
 import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
-import {
-	generateKeys,
-	getKeyExchange,
-	setChatKeys,
-} from '../../../services/chat'
 
 // Status
 export enum Status {
@@ -83,12 +78,8 @@ export const createItem = async (
 	{ price, description }: CreateItem,
 	signer: Signer
 ) => {
-	// Chat keys
-	const keys = await generateKeys()
-	const keyExchange = await getKeyExchange(keys)
-
 	// Create the metadata
-	const payload = ItemMetadata.encode({ description, keyExchange })
+	const payload = ItemMetadata.encode({ description })
 	const hash = await crypto.subtle.digest('SHA-256', payload)
 
 	// Get the marketplace contract
@@ -120,11 +111,7 @@ export const createItem = async (
 	const newItemTopic = contract.interface.getEventTopic('NewItem')
 	const newItemLog = logs.find((log: Log) => log.topics[0] === newItemTopic)
 	const { args } = contract.interface.parseLog(newItemLog)
-	const id = args.id.toBigInt()
-
-	setChatKeys(marketplace, id, keys)
-
-	return id
+	return args.id.toBigInt()
 }
 
 const decodeWakuMessage = async (

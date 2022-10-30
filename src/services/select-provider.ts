@@ -7,13 +7,18 @@ import type { WakuLight } from 'js-waku/lib/interfaces'
 import type { Signer } from 'ethers'
 
 // Protos
-import { SelectProvider } from '../protos/select-provider'
+import { PermitProvider, SelectProvider } from '../protos/select-provider'
 import { KeyExchange } from '../protos/key-exchange'
 
 // Services
 import { postWakuMessage, useLatestTopicData, WithPayload } from './waku'
-import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
-import { setTheirTempChatKeys } from './chat'
+import {
+	createSignedPayload,
+	decodeSignedPayload,
+	EIP712Config,
+	verifyPayload,
+} from './eip-712'
+import { getKeyExchange, setTheirTempChatKeys } from './chat'
 
 type Marketplace = {
 	address: string
@@ -28,7 +33,7 @@ type CreateSelectProvider = {
 }
 
 // EIP-712
-const eip712Config: EIP712Config = {
+const permitProviderEip712Config: EIP712Config = {
 	domain: {
 		version: '1',
 	},
@@ -41,8 +46,23 @@ const eip712Config: EIP712Config = {
 	},
 }
 
-export const formatSelectProviderEIP712Config = (marketplace: Marketplace) => {
-	const config = { ...eip712Config }
+const selectProviderEip712Config: EIP712Config = {
+	domain: {
+		name: 'Swarm.City',
+		version: '1',
+		salt: '0x35d7f7df089536c80c766d31e8aa85434b28f41226df287831d6e65421701bd8', // keccak256('select-provider')
+	},
+	types: {
+		SelectProvider: [{ name: 'keyExchange', type: 'KeyExchange' }],
+		KeyExchange: [
+			{ name: 'sigPubKey', type: 'bytes' },
+			{ name: 'ecdhPubKey', type: 'bytes' },
+		],
+	},
+}
+
+export const formatPermitProviderEIP712Config = (marketplace: Marketplace) => {
+	const config = { ...permitProviderEip712Config }
 	config.domain = {
 		...config.domain,
 		name: marketplace.name,
@@ -69,7 +89,7 @@ export const createSelectProvider = async (
 	waku: WakuLight,
 	signer: Signer,
 	data: CreateSelectProvider,
-	keyExchange: KeyExchange
+	theirKeyExchange: KeyExchange
 ) => {
 	const topic = getSelectProviderTopic(data.marketplace.address, data.item)
 
@@ -90,11 +110,18 @@ export const createSelectProvider = async (
 		item: BigInt(data.item),
 	})
 
-	const payload = await createSignedProto(
-		formatSelectProviderEIP712Config(data.marketplace),
+	const permitProvider = await createSignedPayload(
+		formatPermitProviderEIP712Config(data.marketplace),
 		(signer: Uint8Array) => formatData(true, signer),
 		(signer: string) => formatData(false, signer),
-		SelectProvider,
+		signer
+	)
+
+	const keyExchange = await getKeyExchange(data.marketplace.address, data.item)
+	const payload = await createSignedPayload(
+		selectProviderEip712Config,
+		() => ({ keyExchange }),
+		() => ({ keyExchange }),
 		signer
 	)
 
@@ -102,32 +129,53 @@ export const createSelectProvider = async (
 		data.marketplace.address,
 		data.item,
 		data.provider,
-		keyExchange
+		theirKeyExchange
 	)
 
-	return postWakuMessage(waku, topic, payload)
+	return postWakuMessage(
+		waku,
+		topic,
+		SelectProvider.encode({ ...payload, permitProvider })
+	)
 }
 
 const decodeMessage = (
 	message: WithPayload<MessageV0>
 ): SelectProvider | false => {
-	return decodeSignedPayload(
-		(decoded) =>
-			formatSelectProviderEIP712Config({
-				...decoded.marketplace,
-				address: hexlify(decoded.marketplace.address),
-			}),
+	const selectProvider = decodeSignedPayload(
+		selectProviderEip712Config,
 		{
 			formatValue: (data: SelectProvider) => ({
+				keyExchange: data.keyExchange,
+			}),
+			getSigner: (data) => data.permitProvider.seeker,
+		},
+		SelectProvider,
+		message.payload
+	)
+
+	if (!selectProvider) {
+		return false
+	}
+
+	const { permitProvider } = selectProvider
+	const verify = verifyPayload(
+		formatPermitProviderEIP712Config({
+			...permitProvider.marketplace,
+			address: hexlify(permitProvider.marketplace.address),
+		}),
+		{
+			formatValue: (data: PermitProvider) => ({
 				seeker: hexlify(data.seeker),
 				provider: hexlify(data.provider),
 				item: data.item,
 			}),
 			getSigner: (data) => data.seeker,
 		},
-		SelectProvider,
-		message.payload
+		permitProvider
 	)
+
+	return verify ? selectProvider : false
 }
 
 export const useSelectProvider = (marketplace: string, itemId: bigint) => {

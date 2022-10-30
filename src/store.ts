@@ -24,8 +24,6 @@ export const profileReplacer = <Key extends keyof Store['profile']>(
 }
 
 export const profileReviver = (key: keyof Profile, value: string) => {
-	console.log({ key, value })
-
 	if (key === 'lastUpdate' || key === 'lastSync') {
 		return new Date(value)
 	}
