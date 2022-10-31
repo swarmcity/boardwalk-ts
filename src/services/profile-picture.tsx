@@ -52,6 +52,7 @@ const createCache = (waku: WakuLight) =>
 				picture: ProfilePicture
 				payload: Uint8Array
 				url: string
+				blob: Blob
 			}) => void,
 			hasCache: boolean
 		) => {
@@ -73,7 +74,7 @@ const createCache = (waku: WakuLight) =>
 					if (picture) {
 						const blob = new Blob([picture.data], { type: picture?.type })
 						const url = URL.createObjectURL(blob)
-						callback({ picture, payload: message.payload, url })
+						callback({ picture, payload: message.payload, url, blob })
 						return true
 					}
 				}
@@ -90,7 +91,7 @@ const createCache = (waku: WakuLight) =>
 export const ProfilePictureCacheContext = createContext<
 	CacheContext<
 		string,
-		{ picture: ProfilePicture; payload: Uint8Array; url: string }
+		{ picture: ProfilePicture; payload: Uint8Array; url: string; blob: Blob }
 	>
 >({})
 
@@ -127,9 +128,13 @@ export const createProfilePicture = async (
 	return { hash, message }
 }
 
-export const useProfilePictureURL = (_hash?: string | Uint8Array) => {
+export const useProfilePicture = (_hash?: string | Uint8Array) => {
 	const hash = _hash instanceof Uint8Array ? bufferToHex(_hash) : _hash
-	const state = useEventDrivenCache(ProfilePictureCacheContext, hash)
+	return useEventDrivenCache(ProfilePictureCacheContext, hash)
+}
+
+export const useProfilePictureURL = (_hash?: string | Uint8Array) => {
+	const state = useProfilePicture(_hash)
 	const { url = avatarDefault } = state.data || {}
 	return url
 }

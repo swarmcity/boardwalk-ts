@@ -18,7 +18,7 @@ import { Profile as ProfileProto } from '../protos/profile'
 // Services
 import { fetchLatestTopicData, postWakuMessage, WithPayload } from './waku'
 import { createSignedProto, decodeSignedPayload, EIP712Config } from './eip-712'
-import { createProfilePicture } from './profile-picture'
+import { createProfilePicture, useProfilePicture } from './profile-picture'
 
 // Hooks
 import { useWaku } from '../hooks/use-waku'
@@ -29,6 +29,7 @@ import {
 	newEventDrivenCache,
 	useEventDrivenCache,
 } from '../lib/cache'
+import { blobToDataURL } from '../lib/canvas'
 
 type CreateProfile = {
 	username: string
@@ -186,6 +187,7 @@ export const useSyncProfile = () => {
 	const { address, connector } = useAccount()
 	const [profile] = useStore.profile()
 	const { profile: wakuProfile, message } = useProfile(profile?.address ?? '')
+	const { data: profilePicture } = useProfilePicture(wakuProfile?.pictureHash)
 
 	useEffect(() => {
 		if (
@@ -194,7 +196,8 @@ export const useSyncProfile = () => {
 			!profile ||
 			!address ||
 			waiting ||
-			!wakuProfile
+			!wakuProfile ||
+			!profilePicture
 		) {
 			return
 		}
@@ -219,6 +222,12 @@ export const useSyncProfile = () => {
 			// @ts-expect-error
 			setStore.profile.lastUpdate(new Date(wakuProfile.date))
 
+			blobToDataURL(profilePicture.blob).then((avatar) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-expect-error
+				setStore.profile.avatar(avatar)
+			})
+
 			return
 		}
 
@@ -232,7 +241,7 @@ export const useSyncProfile = () => {
 		// If both profiles are in sync, only update the profile once a day
 		if (
 			message &&
-			Date.now() - (profile.lastSync?.getTime() ?? 0) > 24 * 60 * 60
+			Date.now() - (profile.lastSync?.getTime() ?? 0) > 24 * 60 * 60 * 1000
 		) {
 			postWakuMessage(waku, getProfileTopic(address), message.payload).then(
 				() => {
@@ -242,5 +251,5 @@ export const useSyncProfile = () => {
 				}
 			)
 		}
-	}, [waku, connector, waiting, profile?.lastUpdate, wakuProfile])
+	}, [waku, connector, waiting, profile, wakuProfile, address, profilePicture])
 }
