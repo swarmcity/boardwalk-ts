@@ -3,7 +3,7 @@ syntax = "proto3";
 message Profile {
   bytes address = 1;
   string username = 2;
-  optional bytes pictureHash = 3;
+  bytes pictureHash = 3;
   string date = 4;
   bytes signature = 99;
 }

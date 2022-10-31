@@ -202,7 +202,10 @@ export const useLatestTopicData = <Data>(
 export const fetchLatestTopicData = <Msg extends Message>(
 	waku: WakuLight,
 	decoders: Decoder<Msg>[],
-	callback: (message: Promise<Msg | undefined>) => Promise<boolean | void>,
+	callback: <Done extends boolean>(
+		message: Done extends true ? Promise<undefined> : Promise<Msg | undefined>,
+		done?: Done
+	) => Promise<boolean | void>,
 	options?: QueryOptions | undefined,
 	watch = false
 ) => {
@@ -220,6 +223,8 @@ export const fetchLatestTopicData = <Msg extends Message>(
 				}
 			}
 		}
+
+		callback(Promise.resolve(undefined), true)
 	})()
 
 	const unsubscribe =
