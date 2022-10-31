@@ -19,6 +19,7 @@ import type { BigNumber, Signer } from 'ethers'
 
 // Protos
 import { ItemReply } from '../../../protos/item-reply'
+import { KeyExchange } from '../../../protos/key-exchange'
 
 // Hooks
 import {
@@ -27,6 +28,9 @@ import {
 	WithPayload,
 	wrapFilterCallback,
 } from '../../../services/waku'
+
+// Services
+import { getKeyExchange } from '../../../services/chat'
 
 export type CreateReply = {
 	text: string
@@ -38,6 +42,7 @@ export type ItemReplyClean = {
 	text: string
 	from: string
 	signature: string
+	keyExchange: KeyExchange
 }
 
 // EIP-712
@@ -56,6 +61,11 @@ const TYPES: Record<string, Array<TypedDataField>> = {
 		{ name: 'item', type: 'uint256' },
 		{ name: 'from', type: 'address' },
 		{ name: 'text', type: 'string' },
+		{ name: 'keyExchange', type: 'KeyExchange' },
+	],
+	KeyExchange: [
+		{ name: 'sigPubKey', type: 'bytes' },
+		{ name: 'ecdhPubKey', type: 'bytes' },
 	],
 }
 
@@ -77,8 +87,11 @@ export const createReply = async (
 		throw new Error('not implemented yet')
 	}
 
+	// Generate chat keys
+	const keyExchange = await getKeyExchange(marketplace, item.toBigInt())
+
 	// Data to sign and in the Waku message
-	const data = { from, marketplace, item: item.toBigInt(), text }
+	const data = { from, marketplace, item: item.toBigInt(), text, keyExchange }
 
 	// Sign the message
 	const signatureHex = await signer._signTypedData(DOMAIN, TYPES, data)
@@ -108,6 +121,7 @@ const verifyReplySignature = (reply: ItemReply) => {
 			marketplace: reply.marketplace,
 			item: reply.item,
 			text: reply.text,
+			keyExchange: reply.keyExchange,
 		},
 		reply.signature
 	)
@@ -126,6 +140,7 @@ const decodeWakuReply = async (
 				text: reply.text,
 				from: getAddress('0x' + utils.bytesToHex(reply.from)),
 				signature: '0x' + utils.bytesToHex(reply.signature),
+				keyExchange: reply.keyExchange,
 			}
 		)
 	} catch (err) {

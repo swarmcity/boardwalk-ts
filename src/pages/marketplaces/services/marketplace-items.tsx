@@ -7,6 +7,7 @@ import {
 import { BigNumber, Contract, Event } from 'ethers'
 import { useProvider, useWebSocketProvider } from 'wagmi'
 import { Interface } from 'ethers/lib/utils'
+import { Log } from '@ethersproject/providers'
 
 // Types
 import type { Signer } from 'ethers'
@@ -110,7 +111,13 @@ export const createItem = async (
 
 	// Post the item on chain
 	const tx = await contract.newItem(amount, new Uint8Array(hash))
-	await tx.wait()
+	const { logs } = await tx.wait()
+
+	// Get the item ID
+	const newItemTopic = contract.interface.getEventTopic('NewItem')
+	const newItemLog = logs.find((log: Log) => log.topics[0] === newItemTopic)
+	const { args } = contract.interface.parseLog(newItemLog)
+	return args.id.toBigInt()
 }
 
 const decodeWakuMessage = async (

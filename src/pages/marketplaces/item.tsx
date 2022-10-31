@@ -58,6 +58,9 @@ import { StartConflictContainer } from '../../containers/start-conflict'
 import { InConflict } from '../../containers/in-conflict'
 import { ConflictResolutionDetail } from '../../ui/components/conflict-resolution-detail'
 
+// Protos
+import { KeyExchange } from '../../protos/key-exchange'
+
 type ReplyFormProps = {
 	item: Item
 	marketplace: string
@@ -230,6 +233,7 @@ const ReplyContainer = ({
 		isMyReply,
 		user,
 		tokenName,
+		keyExchange: replyItem.keyExchange,
 	}
 
 	return (
@@ -322,7 +326,17 @@ const PayoutItem = ({
 	}
 
 	return (
-		<InDeal chat={<Chat user={user} seeker={seeker} provider={provider} />}>
+		<InDeal
+			chat={
+				<Chat
+					user={user}
+					seeker={seeker}
+					provider={provider}
+					marketplace={marketplace}
+					item={item}
+				/>
+			}
+		>
 			<Button
 				style={{ marginTop: 30 }}
 				size="large"
@@ -346,6 +360,7 @@ const FundDeal = ({
 	amount,
 	fee,
 	seeker,
+	keyExchange,
 }: {
 	data?: SelectProvider
 	marketplace: string
@@ -353,6 +368,7 @@ const FundDeal = ({
 	amount: number
 	fee: number
 	seeker: User
+	keyExchange?: KeyExchange
 }) => {
 	const { connector } = useAccount()
 	const tokenName = useMarketplaceTokenName(marketplace)
@@ -364,7 +380,7 @@ const FundDeal = ({
 	const [showRejectConfirm, setShowRejectConfirm] = useState(false)
 
 	// Fund function
-	const canFund = connector && data?.signature
+	const canFund = connector && data && keyExchange
 	const fund = async () => {
 		if (!canFund) {
 			return
@@ -374,7 +390,13 @@ const FundDeal = ({
 			const signer = await connector.getSigner()
 			setLoading('Funding is being processed')
 			setShowFundConfirm(false)
-			await fundItem(signer, marketplace, item, data?.signature)
+			await fundItem(
+				signer,
+				marketplace,
+				item,
+				data.permitProvider.signature,
+				keyExchange
+			)
 		} catch (err) {
 			console.error(err)
 			setError(err as Error)
@@ -686,7 +708,7 @@ export const MarketplaceItem = () => {
 	const { replies } = useItemReplies(id, itemId)
 	const selectedProvider = useSelectProvider(id, itemId)
 	const provider = useMemo(() => {
-		const address = selectedProvider.data?.provider
+		const address = selectedProvider.data?.permitProvider.provider
 		return address && getAddress(hexlify(address))
 	}, [selectedProvider.lastUpdate])
 
@@ -821,15 +843,20 @@ export const MarketplaceItem = () => {
 
 			setLoadingSelectProvider(true)
 
-			await createSelectProvider(waku, signer, {
-				marketplace: {
-					address: id,
-					chainId: BigInt(chain.id),
-					name,
+			await createSelectProvider(
+				waku,
+				signer,
+				{
+					marketplace: {
+						address: id,
+						chainId: BigInt(chain.id),
+						name,
+					},
+					provider: selectedReply?.user.address,
+					item: itemId,
 				},
-				provider: selectedReply?.user.address,
-				item: itemId,
-			})
+				selectedReply.keyExchange
+			)
 		} catch (error) {
 			console.error(error)
 			setError(error as Error)
@@ -1212,6 +1239,7 @@ export const MarketplaceItem = () => {
 										amount={tokenToDecimals(store.request.price ?? 0n)}
 										fee={tokenToDecimals(store.request.fee?.toBigInt() ?? 0n)}
 										seeker={store.request.seeker}
+										keyExchange={selectedProvider.data?.keyExchange}
 									/>
 								)}
 							{isMyRequest &&
@@ -1239,6 +1267,8 @@ export const MarketplaceItem = () => {
 												user={store.user}
 												seeker={store.request.seeker}
 												provider={store.request.provider}
+												marketplace={id}
+												item={itemId}
 											/>
 										}
 									/>
@@ -1286,6 +1316,8 @@ export const MarketplaceItem = () => {
 													user={store.user}
 													seeker={store.request.seeker}
 													provider={store.request.provider}
+													marketplace={id}
+													item={itemId}
 												/>
 											) : null
 										}

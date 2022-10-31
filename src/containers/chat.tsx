@@ -1,14 +1,26 @@
 import { FullscreenLoading, IconButton, Input } from '@swarm-city/ui-library'
-import React, { HTMLAttributes, useEffect, useState } from 'react'
+import { HTMLAttributes, useEffect, useState, createRef, useMemo } from 'react'
+
+// Pages
 import { Status } from '../pages/marketplaces/services/marketplace-items'
 
+// UI
 import { Avatar } from '../ui/avatar'
 import { getColor } from '../ui/colors'
 import { ErrorModal } from '../ui/components/error-modal'
 import { Container } from '../ui/container'
-import type { Message, User } from '../ui/types'
+import type { User } from '../ui/types'
 import { ChatBubble } from '../ui/components/chat-bubble'
 import { ChatConflictBubble } from '../ui/components/chat-conflict-bubble'
+
+// Services
+import {
+	postChatMessage,
+	selectTempChatKey,
+	useChatMessages,
+} from '../services/chat'
+import { Protocols } from 'js-waku'
+import { useWaku } from '../hooks/use-waku'
 
 // FIXME: Remove
 const roleMarketplaceOwner: User = {
@@ -19,89 +31,14 @@ const roleMarketplaceOwner: User = {
 	reputation: 9000n,
 }
 
-// FIXME: Remove
-const roleSeeker: User = {
-	address: '0x1',
-	reputation: 0n,
-}
-
-// FIXME: Remove
-const roleProvider: User = {
-	address: '0x2',
-	reputation: 0n,
-}
-
-// FIXME: Remove
-const templateMessages: Message[] = [
-	{
-		text: 'So where do I pick you up?',
-		date: new Date(1666629211448),
-		from: roleProvider,
-	},
-	{
-		text: 'LAX, at the arrivals gate?',
-		date: new Date(1666629315343),
-		from: roleSeeker,
-	},
-	{
-		text: 'LAX???!!',
-		date: new Date(1666629315643),
-		from: roleProvider,
-	},
-	{
-		text: 'Oh my',
-		date: new Date(1666629315653),
-		from: roleProvider,
-	},
-	{
-		text: "That's just too far for me, Tom!",
-		date: new Date(1666629315733),
-		from: roleProvider,
-	},
-	{
-		text: '... ??',
-		date: new Date(1666629505446),
-		from: roleSeeker,
-	},
-	{
-		text: "You're kidding, right?!",
-		date: new Date(1666629506446),
-		from: roleSeeker,
-	},
-	{
-		text: "She's not willing to pick me up at LAX, eventhough that's exactly what I put in my request!",
-		date: new Date(1666629639666),
-		from: roleSeeker,
-		isStartOfConflict: true,
-	},
-	{
-		text: 'Lets resolve this with the force',
-		date: new Date(1666629939666),
-		from: roleMarketplaceOwner,
-	},
-	{
-		text: 'Or a lightsaber combat',
-		date: new Date(1666629949666),
-		from: roleMarketplaceOwner,
-	},
-	{
-		text: 'Your master trained you well...',
-		date: new Date(1666629949666),
-		from: roleProvider,
-	},
-	{
-		text: 'What the heck is going on...',
-		date: new Date(1666630607444),
-		from: roleSeeker,
-	},
-]
-
 interface Props extends HTMLAttributes<HTMLDivElement> {
 	hide: () => void
 	user: User
 	seeker: User
 	provider: User
 	marketplaceOwner: User
+	marketplace: string
+	item: bigint
 }
 
 function ChatModal({
@@ -110,88 +47,43 @@ function ChatModal({
 	provider,
 	seeker,
 	marketplaceOwner,
+	marketplace,
+	item,
 	...props
 }: Props) {
-	const [messages, setMessages] = useState<Message[]>([])
+	const { waku } = useWaku([Protocols.LightPush])
 	const [scrolled, setScrolled] = useState(false)
 	const [messageText, setMessageText] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [error, setError] = useState<Error | undefined>()
-	const scrollElementRef = React.createRef<HTMLDivElement>()
-	const inputElementRef = React.createRef<HTMLInputElement>()
+	const scrollElementRef = createRef<HTMLDivElement>()
+	const inputElementRef = createRef<HTMLInputElement>()
+	const them = user.address === seeker.address ? provider : seeker
 
 	// FIXME: remove this, the status should come as prop or something
-	const [status, setStatus] = useState(Status.Funded)
+	const [status] = useState(Status.Funded)
 
 	const sendMessage = async () => {
 		// Don't send empty messages
-		if (!messageText) {
+		if (!messageText || !waku) {
 			return
 		}
+
 		try {
-			const message = { from: user, text: messageText, date: new Date() }
 			setIsSubmitting(true)
 
-			// FIXME: replace this block with actual implementation
-			const sleep = (time: number): Promise<void> =>
-				new Promise((resolve) => setTimeout(() => resolve(), time))
-			if (Math.random() > 0.5) {
-				throw Error(
-					'Failed to send message, this happens right now 50% of time for testing purposes'
-				)
-			}
-			await sleep(2000)
-			setMessages((m) => [...m, message])
+			await postChatMessage(waku, marketplace, item, { message: messageText })
 
 			setMessageText('')
 			inputElementRef.current?.focus()
-			//FIXME: after succesfully sending message, should scroll the chat view to bottom, disabled for testing purposes
-			// scrollElementRef?.current?.scrollIntoView()
+
+			scrollElementRef?.current?.scrollIntoView()
 		} catch (err) {
 			setError(err as Error)
 			console.error(err)
 		}
 		setIsSubmitting(false)
 	}
-
-	// FIXME: remove this, just for testing purposes
-	// Progresively populates the messages with template data and logged in user
-	useEffect(() => {
-		if (user?.address) {
-			const msgs = templateMessages.map((m) => {
-				if (m.from.address === roleProvider.address) {
-					return {
-						...m,
-						from: user.address === provider.address ? user : provider,
-					}
-				}
-				if (m.from.address === roleSeeker.address) {
-					return { ...m, from: user.address === seeker.address ? user : seeker }
-				}
-				return m
-			})
-
-			const timeouts = msgs.map((_m, i) =>
-				setTimeout(() => {
-					const ms = [...msgs].splice(0, i + 1)
-					setMessages(ms)
-					if (i === 0) {
-						setStatus(Status.Funded)
-					}
-					if (ms[ms.length - 1].isStartOfConflict) {
-						setStatus(Status.Disputed)
-					}
-				}, 1000 * i)
-			)
-
-			return () => timeouts.forEach(clearTimeout)
-		}
-	}, [user?.address])
-
-	// This scrolls to the bottom of the chat if the user has not scrolled to some previous messages
-	useEffect(() => {
-		if (!scrolled) scrollElementRef?.current?.scrollIntoView()
-	}, [messages])
 
 	// Decides whether the user scrolled past our object at the bottom of the chat
 	useEffect(() => {
@@ -206,6 +98,26 @@ function ChatModal({
 			}
 		}
 	}, [scrollElementRef.current])
+
+	useEffect(() => {
+		selectTempChatKey(marketplace, item, provider.address)
+	}, [marketplace, item, provider])
+
+	const { items } = useChatMessages(marketplace, item)
+	const messages = useMemo(
+		() =>
+			items.map(({ message, from, date }) => ({
+				text: message,
+				date,
+				from: from === 'me' ? user : them,
+			})),
+		[items]
+	)
+
+	// This scrolls to the bottom of the chat if the user has not scrolled to some previous messages
+	useEffect(() => {
+		if (!scrolled) scrollElementRef?.current?.scrollIntoView()
+	}, [messages])
 
 	if (user === undefined) {
 		return <FullscreenLoading>Loading your chat...</FullscreenLoading>
@@ -293,7 +205,8 @@ function ChatModal({
 											: 10,
 								}}
 							>
-								{message.isStartOfConflict ? (
+								{/* eslint-disable-next-line no-constant-condition */}
+								{false /*message.isStartOfConflict*/ ? (
 									<ChatConflictBubble
 										message={message}
 										user={user}
@@ -364,12 +277,14 @@ export interface ChatProps {
 	user: User
 	seeker: User
 	provider: User
+	marketplace: string
+	item: bigint
 }
 
 /**
  * This is deliberately a separate component because if the Chat is not shown, it does not load any data from hooks. It's just a button
  */
-export function Chat({ user, seeker, provider }: ChatProps) {
+export function Chat({ user, seeker, provider, marketplace, item }: ChatProps) {
 	const [shown, setShown] = useState(false)
 
 	if (shown)
@@ -380,6 +295,8 @@ export function Chat({ user, seeker, provider }: ChatProps) {
 				seeker={seeker}
 				provider={provider}
 				marketplaceOwner={roleMarketplaceOwner}
+				marketplace={marketplace}
+				item={item}
 			/>
 		)
 

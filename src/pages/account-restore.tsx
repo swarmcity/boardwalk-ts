@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Button, IconButton } from '@swarm-city/ui-library'
 
 // Store and routes
-import { useStore } from '../store'
+import { profileReviver, useStore } from '../store'
 import { ACCOUNT_PRIVATE_WALLET, MARKETPLACES } from '../routes'
 
 // Components
@@ -31,7 +31,8 @@ export const AccountRestore = () => {
 
 		if (event.target.files?.length) {
 			const file = event.target.files[0]
-			setRestoredProfile(JSON.parse(await file.text()))
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			setRestoredProfile(JSON.parse(await file.text(), profileReviver as any))
 		}
 	}
 

@@ -88,11 +88,11 @@ export const decodeSignedPayload = <
 
 export const createSignedPayload = async <
 	Data extends Record<string, unknown>,
-	DataToSigner extends Record<string, unknown>
+	DataToSign extends Record<string, unknown>
 >(
 	config: EIP712Config,
 	formatData: (signer: Uint8Array) => Data,
-	formatDataToSign: (signer: string) => DataToSigner,
+	formatDataToSign: (signer: string) => DataToSign,
 	signer: Signer
 ): Promise<Data & { signature: Uint8Array }> => {
 	const address = await signer.getAddress()

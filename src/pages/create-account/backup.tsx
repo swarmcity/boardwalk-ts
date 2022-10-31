@@ -9,7 +9,7 @@ import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 
 // Store and routes
 import { MARKETPLACES } from '../../routes'
-import { useStore } from '../../store'
+import { profileReplacer, useStore } from '../../store'
 import { Container } from '../../ui/container'
 import { Button, IconButton } from '@swarm-city/ui-library'
 import { Typography } from '../../ui/typography'
@@ -21,7 +21,8 @@ export const Backup = () => {
 	const navigate = useNavigate()
 	const blob = useMemo(
 		() =>
-			new Blob([JSON.stringify(profile)], {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			new Blob([JSON.stringify(profile, profileReplacer as any)], {
 				type: 'application/json',
 			}),
 		[profile]

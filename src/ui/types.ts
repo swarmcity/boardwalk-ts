@@ -1,3 +1,5 @@
+import { KeyExchange } from '../protos/key-exchange'
+
 export interface User {
 	address: string // Ethereum address
 	reputation: bigint
@@ -21,6 +23,7 @@ export interface Reply {
 	isMyReply?: boolean
 	tokenName?: string
 	user: User
+	keyExchange: KeyExchange
 }
 
 export interface Request {

@@ -10,7 +10,7 @@ interface RequestProps extends HTMLAttributes<HTMLDivElement> {
 	date: Date
 	amount: number
 	seeker: User
-	provider?: User
+	provider?: Pick<User, 'avatar'>
 	marketplaceOwner?: User
 	isMyListing?: boolean
 	isMyDeal?: boolean
