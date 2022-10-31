@@ -58,11 +58,17 @@ type ChainItem = {
 	timestamp: BigNumber
 	status: Status
 	transactions: Partial<Record<Status, string>>
+	provider?: string
 }
 
 type StatusChangeEvent = {
 	id: BigNumber
 	status: Status
+}
+
+type FundItemEvent = {
+	id: BigNumber
+	provider: string
 }
 
 export type Item = Omit<ChainItem, 'metadata'> & { metadata: ItemMetadata }
@@ -175,6 +181,18 @@ const decodeStatusChangeEvent = async (
 	}
 }
 
+const decodeFundItemEvent = async (
+	event: Event,
+	iface: Interface
+): Promise<FundItemEvent> => {
+	const { args } = iface.parseLog(event)
+
+	return {
+		id: args.id,
+		provider: args.provider,
+	}
+}
+
 type Metadata = UpdateTime & {
 	metadata: string
 }
@@ -216,8 +234,17 @@ export const useGetMarketplaceItems = (address: string) => {
 			}
 		}
 
+		const updateProvider = (id: BigNumber, provider: string) => {
+			const data = metadata[id.toString()]
+			for (const item of indexed[data.metadata]) {
+				if (item.id.eq(id)) {
+					item.provider = provider
+				}
+			}
+		}
+
 		// Real time event listener
-		const listener = (id: BigNumber, status: Status, event: Event) => {
+		const statusListener = (id: BigNumber, status: Status, event: Event) => {
 			const data = metadata[id.toString()]
 
 			if (shouldUpdate(event, data)) {
@@ -227,19 +254,27 @@ export const useGetMarketplaceItems = (address: string) => {
 			}
 		}
 
+		const fundListener = (provider: string, id: BigNumber) => {
+			updateProvider(id, provider)
+			setItems(indexed)
+			setLastUpdate(Date.now())
+		}
+
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
 			const newItem = contract.interface.getEventTopic('NewItem')
 			const statusChange = contract.interface.getEventTopic('ItemStatusChange')
+			const fundItem = contract.interface.getEventTopic('FundItem')
 
 			// Listen to logs in real time
-			wsContract.on('ItemStatusChange', listener)
+			wsContract.on('ItemStatusChange', statusListener)
+			wsContract.on('FundItem', fundListener)
 
 			// Fetch historical
 			const events = await contract.queryFilter(
 				{
 					address: contract.address,
-					topics: [[newItem, statusChange]],
+					topics: [[newItem, statusChange, fundItem]],
 				},
 				0
 			)
@@ -262,14 +297,29 @@ export const useGetMarketplaceItems = (address: string) => {
 						break
 
 					case statusChange:
-						const { id, status } = await decodeStatusChangeEvent(
-							event,
-							contract.interface
-						)
-						const data = metadata[id.toString()]
+						// eslint-disable-next-line no-lone-blocks
+						{
+							const { id, status } = await decodeStatusChangeEvent(
+								event,
+								contract.interface
+							)
+							const data = metadata[id.toString()]
 
-						if (shouldUpdate(event, data)) {
-							updateMetadata(id, data.metadata, status, event.transactionHash)
+							if (shouldUpdate(event, data)) {
+								updateMetadata(id, data.metadata, status, event.transactionHash)
+							}
+						}
+						break
+
+					case fundItem:
+						// eslint-disable-next-line no-lone-blocks
+						{
+							const { id, provider } = await decodeFundItemEvent(
+								event,
+								contract.interface
+							)
+
+							updateProvider(id, provider)
 						}
 
 						break
@@ -282,7 +332,8 @@ export const useGetMarketplaceItems = (address: string) => {
 		})()
 
 		return () => {
-			wsContract.off('ItemStatusChange', listener)
+			wsContract.off('ItemStatusChange', statusListener)
+			wsContract.off('FundItem', fundListener)
 		}
 	}, [contract])
 
