@@ -12,7 +12,7 @@ import {
 	useMarketplaceTokenDecimals,
 	useMarketplaceTokenName,
 } from './services/marketplace'
-import { Item, useMarketplaceItems } from './services/marketplace-items'
+import { Item, Status, useMarketplaceItems } from './services/marketplace-items'
 
 // UI
 import { Container } from '../../ui/container'
@@ -117,6 +117,25 @@ const DisplayItems = ({ marketplace, items, decimals }: DisplayItemsProps) => {
 	)
 }
 
+const filterItems = (item: Item, me?: string) => {
+	// If the logged-in user is the seeker or the provider
+	if (item.owner === me || item.provider === me) {
+		return ![Status.Done, Status.Resolved, Status.Cancelled].includes(
+			item.status
+		)
+	}
+
+	// TODO: If the logged-in user is the marketplace owner
+	/*
+	if (me === marketplaceOwner) {
+		return item.status === Status.Disputed
+	}
+	*/
+
+	// If nothing else
+	return false
+}
+
 export const Marketplace = () => {
 	const { id } = useParams<string>()
 	if (!id) {
@@ -134,7 +153,7 @@ export const Marketplace = () => {
 		() =>
 			items.reduce(
 				([own, other]: Item[][], item) => {
-					return item.owner === address
+					return filterItems(item, address)
 						? [[...own, item], other]
 						: [own, [...other, item]]
 				},
