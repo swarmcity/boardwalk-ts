@@ -33,9 +33,12 @@ import { blobToDataURL } from '../lib/canvas'
 
 type CreateProfile = {
 	username: string
-	pictureHash?: Uint8Array
+	pictureHash: Uint8Array
 	date: string
 }
+
+// Cache
+let SYNCED = false
 
 // EIP-712
 const eip712Config: EIP712Config = {
@@ -78,8 +81,9 @@ const createCache = (waku: WakuLight) =>
 		(
 			address: string | undefined,
 			callback: (data: {
-				profile: ProfileProto
-				message: WithPayload<MessageV0>
+				profile?: ProfileProto
+				message?: WithPayload<MessageV0>
+				loading: boolean
 			}) => void,
 			hasCache: boolean
 		) => {
@@ -91,7 +95,11 @@ const createCache = (waku: WakuLight) =>
 			const { unsubscribe } = fetchLatestTopicData(
 				waku,
 				decoders,
-				async (msg: Promise<MessageV0 | undefined>) => {
+				async (msg: Promise<MessageV0 | undefined>, done?: boolean) => {
+					if (done) {
+						callback({ loading: false })
+					}
+
 					const message = (await msg) as WithPayload<MessageV0>
 					if (!message) {
 						return
@@ -99,7 +107,7 @@ const createCache = (waku: WakuLight) =>
 
 					const profile = decodeMessage(message)
 					if (profile) {
-						callback({ profile, message })
+						callback({ profile, message, loading: false })
 						return true
 					}
 				}
@@ -116,7 +124,11 @@ const createCache = (waku: WakuLight) =>
 export const ProfileCacheContext = createContext<
 	CacheContext<
 		string,
-		{ profile: ProfileProto; message: WithPayload<MessageV0> }
+		{
+			profile?: ProfileProto
+			message?: WithPayload<MessageV0>
+			loading: boolean
+		}
 	>
 >({})
 
@@ -151,7 +163,7 @@ export const createProfile = async (
 
 export const useProfile = (address?: string) => {
 	const { data, ...state } = useEventDrivenCache(ProfileCacheContext, address)
-	return { ...state, ...data, loading: !data?.profile }
+	return { ...state, ...data, loading: data?.loading ?? true }
 }
 
 const postPicture = async (waku: WakuLight, dataUri?: string) => {
@@ -169,12 +181,14 @@ const updateProfile = async (
 	connector: { getSigner: () => Promise<Signer> },
 	profile: Profile
 ) => {
-	const pictureHash = await postPicture(waku, profile.avatar)
+	const pictureHash = profile.avatar
+		? await postPicture(waku, profile.avatar)
+		: undefined
 
 	await createProfile(waku, connector, {
 		username: profile.username,
 		date: profile.lastUpdate.toISOString(),
-		pictureHash,
+		pictureHash: pictureHash ?? new Uint8Array(),
 	})
 
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -186,19 +200,21 @@ export const useSyncProfile = () => {
 	const { waku, waiting } = useWaku([Protocols.LightPush])
 	const { address, connector } = useAccount()
 	const [profile] = useStore.profile()
-	const { profile: wakuProfile, message } = useProfile(profile?.address ?? '')
+	const {
+		profile: wakuProfile,
+		message,
+		loading,
+	} = useProfile(profile?.address ?? '')
 	const { data: profilePicture } = useProfilePicture(wakuProfile?.pictureHash)
 
 	useEffect(() => {
-		if (
-			!waku ||
-			!connector ||
-			!profile ||
-			!address ||
-			waiting ||
-			!wakuProfile ||
-			!profilePicture
-		) {
+		if (!waku || !connector || !profile || !address || waiting || loading) {
+			return
+		}
+
+		// Do not run this again if we already did a sync action. This is a hack because
+		// `useProfile` doesn't update automatically and thus constantly triggers the upload
+		if (SYNCED) {
 			return
 		}
 
@@ -209,11 +225,15 @@ export const useSyncProfile = () => {
 			return
 		}
 
+		// Assume some sync action is going to be carried out. This also avoids race conditions.
+		SYNCED = true
+
+		// Compare the dates
 		const wakuDate = new Date(wakuProfile?.date ?? 0)
 		const profileDate = new Date(profile?.lastUpdate ?? 0)
 
 		// If remote is more recent
-		if (wakuDate > profileDate) {
+		if (wakuDate > profileDate && profilePicture) {
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-expect-error
 			setStore.profile.username(wakuProfile.username)
@@ -232,14 +252,14 @@ export const useSyncProfile = () => {
 		}
 
 		// If the local profile is more recent, store it
-		if (profileDate > wakuDate) {
+		else if (profileDate > wakuDate) {
 			// TODO: Remove cast after Partial is removed from Partial<Profile> in store
 			updateProfile(waku, connector, profile as Profile)
 			return
 		}
 
 		// If both profiles are in sync, only update the profile once a day
-		if (
+		else if (
 			message &&
 			Date.now() - (profile.lastSync?.getTime() ?? 0) > 24 * 60 * 60 * 1000
 		) {
@@ -251,5 +271,10 @@ export const useSyncProfile = () => {
 				}
 			)
 		}
-	}, [waku, connector, waiting, profile, wakuProfile, address, profilePicture])
+
+		// If no sync action happened, reset syncedRef
+		else {
+			SYNCED = false
+		}
+	}, [waku, connector, waiting, profile, loading, address, profilePicture])
 }
