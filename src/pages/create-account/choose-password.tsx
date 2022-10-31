@@ -22,17 +22,19 @@ export const ChoosePassword = () => {
 	const onClick = () => {
 		setLoading(true)
 		const wallet = Wallet.createRandom()
-		wallet.encrypt(password).then((encryptedWallet) => {
-			setProfile({
-				...profile,
-				encryptedWallet,
-				address: wallet.address,
-				lastUpdate: new Date(),
-				chatBaseKey: crypto.getRandomValues(new Uint8Array(32)),
+		wallet
+			.encrypt(password, { scrypt: { N: 16384 } })
+			.then((encryptedWallet) => {
+				setProfile({
+					...profile,
+					encryptedWallet,
+					address: wallet.address,
+					lastUpdate: new Date(),
+					chatBaseKey: crypto.getRandomValues(new Uint8Array(32)),
+				})
+				setLoading(false)
+				navigate(ACCOUNT_CREATED)
 			})
-			setLoading(false)
-			navigate(ACCOUNT_CREATED)
-		})
 	}
 
 	if (showPrompt)
