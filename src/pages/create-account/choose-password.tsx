@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconButton, Input } from '@swarm-city/ui-library'
+import { getAddress } from '@ethersproject/address'
 
 import warningBlue from '../../assets/imgs/warningBlue.svg?url'
 import { ACCOUNT_CREATED } from '../../routes'
@@ -28,7 +29,7 @@ export const ChoosePassword = () => {
 				setProfile({
 					...profile,
 					encryptedWallet,
-					address: wallet.address,
+					address: getAddress(wallet.address),
 					lastUpdate: new Date(),
 					chatBaseKey: crypto.getRandomValues(new Uint8Array(32)),
 				})

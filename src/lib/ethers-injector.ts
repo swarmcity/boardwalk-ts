@@ -1,7 +1,7 @@
 import { getAddress } from '@ethersproject/address'
-import { hexValue } from '@ethersproject/bytes'
 import { BaseProvider, JsonRpcProvider } from '@ethersproject/providers'
-import { Connector, chain, ConnectorNotFoundError, Chain } from 'wagmi'
+import { Connector, ConnectorNotFoundError, Chain } from 'wagmi'
+import { SwitchChainError } from '@wagmi/core'
 
 // Types
 import type { Wallet } from '@ethersproject/wallet'
@@ -28,7 +28,8 @@ function normalizeChainId(chainId: string | number) {
 
 export class EthersConnector extends Connector<
 	Provider,
-	EthersConnectorOptions
+	EthersConnectorOptions,
+	Wallet
 > {
 	readonly id = 'ethers'
 	readonly name = 'Ethers'
@@ -71,7 +72,7 @@ export class EthersConnector extends Connector<
 		this.#manager.off('chainChanged', this.onChainChanged)
 		this.#manager.off('accountsChanged', this.onAccountsChanged)
 
-		this.#manager.account = ''
+		this.#manager.account = null
 	}
 
 	async getAccount() {
@@ -94,7 +95,7 @@ export class EthersConnector extends Connector<
 				this.chains.find((chain) => chain.id === this.#manager.chainId) ||
 				this.chains[0]
 
-			this.#provider = new JsonRpcProvider(chain.rpcUrls.default, {
+			this.#provider = new JsonRpcProvider(chain.rpcUrls.default.http[0], {
 				name: chain.network,
 				chainId: chain.id,
 			})
@@ -112,16 +113,11 @@ export class EthersConnector extends Connector<
 	}
 
 	async switchChain(chainId: number) {
-		const id = hexValue(chainId)
-		const chains = [...this.chains, ...Object.values(chain)]
-		return (
-			chains.find((x) => x.id === chainId) ?? {
-				id: chainId,
-				name: `Chain ${id}`,
-				network: `${id}`,
-				rpcUrls: { default: '' },
-			}
-		)
+		const chain = this.chains.find((chain) => chain.id === chainId)
+		if (!chain) {
+			throw new SwitchChainError(new Error('chain not found on connector.'))
+		}
+		return chain
 	}
 
 	async watchAsset(): Promise<boolean> {
