@@ -1,8 +1,11 @@
 import { Status } from '../pages/marketplaces/services/marketplace-items'
 
+// Types
+import type { Address } from '@wagmi/core'
+
 export type Profile = {
 	username: string
-	address: string
+	address: Address
 	encryptedWallet: string
 	avatar?: string
 	lastUpdate: Date

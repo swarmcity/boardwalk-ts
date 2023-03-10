@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { WagmiConfig, createClient, configureChains, Chain } from 'wagmi'
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
+import { WagmiConfig, createClient, configureChains } from 'wagmi'
+import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { publicProvider } from 'wagmi/providers/public'
 
 // Pages
 import { Login } from './pages/login'
@@ -47,12 +48,10 @@ import { ProfilePictureCacheProvider } from './services/profile-picture'
 const { chains, provider, webSocketProvider } = configureChains(
 	[WAGMI_CHAIN],
 	[
-		jsonRpcProvider({
-			rpc: (chain: Chain) => ({
-				http: chain.rpcUrls.default,
-				webSocket: chain.rpcUrls.webSocket,
-			}),
+		alchemyProvider({
+			apiKey: 'GPR_qF9l_vj-iDb1Kdg3cjDBB-ktJ7Lt',
 		}),
+		publicProvider(),
 	]
 )
 
