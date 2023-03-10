@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Wallet } from 'ethers'
 import { utils } from 'js-waku'
 import { verifyTypedData } from '@ethersproject/wallet'
 import { getAddress } from '@ethersproject/address'
@@ -31,6 +30,7 @@ import {
 
 // Services
 import { getKeyExchange } from '../../../services/chat'
+import { canSignTypedData } from '../../../services/eip-712'
 
 export type CreateReply = {
 	text: string
@@ -73,6 +73,7 @@ export const getItemTopic = (marketplace: string, item: string) => {
 	return `/swarmcity/1/marketplace-${marketplace}-item-${item}/proto`
 }
 
+// TODO: Use EIP-712 service
 export const createReply = async (
 	waku: WakuLight,
 	marketplace: string,
@@ -83,7 +84,7 @@ export const createReply = async (
 	// Get signer
 	const from = await signer.getAddress()
 
-	if (!(signer instanceof Wallet)) {
+	if (!canSignTypedData(signer)) {
 		throw new Error('not implemented yet')
 	}
 

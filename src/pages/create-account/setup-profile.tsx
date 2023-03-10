@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
+import { useAccount } from 'wagmi'
 
 // Store and routes
 import { useStore } from '../../store'
-import { ACCOUNT_PASSWORD } from '../../routes'
+import { ACCOUNT_PASSWORD, MARKETPLACES } from '../../routes'
 
 // Components
 import { UserCreateStop } from '../../components/modals/user-create-stop'
@@ -20,9 +21,24 @@ import { Arrow } from '../../ui/icons/arrow'
 export const SetupProfile = () => {
 	const [profile, setProfile] = useStore.profile()
 	const navigate = useNavigate()
+	const { address, connector } = useAccount()
+
 	const onSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
-		navigate(ACCOUNT_PASSWORD)
+
+		// For the local (ethers) connector
+		if (!connector) {
+			navigate(ACCOUNT_PASSWORD)
+			return
+		}
+
+		setProfile({
+			...profile,
+			address,
+			lastUpdate: new Date(),
+			chatBaseKey: crypto.getRandomValues(new Uint8Array(32)),
+		})
+		navigate(MARKETPLACES)
 	}
 
 	return (
@@ -91,13 +107,13 @@ export const SetupProfile = () => {
 						>
 							Username
 						</Input>
+						<IconButton
+							style={{ marginTop: 45 }}
+							variant="conflictNext"
+							disabled={!profile?.username}
+							type="submit"
+						/>
 					</form>
-					<IconButton
-						style={{ marginTop: 45 }}
-						variant="conflictNext"
-						disabled={!profile?.username}
-						onClick={() => navigate(ACCOUNT_PASSWORD)}
-					/>
 				</main>
 			</Container>
 		</div>

@@ -1,12 +1,40 @@
 import { useNavigate } from 'react-router-dom'
 import { Button, IconButton } from '@swarm-city/ui-library'
+import { useAccount, useChainId, useConnect } from 'wagmi'
+import { InjectedConnector } from 'wagmi/connectors/injected'
+
+// Routes
 import { ACCOUNT_RESTORE, CREATE_ACCOUNT } from '../routes'
+
+// UI
 import { getColor } from '../ui/colors'
 import { Typography } from '../ui/typography'
 import { Container } from '../ui/container'
 
 export const Login = () => {
 	const navigate = useNavigate()
+	const chainId = useChainId()
+
+	const { isConnected } = useAccount()
+	const { connectAsync, connectors, error } = useConnect()
+	const connector = connectors.find(
+		(connector) => connector.constructor === InjectedConnector
+	)
+
+	const connectInjected = async () => {
+		if (isConnected) {
+			navigate(CREATE_ACCOUNT)
+			return
+		}
+
+		try {
+			await connectAsync({ connector, chainId })
+			navigate(CREATE_ACCOUNT)
+		} catch (_) {
+			// Will be available in the `error` variable
+		}
+	}
+
 	return (
 		<div
 			style={{
@@ -64,6 +92,21 @@ export const Login = () => {
 							restore account
 						</Button>
 					</div>
+					{connector && (
+						<div style={{ marginTop: 20, color: 'white' }}>
+							<Button
+								color="blue-light"
+								bg
+								size="large"
+								onClick={() => connectInjected()}
+								style={{ margin: 5 }}
+								disabled={!connector.ready}
+							>
+								{connector.name}
+							</Button>
+							{error && <p>{error.message}</p>}
+						</div>
+					)}
 				</div>
 			</Container>
 		</div>

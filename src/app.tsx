@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { WagmiConfig, createClient, configureChains } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
+import { InjectedConnector } from 'wagmi/connectors/injected'
 
 // Pages
 import { Login } from './pages/login'
@@ -48,9 +49,7 @@ import { ProfilePictureCacheProvider } from './services/profile-picture'
 const { chains, provider, webSocketProvider } = configureChains(
 	[WAGMI_CHAIN],
 	[
-		alchemyProvider({
-			apiKey: 'GPR_qF9l_vj-iDb1Kdg3cjDBB-ktJ7Lt',
-		}),
+		alchemyProvider({ apiKey: 'GPR_qF9l_vj-iDb1Kdg3cjDBB-ktJ7Lt' }),
 		publicProvider(),
 	]
 )
@@ -71,6 +70,7 @@ const getClient = (ref: RefObject<PasswordSignerRef>) => {
 					},
 				},
 			}),
+			new InjectedConnector(),
 		],
 		provider,
 		webSocketProvider,
