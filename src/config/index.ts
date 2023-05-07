@@ -1,1 +1,1 @@
-export * from './testnet'
+export * from './production'
