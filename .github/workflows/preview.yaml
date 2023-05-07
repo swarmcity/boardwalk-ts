@@ -22,10 +22,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install npm deps
-        run: npm ci
+        run: pnpm i --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
 
       - name: Create preview
         uses: filoozom/swarm-actions/pr-preview@v0

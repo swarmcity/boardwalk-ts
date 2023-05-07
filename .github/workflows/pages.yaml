@@ -44,11 +44,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install npm deps
-        run: npm ci
+        run: pnpm i --frozen-lockfile
 
       - name: Build for gh-pages
         run: |
-          npm run build
+          pnpm run build
           echo "{{ env.CNAME }}" > ./dist/CNAME
           cp ./dist/index.html ./dist/404.html
 

@@ -22,7 +22,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install npm deps
-        run: npm ci
+        run: pnpm i --frozen-lockfile
 
       - name: Run linting test
-        run: npm run lint
+        run: pnpm run lint
