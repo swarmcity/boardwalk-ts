@@ -12,8 +12,12 @@ jobs:
       NODE_VERSION: 18
 
     steps:
-      - name: Install pnpm
-        run: curl -fsSL https://get.pnpm.io/install.sh | sh -
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+          run_install: false
 
       - name: Checkout
         uses: actions/checkout@v3
