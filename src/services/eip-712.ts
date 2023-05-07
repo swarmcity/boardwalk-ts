@@ -1,12 +1,13 @@
 import { arrayify, hexlify } from '@ethersproject/bytes'
 import { getAddress } from '@ethersproject/address'
-import { verifyTypedData, Wallet } from '@ethersproject/wallet'
+import { verifyTypedData } from '@ethersproject/wallet'
 
 // Types
 import type {
 	TypedDataDomain,
 	TypedDataField,
 	Signer,
+	TypedDataSigner,
 } from '@ethersproject/abstract-signer'
 import type { SignatureLike } from '@ethersproject/bytes'
 import type { Uint8ArrayList } from 'uint8arraylist'
@@ -16,6 +17,8 @@ export type EIP712Config = {
 	domain: TypedDataDomain
 	types: Record<string, TypedDataField[]>
 }
+
+export type SignerWithTypedData = Signer & TypedDataSigner
 
 type Proto<ProtoType> = {
 	encode: (obj: ProtoType) => Uint8Array
@@ -48,6 +51,13 @@ const getVerifyPayloadConfig = <ProtoType>(
 		...config,
 		getSignature: config.getSignature || defaultGetSignature,
 	}
+}
+
+export const canSignTypedData = (
+	signer: Signer
+): signer is SignerWithTypedData => {
+	// @ts-expect-error `_signTypedData` can actually exist on Signers
+	return typeof signer._signTypedData === 'function'
 }
 
 export const verifyPayload = <ProtoType extends Record<string, unknown>>(
@@ -102,7 +112,7 @@ export const createSignedPayload = async <
 	const values = formatDataToSign(address)
 
 	// Check if the signer is a Wallet
-	if (!(signer instanceof Wallet)) {
+	if (!canSignTypedData(signer)) {
 		throw new Error('not implemented yet')
 	}
 

@@ -1,8 +1,11 @@
 import { BaseProvider } from '@ethersproject/providers'
 import { EventEmitter } from 'eventemitter3'
 
+// Types
+import type { Address } from '@wagmi/core'
+
 export class AccountManager extends EventEmitter {
-	#account: string | null
+	#account: Address | null
 	#chainId: number | null
 	#provider: BaseProvider | null
 
@@ -22,7 +25,7 @@ export class AccountManager extends EventEmitter {
 		return this.#account
 	}
 
-	set account(account: string | null) {
+	set account(account: Address | null) {
 		this.#account = account
 		this.emit('accountsChanged', [account])
 	}
