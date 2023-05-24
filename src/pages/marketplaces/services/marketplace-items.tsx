@@ -19,14 +19,14 @@ import { ItemMetadata } from '../../../protos/item-metadata'
 
 // ABIs
 import marketplaceAbi from '../../../abis/marketplace.json'
-import erc20Abi from '../../../abis/erc20.json'
 
 // Lib
-import { bufferToHex, numberToBigInt } from '../../../lib/tools'
+import { bufferToHex } from '../../../lib/tools'
 import { shouldUpdate } from '../../../lib/blockchain'
 
 // Services
 import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
+import { approveFundAmount } from './marketplace'
 
 // Status
 export enum Status {
@@ -91,26 +91,18 @@ export const createItem = async (
 	// Get the marketplace contract
 	const contract = new Contract(marketplace, marketplaceAbi, signer)
 
-	// Get token decimals
-	const tokenAddress = await contract.token()
-	const token = new Contract(tokenAddress, erc20Abi, signer)
-	const decimals = await token.decimals()
-
 	// Post the metadata on Waku
 	await waku.lightPush.push(new EncoderV0(getItemTopic(marketplace)), {
 		payload,
 	})
 
-	// Convert the price to bigint
-	const amount = numberToBigInt(price, decimals)
-	const amountToApprove = amount + (await contract.fee()).toBigInt() / 2n
-
-	// Approve the tokens to be spent by the marketplace
-	const approveTx = await token.approve(marketplace, amountToApprove)
-	await approveTx.wait()
+	// Get the amounts and approve the token if necessary
+	const { amount, value } = await approveFundAmount(contract, price, signer)
 
 	// Post the item on chain
-	const tx = await contract.newItem(amount, amount, new Uint8Array(hash))
+	const tx = await contract.newItem(amount, amount, new Uint8Array(hash), {
+		value,
+	})
 	const { logs } = await tx.wait()
 
 	// Get the item ID
