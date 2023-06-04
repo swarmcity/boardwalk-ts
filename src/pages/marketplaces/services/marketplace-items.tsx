@@ -100,7 +100,9 @@ export const createItem = async (
 	const { amount, value } = await approveFundAmount(contract, price, signer)
 
 	// Post the item on chain
-	const tx = await contract.newItem(amount, new Uint8Array(hash), { value })
+	const tx = await contract.newItem(amount, amount, new Uint8Array(hash), {
+		value,
+	})
 	const { logs } = await tx.wait()
 
 	// Get the item ID
