@@ -1,15 +1,16 @@
-import { polygonZkEvm } from '@wagmi/chains'
+import { gnosis } from '@wagmi/chains'
+import { constants } from 'ethers'
 
 // Types
 import type { Chain } from 'wagmi'
 
-export const WAGMI_CHAIN: Chain = polygonZkEvm
-export const MARKETPLACE_LIST = '0x6AB0c42ff1000561c5DF9249B5A53A5662006b60'
-export const HASHTAG_FACTORY = '0x17F55dAe13eD89eA37c9fc2cD204466b43A46727'
-export const APP_TOKEN = '0xC5015b9d9161Dca7e18e32f6f25C4aD850731Fd4'
+export const WAGMI_CHAIN: Chain = gnosis
+export const MARKETPLACE_LIST = '0x72FdB3f1B2A70F4B969864D0B7EcB246B4Ba5F7F'
+export const HASHTAG_FACTORY = '0x1872524b7D5F0BbB975E2E9EE1a226b72c2dB0D3'
+export const APP_TOKEN = constants.AddressZero
 
 const { http } = WAGMI_CHAIN.rpcUrls.default
-const webSocket = ['wss://zkevm-rpc.com']
+const webSocket = ['wss://rpc.gnosischain.com/wss']
 
 WAGMI_CHAIN.rpcUrls = {
 	public: { http, webSocket },
