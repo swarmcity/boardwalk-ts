@@ -184,7 +184,7 @@ export const Account = () => {
 											onClick={() => {
 												setProfile({
 													...profile,
-													username: username!,
+													username: username,
 													lastUpdate: new Date(),
 												})
 												setEditingUsername(false)
