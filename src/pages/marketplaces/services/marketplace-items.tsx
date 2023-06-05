@@ -42,6 +42,7 @@ export enum Status {
 type CreateItem = {
 	price: number
 	description: string
+	escrow: number | null
 }
 
 type WakuItem = {
@@ -81,7 +82,7 @@ export const getItemTopic = (address: string) => {
 export const createItem = async (
 	waku: WakuLight,
 	marketplace: string,
-	{ price, description }: CreateItem,
+	{ price, description, escrow }: CreateItem,
 	signer: Signer
 ) => {
 	// Create the metadata
@@ -100,9 +101,12 @@ export const createItem = async (
 	const { amount, value } = await approveFundAmount(contract, price, signer)
 
 	// Post the item on chain
-	const tx = await contract.newItem(amount, amount, new Uint8Array(hash), {
-		value,
-	})
+	const tx = await contract.newItem(
+		amount,
+		escrow === null ? amount : escrow,
+		new Uint8Array(hash),
+		{ value }
+	)
 	const { logs } = await tx.wait()
 
 	// Get the item ID
