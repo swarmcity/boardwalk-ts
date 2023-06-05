@@ -26,7 +26,11 @@ import { shouldUpdate } from '../../../lib/blockchain'
 
 // Services
 import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
-import { approveFundAmount } from './marketplace'
+import {
+	approveFundAmount,
+	priceToDecimals,
+	getMarketplaceTokenContract,
+} from './marketplace'
 
 // Status
 export enum Status {
@@ -100,10 +104,17 @@ export const createItem = async (
 	// Get the amounts and approve the token if necessary
 	const { amount, value } = await approveFundAmount(contract, price, signer)
 
+	// Escrow amount
+	let escrowAmount = amount
+	if (escrow !== null) {
+		const token = await getMarketplaceTokenContract(contract.address, signer)
+		escrowAmount = await priceToDecimals(token, escrow)
+	}
+
 	// Post the item on chain
 	const tx = await contract.newItem(
 		amount,
-		escrow === null ? amount : escrow,
+		escrowAmount,
 		new Uint8Array(hash),
 		{ value }
 	)

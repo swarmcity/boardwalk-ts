@@ -351,7 +351,7 @@ export const useTokenDecimals = (tokenAddress?: string) => {
 	return { decimals, loading }
 }
 
-const priceToDecimals = async (
+export const priceToDecimals = async (
 	token: Contract,
 	price: number | bigint,
 	decimalsOverride?: number
