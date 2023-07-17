@@ -19,14 +19,18 @@ import { ItemMetadata } from '../../../protos/item-metadata'
 
 // ABIs
 import marketplaceAbi from '../../../abis/marketplace.json'
-import erc20Abi from '../../../abis/erc20.json'
 
 // Lib
-import { bufferToHex, numberToBigInt } from '../../../lib/tools'
+import { bufferToHex } from '../../../lib/tools'
 import { shouldUpdate } from '../../../lib/blockchain'
 
 // Services
 import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
+import {
+	approveFundAmount,
+	priceToDecimals,
+	getMarketplaceTokenContract,
+} from './marketplace'
 
 // Status
 export enum Status {
@@ -42,6 +46,7 @@ export enum Status {
 type CreateItem = {
 	price: number
 	description: string
+	escrow: number | null
 }
 
 type WakuItem = {
@@ -81,7 +86,7 @@ export const getItemTopic = (address: string) => {
 export const createItem = async (
 	waku: WakuLight,
 	marketplace: string,
-	{ price, description }: CreateItem,
+	{ price, description, escrow }: CreateItem,
 	signer: Signer
 ) => {
 	// Create the metadata
@@ -91,26 +96,28 @@ export const createItem = async (
 	// Get the marketplace contract
 	const contract = new Contract(marketplace, marketplaceAbi, signer)
 
-	// Get token decimals
-	const tokenAddress = await contract.token()
-	const token = new Contract(tokenAddress, erc20Abi, signer)
-	const decimals = await token.decimals()
-
 	// Post the metadata on Waku
 	await waku.lightPush.push(new EncoderV0(getItemTopic(marketplace)), {
 		payload,
 	})
 
-	// Convert the price to bigint
-	const amount = numberToBigInt(price, decimals)
-	const amountToApprove = amount + (await contract.fee()).toBigInt() / 2n
+	// Get the amounts and approve the token if necessary
+	const { amount, value } = await approveFundAmount(contract, price, signer)
 
-	// Approve the tokens to be spent by the marketplace
-	const approveTx = await token.approve(marketplace, amountToApprove)
-	await approveTx.wait()
+	// Escrow amount
+	let escrowAmount = amount
+	if (escrow !== null) {
+		const token = await getMarketplaceTokenContract(contract.address, signer)
+		escrowAmount = await priceToDecimals(token, escrow)
+	}
 
 	// Post the item on chain
-	const tx = await contract.newItem(amount, amount, new Uint8Array(hash))
+	const tx = await contract.newItem(
+		amount,
+		escrowAmount,
+		new Uint8Array(hash),
+		{ value }
+	)
 	const { logs } = await tx.wait()
 
 	// Get the item ID

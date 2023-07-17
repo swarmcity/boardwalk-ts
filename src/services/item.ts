@@ -1,12 +1,12 @@
 import { splitSignature } from '@ethersproject/bytes'
 
 // Types
-import type { Signer } from 'ethers'
+import { Signer } from 'ethers'
 
 // Services
 import {
+	approveFundAmount,
 	getMarketplaceContract,
-	getMarketplaceTokenContract,
 } from '../pages/marketplaces/services/marketplace'
 import { setTheirChatKeys } from './chat'
 
@@ -21,21 +21,21 @@ export const fundItem = async (
 	keyExchange: KeyExchange
 ) => {
 	const contract = getMarketplaceContract(marketplace, signer)
-	const token = await getMarketplaceTokenContract(marketplace, signer)
 
-	// Get the price
+	// Get the price and fee
 	const { price, fee } = await contract.items(item)
 
-	// Convert the price to bigint
-	const amountToApprove = price.add(fee.div(2))
-
-	// Approve the tokens to be spent by the marketplace
-	const approveTx = await token.approve(marketplace, amountToApprove)
-	await approveTx.wait()
+	// Get the amounts and approve the token if necessary
+	const { value } = await approveFundAmount(
+		contract,
+		price.toBigInt(),
+		signer,
+		fee.toBigInt()
+	)
 
 	// Fund the item
 	const { v, r, s } = splitSignature(signature)
-	const tx = await contract.fundItem(item, v, r, s)
+	const tx = await contract.fundItem(item, v, r, s, { value })
 	await tx.wait()
 
 	// Set the keys of the item once we fund it

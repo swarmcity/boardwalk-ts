@@ -35,6 +35,7 @@ export const MarketplaceListItem = () => {
 
 	const [description, setDescription] = useState<string>()
 	const [price, setPrice] = useState<number>()
+	const [escrow, setEscrow] = useState<number | null>(null)
 	const [confirmationReq, setConfirmationReq] = useState<boolean>(false)
 	const { waku, waiting } = useWaku()
 	const { connector } = useAccount()
@@ -61,7 +62,7 @@ export const MarketplaceListItem = () => {
 			const signer = await connector.getSigner()
 			setLoading(true)
 
-			await createItem(waku, id, { price, description }, signer)
+			await createItem(waku, id, { price, description, escrow }, signer)
 			setLoading(false)
 
 			navigate(`/marketplace/${id}`)
@@ -211,6 +212,38 @@ export const MarketplaceListItem = () => {
 									}}
 								>
 									+ {fee} {tokenName} fee
+								</div>
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'flex-end',
+									}}
+								>
+									<div style={{ flexGrow: 1, marginTop: 40 }}>
+										<Input
+											id="escrow"
+											onChange={(event) => {
+												setEscrow(
+													event.currentTarget.value === ''
+														? null
+														: Number(event.currentTarget.value)
+												)
+											}}
+										>
+											Escrow amount (defaults to offer)
+										</Input>
+									</div>
+									<Typography
+										variant="body-bold-16"
+										color="yellow"
+										style={{
+											width: 100,
+											marginLeft: 10,
+										}}
+									>
+										{tokenName}
+									</Typography>
 								</div>
 							</div>
 							<div

@@ -36,6 +36,7 @@ import {
 	useTokenName,
 } from '../marketplaces/services/marketplace'
 import { APP_TOKEN } from '../../config'
+import { Wallet, constants } from 'ethers'
 
 const formatRequest = ({
 	address,
@@ -93,7 +94,11 @@ const Send = ({ closeModal, tokenName }: Props) => {
 			const signer = await connector.getSigner()
 			setSending(true)
 
-			await token.connect(signer).transfer(to, value)
+			if (token.address === constants.AddressZero) {
+				await (signer as Wallet).sendTransaction({ to, value })
+			} else {
+				await token.connect(signer).transfer(to, value)
+			}
 
 			setSending(false)
 			setSentSuccessfully(true)

@@ -1,6 +1,6 @@
-import { BigNumber, BigNumberish, Contract, Signer } from 'ethers'
+import { BigNumber, BigNumberish, Contract, Signer, constants } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
-import { useProvider, useWebSocketProvider } from 'wagmi'
+import { useNetwork, useProvider, useWebSocketProvider } from 'wagmi'
 import {
 	JsonRpcBatchProvider,
 	JsonRpcProvider,
@@ -13,11 +13,12 @@ import erc20Abi from '../../../abis/erc20.json'
 
 // Lib
 import { cleanOutput } from '../../../lib/ethers'
+import { getCache, useCache } from '../../../lib/cache'
+import { numberToBigInt } from '../../../lib/tools'
 
 // Services
 import { Status } from './marketplace-items'
 import { useReputation } from '../../../services/reputation'
-import { getCache, useCache } from '../../../lib/cache'
 
 // Cache
 const TOKEN_NAME_CACHE: Map<string, Promise<string> | undefined> = new Map()
@@ -146,6 +147,7 @@ export const useMarketplaceTokenContract = (marketplace?: string) => {
 	return token
 }
 
+// TODO: Deduplicate with useTokenDecimals
 export const useMarketplaceTokenDecimals = (address?: string) => {
 	const [loading, setLoading] = useState(true)
 	const [decimals, setDecimals] = useState<number | undefined>(undefined)
@@ -155,6 +157,12 @@ export const useMarketplaceTokenDecimals = (address?: string) => {
 
 	useEffect(() => {
 		if (!token) {
+			return
+		}
+
+		if (token.address === constants.AddressZero) {
+			setDecimals(18)
+			setLoading(false)
 			return
 		}
 
@@ -239,7 +247,17 @@ export const useMarketplaceTokenName = (
 	address?: string
 ): string | undefined => {
 	const token = useMarketplaceTokenContract(address)
-	return useCache(TOKEN_NAME_CACHE, address, () => token?.name(), [token])
+	const { chain } = useNetwork()
+
+	return useCache(
+		TOKEN_NAME_CACHE,
+		address,
+		() =>
+			token?.address === constants.AddressZero
+				? chain?.nativeCurrency.symbol
+				: token?.name(),
+		[token]
+	)
 }
 
 export const useMarketplaceTokenBalanceOf = (
@@ -273,9 +291,18 @@ export const useTokenBalanceOf = (
 ): BigNumber | undefined => {
 	const [balance, setBalance] = useState<BigNumber | undefined>()
 	const token = useToken(tokenAddress)
+	const provider = useProvider()
 
 	useEffect(() => {
-		token?.balanceOf(userAddress).then(setBalance)
+		if (!token || !userAddress) {
+			return
+		}
+
+		if (token.address === constants.AddressZero) {
+			provider.getBalance(userAddress).then(setBalance)
+		} else {
+			token.balanceOf(userAddress).then(setBalance)
+		}
 	}, [token])
 
 	return balance
@@ -283,8 +310,17 @@ export const useTokenBalanceOf = (
 
 export const useTokenName = (tokenAddress?: string): string | undefined => {
 	const token = useToken(tokenAddress)
+	const { chain } = useNetwork()
 
-	return useCache(TOKEN_NAME_CACHE, tokenAddress, () => token?.name(), [token])
+	return useCache(
+		TOKEN_NAME_CACHE,
+		tokenAddress,
+		() =>
+			token?.address === constants.AddressZero
+				? chain?.nativeCurrency.symbol
+				: token?.name(),
+		[token]
+	)
 }
 
 export const useTokenDecimals = (tokenAddress?: string) => {
@@ -299,6 +335,12 @@ export const useTokenDecimals = (tokenAddress?: string) => {
 			return
 		}
 
+		if (token.address === constants.AddressZero) {
+			setDecimals(18)
+			setLoading(false)
+			return
+		}
+
 		// eslint-disable-next-line @typescript-eslint/no-extra-semi
 		;(async () => {
 			setDecimals(await token.decimals())
@@ -307,4 +349,60 @@ export const useTokenDecimals = (tokenAddress?: string) => {
 	}, [token])
 
 	return { decimals, loading }
+}
+
+export const priceToDecimals = async (
+	token: Contract,
+	price: number | bigint,
+	decimalsOverride?: number
+): Promise<bigint> => {
+	if (typeof price === 'bigint') {
+		return price
+	}
+
+	// Get token decimals
+	const isNative = token.address === constants.AddressZero
+	let decimals: number
+
+	if (decimalsOverride) {
+		decimals = decimalsOverride
+	} else if (isNative) {
+		decimals = 18
+	} else {
+		decimals = await token.decimals()
+	}
+
+	// Convert the price to bigint
+	return numberToBigInt(price, decimals)
+}
+
+export const approveFundAmount = async (
+	marketplace: Contract,
+	price: number | bigint,
+	signer: Signer,
+	fee?: bigint
+) => {
+	const token = await getMarketplaceTokenContract(marketplace.address, signer)
+
+	if (!fee) {
+		fee = (await marketplace.fee()).toBigInt() / 2n
+	}
+
+	// Exception if the token is the zero address (use the native token)
+	if (token.address === constants.AddressZero) {
+		const amount = await priceToDecimals(token, price, 18)
+		const value = amount + fee
+
+		return { amount, value }
+	}
+
+	// Convert the price to bigint
+	const amount = await priceToDecimals(token, price)
+	const amountToApprove = amount + fee
+
+	// Approve the tokens to be spent by the marketplace
+	const approveTx = await token.approve(marketplace.address, amountToApprove)
+	await approveTx.wait()
+
+	return { amount, value: 0 }
 }

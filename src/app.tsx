@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { WagmiConfig, createClient, configureChains } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
-import { publicProvider } from 'wagmi/providers/public'
 
 // Pages
 import { Login } from './pages/login'
@@ -33,6 +32,7 @@ import { WAGMI_CHAIN } from './config'
 // Lib
 import { EthersConnector } from './lib/ethers-injector'
 import { AccountManager } from './lib/account-manager'
+import { publicProvider } from './lib/public-with-ws'
 
 // Hooks
 import { WakuProvider } from './hooks/use-waku'
