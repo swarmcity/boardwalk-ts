@@ -91,6 +91,12 @@
 			{
 				"indexed": false,
 				"internalType": "uint256",
+				"name": "deposit",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
 				"name": "fee",
 				"type": "uint256"
 			},
@@ -126,7 +132,7 @@
 				"type": "address"
 			}
 		],
-		"name": "OwnerUpdated",
+		"name": "OwnershipTransferred",
 		"type": "event"
 	},
 	{
@@ -258,7 +264,7 @@
 		],
 		"name": "fundItem",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -302,6 +308,19 @@
 		"name": "init",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "initialized",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -377,6 +396,11 @@
 			},
 			{
 				"internalType": "uint256",
+				"name": "deposit",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
 				"name": "providerRep",
 				"type": "uint256"
 			},
@@ -438,6 +462,11 @@
 				"type": "uint256"
 			},
 			{
+				"internalType": "uint256",
+				"name": "_deposit",
+				"type": "uint256"
+			},
+			{
 				"internalType": "bytes32",
 				"name": "_metadata",
 				"type": "bytes32"
@@ -451,7 +480,7 @@
 				"type": "uint256"
 			}
 		],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -515,7 +544,7 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "_seekerFraction",
+				"name": "_seekerAmount",
 				"type": "uint256"
 			}
 		],
@@ -580,19 +609,6 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "setOwner",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
 				"name": "_payoutaddress",
 				"type": "address"
 			}
@@ -613,6 +629,19 @@
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]

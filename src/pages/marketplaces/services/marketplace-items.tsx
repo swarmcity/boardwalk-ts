@@ -26,7 +26,11 @@ import { shouldUpdate } from '../../../lib/blockchain'
 
 // Services
 import { useWakuStoreQuery, WithPayload } from '../../../services/waku'
-import { approveFundAmount } from './marketplace'
+import {
+	approveFundAmount,
+	priceToDecimals,
+	getMarketplaceTokenContract,
+} from './marketplace'
 
 // Status
 export enum Status {
@@ -42,6 +46,7 @@ export enum Status {
 type CreateItem = {
 	price: number
 	description: string
+	escrow: number | null
 }
 
 type WakuItem = {
@@ -81,7 +86,7 @@ export const getItemTopic = (address: string) => {
 export const createItem = async (
 	waku: WakuLight,
 	marketplace: string,
-	{ price, description }: CreateItem,
+	{ price, description, escrow }: CreateItem,
 	signer: Signer
 ) => {
 	// Create the metadata
@@ -99,10 +104,20 @@ export const createItem = async (
 	// Get the amounts and approve the token if necessary
 	const { amount, value } = await approveFundAmount(contract, price, signer)
 
+	// Escrow amount
+	let escrowAmount = amount
+	if (escrow !== null) {
+		const token = await getMarketplaceTokenContract(contract.address, signer)
+		escrowAmount = await priceToDecimals(token, escrow)
+	}
+
 	// Post the item on chain
-	const tx = await contract.newItem(amount, amount, new Uint8Array(hash), {
-		value,
-	})
+	const tx = await contract.newItem(
+		amount,
+		escrowAmount,
+		new Uint8Array(hash),
+		{ value }
+	)
 	const { logs } = await tx.wait()
 
 	// Get the item ID
