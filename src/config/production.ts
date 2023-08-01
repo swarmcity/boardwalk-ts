@@ -9,8 +9,8 @@ export const MARKETPLACE_LIST = '0x72FdB3f1B2A70F4B969864D0B7EcB246B4Ba5F7F'
 export const HASHTAG_FACTORY = '0x1872524b7D5F0BbB975E2E9EE1a226b72c2dB0D3'
 export const APP_TOKEN = constants.AddressZero
 
-const http = ['https://rpc.gnosis.gateway.fm/']
-const webSocket = ['wss://rpc.gnosis.gateway.fm/ws']
+const http = ['https://gnosis-erigon.apyos.dev']
+const webSocket = ['wss://gnosis-erigon.apyos.dev']
 
 WAGMI_CHAIN.rpcUrls = {
 	public: { http, webSocket },
