@@ -30,7 +30,7 @@ export const fundItem = async (
 		contract,
 		price.toBigInt(),
 		signer,
-		fee.toBigInt()
+		fee.toBigInt() / 2n
 	)
 
 	// Fund the item
