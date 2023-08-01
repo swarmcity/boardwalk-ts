@@ -19,6 +19,7 @@ import { numberToBigInt } from '../../../lib/tools'
 // Services
 import { Status } from './marketplace-items'
 import { useReputation } from '../../../services/reputation'
+import { useNativeCurrency } from '../../../services/wagmi'
 
 // Cache
 const TOKEN_NAME_CACHE: Map<string, Promise<string> | undefined> = new Map()
@@ -247,15 +248,13 @@ export const useMarketplaceTokenName = (
 	address?: string
 ): string | undefined => {
 	const token = useMarketplaceTokenContract(address)
-	const { chain } = useNetwork()
+	const nativeCurrency = useNativeCurrency()
 
 	return useCache(
 		TOKEN_NAME_CACHE,
 		address,
 		() =>
-			token?.address === constants.AddressZero
-				? chain?.nativeCurrency.symbol
-				: token?.name(),
+			token?.address === constants.AddressZero ? nativeCurrency : token?.name(),
 		[token]
 	)
 }
